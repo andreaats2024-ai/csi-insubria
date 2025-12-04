@@ -293,6 +293,139 @@
             color: #0c5460;
         }
 
+        /* LOGIN STYLES */
+        .login-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-screen.active {
+            display: flex;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box h1 {
+            font-size: 28px;
+            color: var(--color-primary);
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--color-text-light);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .login-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .login-divider {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--color-text-light);
+            font-size: 14px;
+            position: relative;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .login-divider::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+        }
+
+        .login-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .login-footer p {
+            margin: 5px 0;
+            color: var(--color-text-light);
+        }
+
+        .register-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .register-header h3 {
+            margin: 0;
+            color: var(--color-primary);
+            font-size: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+        }
+
         .table-responsive {
             overflow-x: auto;
             margin-bottom: 20px;
@@ -348,12 +481,112 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🏥 Cartella Sociale Informatizzata (CSI)</h1>
-        <p>ATS Insubria - ASST e Ambiti di Competenza</p>
+    <!-- SCHERMATA DI LOGIN -->
+    <div id="loginScreen" class="login-screen active">
+        <div class="login-container">
+            <div class="login-box">
+                <h1>🏥 CSI - Cartella Sociale</h1>
+                <p class="login-subtitle">ATS Insubria</p>
+                
+                <div id="loginError" class="login-error"></div>
+                
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Operatore</label>
+                        <input 
+                            type="email" 
+                            id="loginEmail" 
+                            name="email" 
+                            placeholder="esempio@asst.it"
+                            autocomplete="username"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            name="password" 
+                            placeholder="Inserisci password"
+                            autocomplete="current-password"
+                            required>
+                    </div>
+                    
+                    <div class="checkbox-item" style="margin-bottom: 20px;">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <label for="rememberMe">Ricordami</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                        🔓 Accedi
+                    </button>
+                </form>
+                
+                <div class="login-divider">oppure</div>
+                
+                <button type="button" class="btn btn-secondary btn-register" onclick="toggleRegister()">
+                    📝 Registrati
+                </button>
+                
+                <!-- FORM REGISTRAZIONE (NASCOSTO) -->
+                <div id="registerForm" style="display: none; margin-top: 20px;">
+                    <div class="register-header">
+                        <h3>Registrazione Nuovo Operatore</h3>
+                        <button type="button" onclick="toggleRegister()" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
+                    </div>
+                    <form id="signupForm" onsubmit="handleSignup(event)">
+                        <div class="form-group">
+                            <label for="regName">Nome e Cognome</label>
+                            <input type="text" id="regName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <input type="email" id="regEmail" name="email" autocomplete="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" name="password" autocomplete="new-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regConfirm">Conferma Password</label>
+                            <input type="password" id="regConfirm" name="confirm" autocomplete="new-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="width: 100%;">
+                            ✓ Registrati
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="login-footer">
+                    <p>Credenziali Demo:</p>
+                    <p style="font-size: 12px; color: #7f8c8d;">
+                        Email: <strong>demo@asst.it</strong><br>
+                        Password: <strong>demo123</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
+    <!-- SCHERMATA PRINCIPALE (NASCOSTA FINCHÉ NON AUTENTICATO) -->
+    <div id="mainScreen" style="display: none;">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>🏥 Cartella Sociale Informatizzata (CSI)</h1>
+                    <p>ATS Insubria - ASST e Ambiti di Competenza</p>
+                </div>
+                <div class="user-info">
+                    <span id="userDisplay">Utente</span>
+                    <button type="button" class="btn btn-secondary" onclick="handleLogout()" style="margin-left: 20px;">
+                        🔐 Esci
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
         <div class="status-message" id="statusMessage"></div>
 
         <div class="tabs">
@@ -1229,13 +1462,15 @@
             </div>
         </div>
 
-        <!-- FOOTER ACTIONS -->
-        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--color-border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn btn-success" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
-            <button class="btn btn-primary" onclick="esportaDati()">📥 Esporta JSON</button>
-            <button class="btn btn-primary" onclick="visualizzaUtenti()">👥 Vedi Tutti gli Utenti</button>
-            <button class="btn btn-secondary" onclick="pulisciTutto()">🗑️ Pulisci Tutto</button>
+            <!-- FOOTER ACTIONS -->
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--color-border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-success" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
+                <button class="btn btn-primary" onclick="esportaDati()">📥 Esporta JSON</button>
+                <button class="btn btn-primary" onclick="visualizzaUtenti()">👥 Vedi Tutti gli Utenti</button>
+                <button class="btn btn-secondary" onclick="pulisciTutto()">🗑️ Pulisci Tutto</button>
+            </div>
         </div>
+    </div>
 
         <!-- Modal Utenti -->
         <div id="modalUtenti" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; overflow:auto; padding:20px;">
@@ -1278,6 +1513,135 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
 
     <script>
+        // ====== GESTIONE AUTENTICAZIONE LOCALE ======
+        // Database utenti (in produzione usare Firebase Authentication)
+        const authDatabase = {
+            'demo@asst.it': { password: 'demo123', nome: 'Demo Operatore' },
+            'operatore@asst.it': { password: 'pass1234', nome: 'Operatore ASL' }
+        };
+
+        let currentUser = null;
+
+        // Controlla se l'utente è già loggato
+        function checkAuth() {
+            const saved = sessionStorage.getItem('csi_currentUser');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                showMainScreen();
+            }
+        }
+
+        // Handle Login
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorDiv = document.getElementById('loginError');
+
+            // Validazione
+            if (!email || !password) {
+                showLoginError('Email e password sono obbligatori');
+                return;
+            }
+
+            // Autenticazione (demo - in produzione usare Firebase)
+            if (authDatabase[email] && authDatabase[email].password === password) {
+                currentUser = {
+                    email: email,
+                    nome: authDatabase[email].nome,
+                    loginTime: new Date().toISOString()
+                };
+
+                // Salva in sessionStorage
+                sessionStorage.setItem('csi_currentUser', JSON.stringify(currentUser));
+
+                // Salva in localStorage se "Ricordami" è selezionato
+                if (rememberMe) {
+                    localStorage.setItem('csi_lastUser', email);
+                }
+
+                errorDiv.classList.remove('show');
+                document.getElementById('loginForm').reset();
+                showMainScreen();
+            } else {
+                showLoginError('❌ Email o password non corretti. Prova con demo@asst.it / demo123');
+            }
+        }
+
+        // Handle Signup
+        function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value.toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+
+            // Validazione
+            if (!name || !email || !password) {
+                showLoginError('Compila tutti i campi');
+                return;
+            }
+
+            if (password.length < 6) {
+                showLoginError('La password deve contenere almeno 6 caratteri');
+                return;
+            }
+
+            if (password !== confirm) {
+                showLoginError('Le password non coincidono');
+                return;
+            }
+
+            if (authDatabase[email]) {
+                showLoginError('Questo email è già registrato');
+                return;
+            }
+
+            // Registra nuovo utente
+            authDatabase[email] = { password: password, nome: name };
+            showLoginError('✓ Registrazione completata! Accedi con le tue credenziali');
+            document.getElementById('signupForm').reset();
+            
+            setTimeout(() => {
+                document.getElementById('loginError').classList.remove('show');
+                toggleRegister();
+                document.getElementById('loginEmail').value = email;
+            }, 2000);
+        }
+
+        // Toggle Register Form
+        function toggleRegister() {
+            const form = document.getElementById('registerForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Show Login Error
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Show Main Screen
+        function showMainScreen() {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('mainScreen').style.display = 'block';
+            document.getElementById('userDisplay').textContent = `👤 ${currentUser.nome}`;
+        }
+
+        // Handle Logout
+        function handleLogout() {
+            if (confirm('Sei sicuro di voler uscire?')) {
+                currentUser = null;
+                sessionStorage.removeItem('csi_currentUser');
+                document.getElementById('mainScreen').style.display = 'none';
+                document.getElementById('loginScreen').classList.add('active');
+                document.getElementById('loginForm').reset();
+                document.getElementById('registerForm').style.display = 'none';
+            }
+        }
+
         // Firebase Configuration - ISTRUZIONI:
         // 1. Vai su Firebase Console: https://console.firebase.google.com/
         // 2. Clicca sul tuo progetto
@@ -1286,21 +1650,21 @@
         // 5. Copia il blocco firebaseConfig completo
         // 6. Incolla TUTTO (esattamente come vedi) nel codice qui sotto
         
-     const firebaseConfig = {
-  apiKey: "AIzaSyBGZTWIYlBYrR1__W_wuLE2Cozq7r-5Aqo",
-  authDomain: "csi-insubria.firebaseapp.com",
-  databaseURL: "https://csi-insubria-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "csi-insubria",
-  storageBucket: "csi-insubria.firebasestorage.app",
-  messagingSenderId: "903236739682",
-  appId: "1:903236739682:web:d71087549bcb1f635f273b",
-  measurementId: "G-7613M0ZKEZ"
-};
+        const firebaseConfig = {
+            apiKey: "COPIA_QUI_apiKey",
+            authDomain: "COPIA_QUI_authDomain",
+            databaseURL: "COPIA_QUI_databaseURL",
+            projectId: "COPIA_QUI_projectId",
+            storageBucket: "COPIA_QUI_storageBucket",
+            messagingSenderId: "COPIA_QUI_messagingSenderId",
+            appId: "COPIA_QUI_appId"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let utentiDatabase = [];
+
         // Tab Management
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -1574,6 +1938,17 @@
 
         // Auto-load from localStorage
         window.addEventListener('load', function() {
+            // Controlla autenticazione
+            checkAuth();
+
+            // Pre-popola email se "Ricordami" era selezionato
+            const lastUser = localStorage.getItem('csi_lastUser');
+            if (lastUser) {
+                document.getElementById('loginEmail').value = lastUser;
+                document.getElementById('rememberMe').checked = true;
+            }
+
+            // Carica dati salvati
             const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
             
             tabNames.forEach(tabName => {
