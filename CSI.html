@@ -1692,7 +1692,28 @@
   messagingSenderId: "903236739682",
   appId: "1:903236739682:web:d71087549bcb1f635f273b",
   measurementId: "G-7613M0ZKEZ"
+};// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBGZTWIYlBYrR1__W_wuLE2Cozq7r-5Aqo",
+  authDomain: "csi-insubria.firebaseapp.com",
+  databaseURL: "https://csi-insubria-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "csi-insubria",
+  storageBucket: "csi-insubria.firebasestorage.app",
+  messagingSenderId: "903236739682",
+  appId: "1:903236739682:web:d71087549bcb1f635f273b",
+  measurementId: "G-7613M0ZKEZ"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
