@@ -107,6 +107,84 @@
             border-bottom: 2px solid var(--color-border);
         }
 
+        /* ANIMAZIONI LOADING */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(32, 128, 145, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-primary);
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-message {
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .success-animation {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--color-success);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--color-success);
+        }
+
+        .sync-indicator.syncing {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--color-info);
+            color: var(--color-info);
+        }
+
+        .modal-backdrop {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .loading-spinner {
+                width: 16px;
+                height: 16px;
+                border-width: 2px;
+            }
+        }
+</parameter>
+
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -634,10 +712,12 @@
                     <label>Cittadinanza</label>
                     <input type="text" name="cittadinanza" value="Italia">
                 </div>
-                <div class="form-group">
+                <div class="form-group required">
                     <label>Codice Fiscale</label>
-                    <input type="text" name="codice_fiscale" placeholder="XXXXXX00X00X000X">
+                    <input type="text" name="codice_fiscale" placeholder="XXXXXX00X00X000X" required>
+                    <small style="color: var(--color-text-light); margin-top: 4px; font-size: 12px;">⚠️ Campo obbligatorio per salvare</small>
                 </div>
+</parameter>
             </div>
 
             <div class="subsection">
@@ -1464,11 +1544,23 @@
 
             <!-- FOOTER ACTIONS -->
             <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--color-border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn btn-success" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
-                <button class="btn btn-primary" onclick="esportaDati()">📥 Esporta JSON</button>
-                <button class="btn btn-primary" onclick="visualizzaUtenti()">👥 Vedi Tutti gli Utenti</button>
+                <button class="btn btn-success" id="btnSalvaCompleto" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="btnEsporta" onclick="esportaDati()">📥 Esporta JSON</button>
+                    <button class="btn btn-primary" id="btnImporta" onclick="document.getElementById('inputImporta').click()" style="cursor: pointer;">📤 Importa JSON</button>
+                    <input type="file" id="inputImporta" accept=".json" style="display: none;" onchange="importaDati(event)">
+                </div>
+                <button class="btn btn-primary" id="btnUtenti" onclick="visualizzaUtenti()">👥 Vedi Tutti gli Utenti</button>
                 <button class="btn btn-secondary" onclick="pulisciTutto()">🗑️ Pulisci Tutto</button>
             </div>
+
+            <!-- Sync Status -->
+            <div style="text-align: center; margin-top: 15px; font-size: 12px;">
+                <div id="syncStatus" class="sync-indicator">
+                    <span>✓ Sincronizzazione pronta</span>
+                </div>
+            </div>
+</parameter>
         </div>
     </div>
 
@@ -1675,14 +1767,7 @@
             }
         }
 
-        // Firebase Configuration - ISTRUZIONI:
-        // 1. Vai su Firebase Console: https://console.firebase.google.com/
-        // 2. Clicca sul tuo progetto
-        // 3. Vai su "Impostazioni Progetto" (icona ingranaggio)
-        // 4. Seleziona "Applicazioni Web" (icona </> )
-        // 5. Copia il blocco firebaseConfig completo
-        // 6. Incolla TUTTO (esattamente come vedi) nel codice qui sotto
-        
+        // ====== FIREBASE CONFIGURATION ======
         const firebaseConfig = {
             apiKey: "AIzaSyBGZTWIYlBYrR1__W_wuLE2Cozq7r-5Aqo",
             authDomain: "csi-insubria.firebaseapp.com",
@@ -1694,10 +1779,19 @@
             measurementId: "G-7613M0ZKEZ"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        // Initialize Firebase with error handling
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log('✓ Firebase inizializzato correttamente');
+        } catch (error) {
+            console.error('Errore inizializzazione Firebase:', error);
+        }
+
         let utentiDatabase = [];
+        let syncInProgress = false;
+</parameter>
 
         // Tab Management - Rimosso da qui, spostato in initializeTabListeners()
         // Questo viene ora inizializzato DOPO showMainScreen()
@@ -1741,11 +1835,12 @@
             showStatus(`Sezione "${tabName.toUpperCase()}" salvata con successo!`);
         }
 
-        // Save Complete - WITH FIREBASE INTEGRATION
+        // Save Complete - WITH VALIDATION & FIREBASE INTEGRATION
         function salvaCompleto() {
             const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
             const cartellaCompleta = {};
             
+            // Raccogli dati da tutti i tab
             tabNames.forEach(tabName => {
                 const formData = {};
                 const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
@@ -1764,27 +1859,114 @@
                 cartellaCompleta[tabName] = formData;
             });
 
-            // Save to localStorage
-            localStorage.setItem('csi_completa', JSON.stringify(cartellaCompleta));
-            localStorage.setItem('csi_data_salvataggio', new Date().toISOString());
+            // ====== VALIDAZIONE OBBLIGATORI ======
+            const cf = cartellaCompleta.anagrafica.codice_fiscale;
+            const nome = cartellaCompleta.anagrafica.nome_cognome;
+            const dataNascita = cartellaCompleta.anagrafica.data_nascita;
 
-            // SAVE TO FIREBASE DATABASE
-            const nomeUtente = cartellaCompleta.anagrafica.nome_cognome || 'Paziente Sconosciuto';
+            if (!nome || !nome.trim()) {
+                showStatus('❌ Nome e Cognome obbligatorio!', 'error');
+                return;
+            }
+
+            if (!dataNascita) {
+                showStatus('❌ Data di nascita obbligatoria!', 'error');
+                return;
+            }
+
+            if (!cf || !cf.trim()) {
+                showStatus('❌ Codice Fiscale obbligatorio per salvare!', 'error');
+                return;
+            }
+
+            if (!validaCodiceFiscale(cf)) {
+                showStatus('❌ Codice Fiscale non valido (16 caratteri: XXXXXX00X00X000X)', 'error');
+                return;
+            }
+
+            // Disabilita bottone e mostra loading
+            const btnSalva = document.getElementById('btnSalvaCompleto');
+            const originalText = btnSalva.innerHTML;
+            btnSalva.disabled = true;
+            btnSalva.innerHTML = '<span class="loading-spinner"></span>Salvataggio...';
+
+            // Aggiorna status
+            updateSyncStatus('syncing', 'Sincronizzazione in corso...');
+
+            // Salva in localStorage PRIMA di Firebase
+            try {
+                localStorage.setItem('csi_completa', JSON.stringify(cartellaCompleta));
+                localStorage.setItem('csi_data_salvataggio', new Date().toISOString());
+                localStorage.setItem('csi_cf_' + cf, JSON.stringify(cartellaCompleta));
+                console.log('✓ Dati salvati in localStorage');
+            } catch (error) {
+                console.error('Errore localStorage:', error);
+            }
+
+            // Salva in Firebase
+            if (!db) {
+                showStatus('⚠️ Firebase non disponibile - Salvataggio locale riuscito', 'success');
+                btnSalva.disabled = false;
+                btnSalva.innerHTML = originalText;
+                updateSyncStatus('ready', '✓ Sincronizzazione completata (locale)');
+                resetAllForms();
+                return;
+            }
+
             const idCartella = Date.now();
-            
-            db.ref(`pazienti/${idCartella}`).set({
+            const dataToSave = {
                 ...cartellaCompleta,
                 dataSalvataggio: new Date().toISOString(),
                 operatore: currentUser.nome,
-                operatore_email: currentUser.email
-            }).then(() => {
-                showStatus('✅ Cartella salvata nel database Firebase! ID: ' + idCartella);
-                resetAllForms();
-            }).catch(error => {
-                showStatus('❌ Errore nel salvataggio Firebase: ' + error.message, 'error');
-                console.error('Dettagli errore Firebase:', error);
-            });
+                operatore_email: currentUser.email,
+                codice_fiscale: cf
+            };
+
+            db.ref(`pazienti/${idCartella}`).set(dataToSave)
+                .then(() => {
+                    // Salva reference per ricerca veloce
+                    db.ref(`pazienti_cf/${cf}`).set(idCartella);
+                    
+                    showStatus('✅ Cartella salvata! Locale + Firebase (ID: ' + idCartella + ')', 'success');
+                    updateSyncStatus('ready', '✓ Sincronizzazione completata (online)');
+                    btnSalva.disabled = false;
+                    btnSalva.innerHTML = originalText;
+                    resetAllForms();
+                })
+                .catch(error => {
+                    showStatus('❌ Errore Firebase (dati salvati localmente): ' + error.message, 'error');
+                    updateSyncStatus('error', '✗ Errore sincronizzazione');
+                    btnSalva.disabled = false;
+                    btnSalva.innerHTML = originalText;
+                    console.error('Dettagli errore Firebase:', error);
+                });
         }
+
+        // Validazione Codice Fiscale
+        function validaCodiceFiscale(cf) {
+            if (!cf) return false;
+            cf = cf.toUpperCase().trim();
+            return /^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/.test(cf);
+        }
+
+        // Aggiorna indicatore sincronizzazione
+        function updateSyncStatus(status, message) {
+            const syncStatus = document.getElementById('syncStatus');
+            if (!syncStatus) return;
+            
+            syncStatus.className = 'sync-indicator ' + (status === 'syncing' ? 'syncing' : '');
+            
+            if (status === 'syncing') {
+                syncStatus.innerHTML = '<span class="loading-spinner"></span>' + message;
+            } else if (status === 'ready') {
+                syncStatus.innerHTML = message;
+            } else if (status === 'error') {
+                syncStatus.innerHTML = message;
+                syncStatus.style.borderColor = 'var(--color-error)';
+                syncStatus.style.color = 'var(--color-error)';
+            }
+        }
+</parameter>
 
         // Reset all forms
         function resetAllForms() {
@@ -1801,7 +1983,7 @@
             });
         }
 
-        // Export Data
+        // Export Data - Enhanced
         function esportaDati() {
             const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
             const cartellaCompleta = {};
@@ -1824,18 +2006,61 @@
                 cartellaCompleta[tabName] = formData;
             });
 
+            const cf = cartellaCompleta.anagrafica.codice_fiscale || 'CartellaSociale';
             const dataStr = JSON.stringify(cartellaCompleta, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `CartellaSociale_${new Date().toISOString().split('T')[0]}.json`;
+            link.download = `CSI_${cf}_${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
             
-            showStatus('Cartella esportata come JSON!');
+            showStatus('📥 Cartella esportata come JSON!');
         }
+
+        // Import Data - New
+        function importaDati(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+                    
+                    tabNames.forEach(tabName => {
+                        if (importedData[tabName]) {
+                            const formData = importedData[tabName];
+                            const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
+                            
+                            inputs.forEach(input => {
+                                if (input.type === 'checkbox') {
+                                    input.checked = formData[input.name] === true;
+                                } else if (input.type === 'radio') {
+                                    if (input.value === formData[input.name]) {
+                                        input.checked = true;
+                                    }
+                                } else {
+                                    input.value = formData[input.name] || '';
+                                }
+                            });
+                        }
+                    });
+
+                    showStatus('✅ Cartella importata con successo!');
+                    document.getElementById('inputImporta').value = '';
+                } catch (error) {
+                    showStatus('❌ Errore importazione file JSON: ' + error.message, 'error');
+                    console.error('Errore import:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+</parameter>
 
         // Reset Form
         function resetForm(tabName) {
@@ -1858,38 +2083,57 @@
             }
         }
 
-        // View All Users from Firebase
+        // View All Users from Firebase - Enhanced
         function visualizzaUtenti() {
             const modal = document.getElementById('modalUtenti');
             modal.style.display = 'block';
+            const corpoTabella = document.getElementById('corpoTabella');
+            corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;"><span class="loading-spinner"></span> Caricamento pazienti...</td></tr>';
+            
+            if (!db) {
+                corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Firebase non disponibile</td></tr>';
+                return;
+            }
             
             // Carica dati da Firebase
-            db.ref('pazienti').on('value', (snapshot) => {
+            db.ref('pazienti').orderByChild('dataSalvataggio').limitToLast(100).on('value', (snapshot) => {
                 utentiDatabase = [];
-                const corpoTabella = document.getElementById('corpoTabella');
                 corpoTabella.innerHTML = '';
+                document.getElementById('messaggioNessunDato').style.display = 'none';
                 
                 let count = 0;
+                const patientsArray = [];
+                
                 snapshot.forEach((childSnapshot) => {
                     const data = childSnapshot.val();
                     const anagrafica = data.anagrafica || {};
                     
-                    utentiDatabase.push({
+                    patientsArray.push({
                         id: childSnapshot.key,
                         ...data
                     });
+                });
+
+                // Ordina per data discendente (più recenti prima)
+                patientsArray.sort((a, b) => new Date(b.dataSalvataggio) - new Date(a.dataSalvataggio));
+                
+                patientsArray.forEach((patientData) => {
+                    utentiDatabase.push(patientData);
+                    const anagrafica = patientData.anagrafica || {};
                     
                     const row = document.createElement('tr');
                     row.style.borderBottom = '1px solid #ecf0f1';
+                    row.style.animation = 'slideInUp 0.3s ease-out';
                     row.innerHTML = `
-                        <td style="padding:10px;">${new Date(data.dataSalvataggio).toLocaleDateString('it-IT')}</td>
+                        <td style="padding:10px; font-weight:500;">${new Date(patientData.dataSalvataggio).toLocaleDateString('it-IT')} ${new Date(patientData.dataSalvataggio).toLocaleTimeString('it-IT')}</td>
                         <td style="padding:10px;">${anagrafica.nome_cognome || 'N/D'}</td>
-                        <td style="padding:10px;">${anagrafica.codice_fiscale || 'N/D'}</td>
+                        <td style="padding:10px; font-family:monospace; font-weight:bold; color:var(--color-primary);">${anagrafica.codice_fiscale || 'N/D'}</td>
                         <td style="padding:10px;">${anagrafica.telefono || 'N/D'}</td>
                         <td style="padding:10px;">${anagrafica.email || 'N/D'}</td>
                         <td style="padding:10px; text-align:center;">
-                            <button onclick="visualizzaDettagli('${childSnapshot.key}')" style="background:#3498db; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:12px; margin-right:5px;">👁️ Vedi</button>
-                            <button onclick="eliminaUtente('${childSnapshot.key}')" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:12px;">🗑️ Elimina</button>
+                            <button onclick="visualizzaDettagli('${patientData.id}')" style="background:#3498db; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-right:5px; transition:all 0.3s ease;" onmouseover="this.style.background='#2980b9'" onmouseout="this.style.background='#3498db'">👁️ Vedi</button>
+                            <button onclick="scaricaCartella('${patientData.id}')" style="background:#27ae60; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-right:5px; transition:all 0.3s ease;" onmouseover="this.style.background='#229954'" onmouseout="this.style.background='#27ae60'">⬇️ Scarica</button>
+                            <button onclick="eliminaUtente('${patientData.id}')" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; transition:all 0.3s ease;" onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">🗑️ Elimina</button>
                         </td>
                     `;
                     corpoTabella.appendChild(row);
@@ -1899,8 +2143,30 @@
                 if (count === 0) {
                     document.getElementById('messaggioNessunDato').style.display = 'block';
                 }
+            }, (error) => {
+                corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Errore caricamento: ' + error.message + '</td></tr>';
             });
         }
+
+        // Scarica cartella singola
+        function scaricaCartella(id) {
+            const paziente = utentiDatabase.find(p => p.id === id);
+            if (paziente) {
+                const cf = paziente.anagrafica?.codice_fiscale || 'CartellaSociale';
+                const dataStr = JSON.stringify(paziente, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `CSI_${cf}_${new Date(paziente.dataSalvataggio).toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showStatus('⬇️ Cartella scaricata: ' + cf);
+            }
+        }
+</parameter>
 
         // Search functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -1917,23 +2183,70 @@
             }
         });
 
-        // View patient details
+        // View patient details - Enhanced
         function visualizzaDettagli(id) {
             const paziente = utentiDatabase.find(p => p.id === id);
             if (paziente) {
-                alert(`PAZIENTE: ${paziente.anagrafica.nome_cognome}\n\nCodice: ${id}\nData: ${new Date(paziente.dataSalvataggio).toLocaleDateString()}\n\nDati salvati nel database. Usa "Esporta JSON" per il dettaglio completo.`);
-            }
-        }
+                const anagrafica = paziente.anagrafica || {};
+                const dettagli = `
+╔════════════════════════════════════════════════════════════════════╗
+║                     CARTELLA PAZIENTE COMPLETA                     ║
+╠════════════════════════════════════════════════════════════════════╣
 
-        // Delete patient
-        function eliminaUtente(id) {
-            if (confirm('Sei sicuro di voler eliminare questo paziente dal database?')) {
-                db.ref(`pazienti/${id}`).remove().then(() => {
-                    showStatus('Paziente eliminato dal database');
-                    visualizzaUtenti();
-                });
+📋 DATI ANAGRAFICI:
+  • Nome: ${anagrafica.nome_cognome || 'N/D'}
+  • Codice Fiscale: ${anagrafica.codice_fiscale || 'N/D'}
+  • Data Nascita: ${anagrafica.data_nascita || 'N/D'}
+  • Luogo Nascita: ${anagrafica.luogo_nascita || 'N/D'}
+  • Stato Civile: ${anagrafica.stato_civile || 'N/D'}
+  
+📞 CONTATTI:
+  • Telefono: ${anagrafica.telefono || 'N/D'}
+  • Email: ${anagrafica.email || 'N/D'}
+  • Residenza: ${anagrafica.residenza || 'N/D'}
+
+🏥 INFORMAZIONI SANITARIE:
+  • ID Database: ${id}
+  • Data Salvataggio: ${new Date(paziente.dataSalvataggio).toLocaleString('it-IT')}
+  • Operatore: ${paziente.operatore || 'N/D'}
+  
+💾 AZIONI:
+  • Scarica cartella completa in JSON
+  • Elimina dal database
+  
+╚════════════════════════════════════════════════════════════════════╝`;
+                
+                alert(dettagli);
             }
         }
+</parameter>
+
+        // Delete patient - Enhanced
+        function eliminaUtente(id) {
+            const paziente = utentiDatabase.find(p => p.id === id);
+            const nome = paziente?.anagrafica?.nome_cognome || 'Paziente';
+            const cf = paziente?.anagrafica?.codice_fiscale || '';
+            
+            if (confirm(`⚠️ Eliminare definitivamente?\n\n${nome}\nCF: ${cf}\n\nQuesta azione non può essere annullata!`)) {
+                if (!db) {
+                    showStatus('Firebase non disponibile', 'error');
+                    return;
+                }
+
+                db.ref(`pazienti/${id}`).remove()
+                    .then(() => {
+                        if (cf) {
+                            db.ref(`pazienti_cf/${cf}`).remove();
+                        }
+                        showStatus(`✅ ${nome} eliminato dal database`);
+                        setTimeout(() => visualizzaUtenti(), 500);
+                    })
+                    .catch(error => {
+                        showStatus('❌ Errore eliminazione: ' + error.message, 'error');
+                    });
+            }
+        }
+</parameter>
 
         // Export to CSV
         function esportaTabellaCSV() {
