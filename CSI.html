@@ -1524,11 +1524,17 @@
 
         // Controlla se l'utente è già loggato
         function checkAuth() {
-            const saved = sessionStorage.getItem('csi_currentUser');
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                showMainScreen();
+            try {
+                const saved = localStorage.getItem('csi_currentUser');
+                if (saved) {
+                    currentUser = JSON.parse(saved);
+                    showMainScreen();
+                    return true;
+                }
+            } catch (error) {
+                console.error('Errore accesso storage:', error);
             }
+            return false;
         }
 
         // Handle Login
@@ -1551,15 +1557,15 @@
                     email: email,
                     nome: authDatabase[email].nome,
                     loginTime: new Date().toISOString()
-                };
-
-                // Salva in sessionStorage
-                sessionStorage.setItem('csi_currentUser', JSON.stringify(currentUser));
-
-                // Salva in localStorage se "Ricordami" è selezionato
+                };            // Salva in localStorage (più affidabile di sessionStorage su HTTP)
+            try {
+                localStorage.setItem('csi_currentUser', JSON.stringify(currentUser));
                 if (rememberMe) {
                     localStorage.setItem('csi_lastUser', email);
                 }
+            } catch (error) {
+                console.error('Errore salvataggio:', error);
+            }
 
                 errorDiv.classList.remove('show');
                 document.getElementById('loginForm').reset();
@@ -1628,13 +1634,40 @@
             document.getElementById('loginScreen').classList.remove('active');
             document.getElementById('mainScreen').style.display = 'block';
             document.getElementById('userDisplay').textContent = `👤 ${currentUser.nome}`;
+            
+            // Inizializza tab listeners DOPO che mainScreen è visibile
+            setTimeout(initializeTabListeners, 100);
+        }
+
+        // Inizializza gli event listeners dei tab
+        function initializeTabListeners() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.tab-content').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    document.getElementById(tabName).classList.add('active');
+                    this.classList.add('active');
+                });
+            });
         }
 
         // Handle Logout
         function handleLogout() {
             if (confirm('Sei sicuro di voler uscire?')) {
                 currentUser = null;
-                sessionStorage.removeItem('csi_currentUser');
+                try {
+                    localStorage.removeItem('csi_currentUser');
+                } catch (error) {
+                    console.error('Errore logout:', error);
+                }
                 document.getElementById('mainScreen').style.display = 'none';
                 document.getElementById('loginScreen').classList.add('active');
                 document.getElementById('loginForm').reset();
@@ -1650,38 +1683,24 @@
         // 5. Copia il blocco firebaseConfig completo
         // 6. Incolla TUTTO (esattamente come vedi) nel codice qui sotto
         
-        const firebaseConfig = {
-            apiKey: "COPIA_QUI_apiKey",
-            authDomain: "COPIA_QUI_authDomain",
-            databaseURL: "COPIA_QUI_databaseURL",
-            projectId: "COPIA_QUI_projectId",
-            storageBucket: "COPIA_QUI_storageBucket",
-            messagingSenderId: "COPIA_QUI_messagingSenderId",
-            appId: "COPIA_QUI_appId"
-        };
+     const firebaseConfig = {
+  apiKey: "AIzaSyBGZTWIYlBYrR1__W_wuLE2Cozq7r-5Aqo",
+  authDomain: "csi-insubria.firebaseapp.com",
+  databaseURL: "https://csi-insubria-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "csi-insubria",
+  storageBucket: "csi-insubria.firebasestorage.app",
+  messagingSenderId: "903236739682",
+  appId: "1:903236739682:web:d71087549bcb1f635f273b",
+  measurementId: "G-7613M0ZKEZ"
+};
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let utentiDatabase = [];
 
-        // Tab Management
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const tabName = this.getAttribute('data-tab');
-                
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                
-                document.querySelectorAll('.tab-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                
-                document.getElementById(tabName).classList.add('active');
-                this.classList.add('active');
-            });
-        });
+        // Tab Management - Rimosso da qui, spostato in initializeTabListeners()
+        // Questo viene ora inizializzato DOPO showMainScreen()
 
         // Conditional Display
         function toggleConditional(elementId) {
@@ -1938,15 +1957,19 @@
 
         // Auto-load from localStorage
         window.addEventListener('load', function() {
-            // Controlla autenticazione
-            checkAuth();
-
             // Pre-popola email se "Ricordami" era selezionato
-            const lastUser = localStorage.getItem('csi_lastUser');
-            if (lastUser) {
-                document.getElementById('loginEmail').value = lastUser;
-                document.getElementById('rememberMe').checked = true;
+            try {
+                const lastUser = localStorage.getItem('csi_lastUser');
+                if (lastUser) {
+                    document.getElementById('loginEmail').value = lastUser;
+                    document.getElementById('rememberMe').checked = true;
+                }
+            } catch (error) {
+                console.error('Errore caricamento preferenze:', error);
             }
+
+            // Controlla autenticazione (DOPO il caricamento del DOM)
+            checkAuth();
 
             // Carica dati salvati
             const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
