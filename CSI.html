@@ -1712,7 +1712,10 @@
                 const saved = localStorage.getItem('csi_currentUser');
                 if (saved) {
                     currentUser = JSON.parse(saved);
-                    showMainScreen();
+                    // Delay per permettere al DOM di essere pronto
+                    setTimeout(() => {
+                        showMainScreen();
+                    }, 100);
                     return true;
                 }
             } catch (error) {
@@ -1840,8 +1843,16 @@
 
         // Show Main Screen
         function showMainScreen() {
-            document.getElementById('loginScreen').classList.remove('active');
-            document.getElementById('mainScreen').style.display = 'block';
+            const loginScreen = document.getElementById('loginScreen');
+            const mainScreen = document.getElementById('mainScreen');
+            
+            if (!loginScreen || !mainScreen) {
+                console.error('Errore: elementi schermata non trovati');
+                return;
+            }
+            
+            loginScreen.classList.remove('active');
+            mainScreen.style.display = 'block';
             
             // Crea badge con informazioni utente
             const badgeHtml = `
@@ -1857,7 +1868,10 @@
                 </div>
             `;
             
-            document.getElementById('userDisplay').innerHTML = badgeHtml;
+            const userDisplay = document.getElementById('userDisplay');
+            if (userDisplay) {
+                userDisplay.innerHTML = badgeHtml;
+            }
             
             // Scroll to top per assicurare che il contenuto sia visibile
             window.scrollTo(0, 0);
@@ -1866,9 +1880,11 @@
             setTimeout(() => {
                 initializeTabListeners();
                 // Assicura che il primo tab sia visibile
-                document.querySelector('#anagrafica').classList.add('active');
-                document.querySelector('[data-tab="anagrafica"]').classList.add('active');
-            }, 100);
+                const anagrafica = document.querySelector('#anagrafica');
+                const anaBtn = document.querySelector('[data-tab="anagrafica"]');
+                if (anagrafica) anagrafica.classList.add('active');
+                if (anaBtn) anaBtn.classList.add('active');
+            }, 150);
         }
 
         // Inizializza gli event listeners dei tab
@@ -2415,7 +2431,7 @@
             // Pre-popola email se "Ricordami" era selezionato
             try {
                 const lastUser = localStorage.getItem('csi_lastUser');
-                if (lastUser) {
+                if (lastUser && document.getElementById('loginEmail')) {
                     document.getElementById('loginEmail').value = lastUser;
                     document.getElementById('rememberMe').checked = true;
                 }
@@ -2424,7 +2440,9 @@
             }
 
             // Controlla autenticazione (DOPO il caricamento del DOM)
-            checkAuth();
+            setTimeout(() => {
+                checkAuth();
+            }, 200);
 
             // Carica dati salvati
             const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
