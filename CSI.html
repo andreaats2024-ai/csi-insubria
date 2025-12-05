@@ -4,2469 +4,477 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cartella Sociale CSI - ATS Insubria</title>
+    <meta name="description" content="Cartella Sociale Informatizzata - demo con Firebase Authentication e Realtime Database">
     <style>
-        :root {
-            --color-primary: #208091;
-            --color-primary-hover: #1a6b78;
-            --color-secondary: #e67e22;
-            --color-bg: #f5f5f5;
-            --color-surface: #ffffff;
-            --color-text: #2c3e50;
-            --color-text-light: #7f8c8d;
-            --color-border: #ecf0f1;
-            --color-error: #e74c3c;
-            --color-success: #27ae60;
-            --color-warning: #f39c12;
-            --color-info: #3498db;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            line-height: 1.6;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-            color: white;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.95;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            border-bottom: 2px solid var(--color-border);
-        }
-
-        .tab-btn {
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--color-text-light);
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .tab-btn:hover {
-            color: var(--color-primary);
-        }
-
-        .tab-btn.active {
-            color: var(--color-primary);
-            border-bottom-color: var(--color-primary);
-        }
-
-        .tab-content {
-            display: none;
-            background: var(--color-surface);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--color-primary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--color-border);
-        }
-
-        /* ANIMAZIONI LOADING */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes slideInUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(32, 128, 145, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--color-primary);
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .status-message {
-            animation: slideInUp 0.4s ease-out;
-        }
-
-        .success-animation {
-            animation: slideInUp 0.5s ease-out;
-        }
-
-        .sync-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: rgba(39, 174, 96, 0.1);
-            border: 1px solid var(--color-success);
-            border-radius: 4px;
-            font-size: 12px;
-            color: var(--color-success);
-        }
-
-        .sync-indicator.syncing {
-            background: rgba(52, 152, 219, 0.1);
-            border-color: var(--color-info);
-            color: var(--color-info);
-        }
-
-        .modal-backdrop {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @media (max-width: 768px) {
-            .loading-spinner {
-                width: 16px;
-                height: 16px;
-                border-width: 2px;
-            }
-        }
-</parameter>
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 5px;
-            color: var(--color-text);
-        }
-
-        .form-group.required label::after {
-            content: " *";
-            color: var(--color-error);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 10px 12px;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(32, 128, 145, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .checkbox-group,
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .checkbox-item,
-        .radio-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .checkbox-item input,
-        .radio-item input {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-        }
-
-        .checkbox-item label,
-        .radio-item label {
-            cursor: pointer;
-            margin: 0;
-            font-weight: normal;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            min-width: 120px;
-        }
-
-        .btn-primary {
-            background-color: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--color-primary-hover);
-        }
-
-        .btn-secondary {
-            background-color: var(--color-border);
-            color: var(--color-text);
-        }
-
-        .btn-secondary:hover {
-            background-color: #ddd;
-        }
-
-        .btn-success {
-            background-color: var(--color-success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #229954;
-        }
-
-        .status-message {
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .status-message.show {
-            display: block;
-        }
-
-        .status-message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .conditional-block {
-            display: none;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-left: 4px solid var(--color-warning);
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-
-        .conditional-block.show {
-            display: block;
-        }
-
-        .subsection {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid var(--color-border);
-        }
-
-        .row-actions {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-        }
-
-        .btn-small {
-            padding: 5px 10px;
-            font-size: 12px;
-            min-width: 50px;
-        }
-
-        .info-box {
-            background-color: #e8f4f8;
-            border-left: 4px solid var(--color-info);
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #0c5460;
-        }
-
-        /* LOGIN STYLES */
-        .login-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-screen.active {
-            display: flex;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-        }
-
-        .login-box {
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .login-box h1 {
-            font-size: 28px;
-            color: var(--color-primary);
-            margin-bottom: 5px;
-            text-align: center;
-        }
-
-        .login-subtitle {
-            text-align: center;
-            color: var(--color-text-light);
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .login-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .login-error.show {
-            display: block;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-
-        .login-divider {
-            text-align: center;
-            margin: 20px 0;
-            color: var(--color-text-light);
-            font-size: 14px;
-            position: relative;
-        }
-
-        .login-divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background: var(--color-border);
-        }
-
-        .login-divider::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background: var(--color-border);
-        }
-
-        .btn-register {
-            width: 100%;
-            padding: 12px;
-        }
-
-        .login-footer {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--color-border);
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .login-footer p {
-            margin: 5px 0;
-            color: var(--color-text-light);
-        }
-
-        .register-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--color-border);
-        }
-
-        .register-header h3 {
-            margin: 0;
-            color: var(--color-primary);
-            font-size: 16px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            color: white;
-            font-size: 14px;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        table thead {
-            background-color: var(--color-border);
-        }
-
-        table th {
-            padding: 10px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--color-text);
-        }
-
-        table td {
-            padding: 10px;
-            border-bottom: 1px solid var(--color-border);
-        }
-
-        table tbody tr:hover {
-            background-color: #fafafa;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .tabs {
-                overflow-x: auto;
-            }
-
-            .header h1 {
-                font-size: 18px;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                min-width: auto;
-            }
-        }
+        :root{--color-primary:#208091;--color-primary-hover:#1a6b78;--color-bg:#f5f5f5;--color-surface:#fff;--color-text:#2c3e50;--color-text-light:#7f8c8d;--color-border:#ecf0f1;--color-success:#27ae60;--color-error:#e74c3c;--color-info:#3498db}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--color-bg);color:var(--color-text);line-height:1.6}
+        .header{background:linear-gradient(135deg,var(--color-primary) 0%,var(--color-primary-hover)100%);color:#fff;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+        .container{max-width:1200px;margin:20px auto;padding:20px}
+        .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center}
+        .card{background:var(--color-surface);border-radius:10px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.08);width:100%;max-width:720px}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        label{display:block;font-size:13px;margin-bottom:6px;color:var(--color-text)}
+        input,select,textarea{width:100%;padding:10px;border:1px solid var(--color-border);border-radius:6px;font-size:14px}
+        button{padding:10px 14px;border-radius:6px;border:none;cursor:pointer}
+        .btn-primary{background:var(--color-primary);color:#fff}
+        .btn-secondary{background:#f0f0f0;color:var(--color-text)}
+        .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+        .tab-btn{padding:8px 12px;border-radius:6px;border:none;background:#fff;border:1px solid var(--color-border);cursor:pointer}
+        .tab-btn.active{outline:2px solid rgba(32,128,145,.12);border-color:var(--color-primary)}
+        .tab-content{display:none;background:var(--color-surface);padding:16px;border-radius:8px}
+        .tab-content.active{display:block}
+        .button-group{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+        table{width:100%;border-collapse:collapse;margin-top:8px}
+        th,td{padding:8px;border-bottom:1px solid var(--color-border);text-align:left}
+        .info{background:#eef7f8;border-left:4px solid var(--color-info);padding:10px;border-radius:6px;margin-bottom:10px}
+        .status{padding:10px;border-radius:6px;margin-bottom:12px;display:none}
+        .status.show{display:block}
+        .status.success{background:#dff0e0;color:#0b6b3a}
+        .status.error{background:#fbeaea;color:#7a1d1d}
+        @media(max-width:800px){.grid{grid-template-columns:1fr}.container{padding:12px}}
     </style>
 </head>
 <body>
-    <!-- SCHERMATA DI LOGIN -->
-    <div id="loginScreen" class="login-screen active">
-        <div class="login-container">
-            <div class="login-box">
-                <h1>🏥 CSI - Cartella Sociale</h1>
-                <p class="login-subtitle">ATS Insubria</p>
-                
-                <div id="loginError" class="login-error"></div>
-                
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label for="loginEmail">Email Operatore</label>
-                        <input 
-                            type="email" 
-                            id="loginEmail" 
-                            name="email" 
-                            placeholder="esempio@asst.it"
-                            autocomplete="username"
-                            required>
+    <!-- LOGIN / REGISTER -->
+    <div id="loginScreen" class="login-screen">
+        <div class="card">
+            <h2 style="color:var(--color-primary)">🏥 CSI - Cartella Sociale</h2>
+            <p style="color:var(--color-text-light);margin-bottom:12px">Accesso operatori (Firebase Authentication)</p>
+
+            <div id="authStatus" class="status" role="status"></div>
+
+            <div style="display:flex;gap:12px;margin-bottom:14px">
+                <button id="showLogin" class="tab-btn active">Accedi</button>
+                <button id="showRegister" class="tab-btn">Registrati</button>
+            </div>
+
+            <div id="loginBox">
+                <div class="grid">
+                    <div>
+                        <label for="loginEmail">Email</label>
+                        <input id="loginEmail" type="email" autocomplete="username" placeholder="operatore@asst.it">
                     </div>
-                    
-                    <div class="form-group">
+                    <div>
                         <label for="loginPassword">Password</label>
-                        <input 
-                            type="password" 
-                            id="loginPassword" 
-                            name="password" 
-                            placeholder="Inserisci password"
-                            autocomplete="current-password"
-                            required>
+                        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="password">
                     </div>
-                    
-                    <div class="checkbox-item" style="margin-bottom: 20px;">
-                        <input type="checkbox" id="rememberMe" name="rememberMe">
-                        <label for="rememberMe">Ricordami</label>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
-                        🔓 Accedi
-                    </button>
-                </form>
-                
-                <div class="login-divider">oppure</div>
-                
-                <button type="button" class="btn btn-secondary btn-register" onclick="toggleRegister()">
-                    📝 Registrati
-                </button>
-                
-                <!-- FORM REGISTRAZIONE (NASCOSTO) -->
-                <div id="registerForm" style="display: none; margin-top: 20px;">
-                    <div class="register-header">
-                        <h3>Registrazione Nuovo Operatore</h3>
-                        <button type="button" onclick="toggleRegister()" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
-                    </div>
-                    <form id="signupForm" onsubmit="handleSignup(event)">
-                        <div class="form-group">
-                            <label for="regName">Nome e Cognome</label>
-                            <input type="text" id="regName" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="regEmail">Email</label>
-                            <input type="email" id="regEmail" name="email" autocomplete="username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="regPassword">Password</label>
-                            <input type="password" id="regPassword" name="password" autocomplete="new-password" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="regConfirm">Conferma Password</label>
-                            <input type="password" id="regConfirm" name="confirm" autocomplete="new-password" required>
-                        </div>
-                        <button type="submit" class="btn btn-success" style="width: 100%;">
-                            ✓ Registrati
-                        </button>
-                    </form>
                 </div>
-                
-                <div class="login-footer">
-                    <p style="margin-bottom: 15px;"><strong>📋 Credenziali Demo</strong></p>
-                    <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; text-align: left; font-size: 11px; line-height: 1.6;">
-                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
-                            <strong style="color: #3498db;">👤 Operatore (Demo):</strong><br>
-                            Email: <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">demo@asst.it</code><br>
-                            Password: <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">demo123</code>
-                        </div>
-                    </div>
-                    <p style="margin-top: 15px; font-size: 11px; color: #7f8c8d;">
-                        ℹ️ Per altre credenziali, consultare il file <strong>credenziali_completo.txt</strong>
-                    </p>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+                    <input id="rememberMe" type="checkbox"><label for="rememberMe">Ricordami (local)</label>
                 </div>
+                <div class="button-group" style="justify-content:flex-start;margin-top:12px">
+                    <button class="btn-primary" id="btnLogin">🔓 Accedi</button>
+                    <button class="btn-secondary" id="btnResetPassword">✉️ Password Dimenticata</button>
+                </div>
+            </div>
+
+            <div id="registerBox" style="display:none;margin-top:12px">
+                <div class="grid">
+                    <div>
+                        <label for="regName">Nome e Cognome</label>
+                        <input id="regName" type="text" placeholder="Nome Cognome">
+                    </div>
+                    <div>
+                        <label for="regEmail">Email</label>
+                        <input id="regEmail" type="email" autocomplete="email" placeholder="nuovo@asst.it">
+                    </div>
+                </div>
+                <div class="grid" style="margin-top:8px">
+                    <div>
+                        <label for="regPassword">Password</label>
+                        <input id="regPassword" type="password" placeholder="password">
+                    </div>
+                    <div>
+                        <label for="regConfirm">Conferma Password</label>
+                        <input id="regConfirm" type="password" placeholder="conferma password">
+                    </div>
+                </div>
+                <div class="button-group" style="justify-content:flex-start;margin-top:12px">
+                    <button class="btn-primary" id="btnRegister">✓ Registrati</button>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;font-size:12px;color:var(--color-text-light)">
+                <strong>Credenziali Demo</strong><br>
+                demo@asst.it / demo123 (esempio)
             </div>
         </div>
     </div>
 
-    <!-- SCHERMATA PRINCIPALE (NASCOSTA FINCHÉ NON AUTENTICATO) -->
-    <div id="mainScreen" style="display: none;">
+    <!-- MAIN APP (protetta da auth) -->
+    <div id="mainScreen" style="display:none">
         <div class="header">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="container" style="display:flex;justify-content:space-between;align-items:center">
                 <div>
-                    <h1>🏥 Cartella Sociale Informatizzata (CSI)</h1>
-                    <p>ATS Insubria - ASST e Ambiti di Competenza</p>
+                    <h1 style="margin:0">🏥 Cartella Sociale Informatizzata (CSI)</h1>
+                    <small style="color:var(--color-text-light)">ATS Insubria</small>
                 </div>
-                <div class="user-info">
-                    <span id="userDisplay">Utente</span>
-                    <button type="button" class="btn btn-secondary" onclick="handleLogout()" style="margin-left: 20px;">
-                        🔐 Esci
-                    </button>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div id="userDisplay" style="color:#fff;background:rgba(0,0,0,.12);padding:6px 10px;border-radius:6px"></div>
+                    <button id="btnLogout" class="btn-secondary">🔐 Esci</button>
                 </div>
             </div>
         </div>
 
         <div class="container">
-        <div class="status-message" id="statusMessage"></div>
+            <div id="message" class="status"></div>
 
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="anagrafica">1. Anagrafica</button>
-            <button class="tab-btn" data-tab="interventi">2. Interventi</button>
-            <button class="tab-btn" data-tab="autosufficienza">3. Autosufficienza</button>
-            <button class="tab-btn" data-tab="abitativa">4. Socio-Abitativa</button>
-            <button class="tab-btn" data-tab="economica">5. Socio-Economica</button>
-            <button class="tab-btn" data-tab="familiare">6. Socio-Familiare</button>
-            <button class="tab-btn" data-tab="giuridica">7. Protezione Giuridica</button>
-        </div>
-
-        <!-- TAB 1: ANAGRAFICA PAZIENTE -->
-        <div id="anagrafica" class="tab-content active">
-            <div class="section-title">1. DATI ANAGRAFICI DEL PAZIENTE</div>
-
-            <div class="form-grid">
-                <div class="form-group required">
-                    <label>Nome e Cognome</label>
-                    <input type="text" name="nome_cognome" required>
-                </div>
-                <div class="form-group required">
-                    <label>Luogo e data di nascita</label>
-                    <input type="date" name="data_nascita" required>
-                </div>
-                <div class="form-group">
-                    <label>Luogo di nascita</label>
-                    <input type="text" name="luogo_nascita">
-                </div>
+            <div class="tabs" id="tabs">
+                <button class="tab-btn active" data-tab="anagrafica">1. Anagrafica</button>
+                <button class="tab-btn" data-tab="interventi">2. Interventi</button>
+                <button class="tab-btn" data-tab="autosufficienza">3. Autosufficienza</button>
+                <button class="tab-btn" data-tab="abitativa">4. Socio-Abitativa</button>
+                <button class="tab-btn" data-tab="economica">5. Socio-Economica</button>
+                <button class="tab-btn" data-tab="familiare">6. Socio-Familiare</button>
+                <button class="tab-btn" data-tab="giuridica">7. Protezione Giuridica</button>
             </div>
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Stato civile</label>
-                    <select name="stato_civile">
-                        <option value="">-- Selezionare --</option>
-                        <option value="celibe">Celibe/Nubile</option>
-                        <option value="coniugato">Coniugato/a</option>
-                        <option value="convivente">Convivente</option>
-                        <option value="vedovo">Vedovo/a</option>
-                        <option value="separato">Separato/a</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Cittadinanza</label>
-                    <input type="text" name="cittadinanza" value="Italia">
-                </div>
-                <div class="form-group required">
-                    <label>Codice Fiscale</label>
-                    <input type="text" name="codice_fiscale" placeholder="XXXXXX00X00X000X" required>
-                    <small style="color: var(--color-text-light); margin-top: 4px; font-size: 12px;">⚠️ Campo obbligatorio per salvare</small>
-                </div>
-</parameter>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Contatti e Residenza</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Indirizzo di residenza</label>
-                        <input type="text" name="residenza">
+            <!-- ANAGRAFICA (solo campi principali per esempio) -->
+            <div id="anagrafica" class="tab-content active">
+                <h3>1. Dati Anagrafici</h3>
+                <div class="grid">
+                    <div>
+                        <label>Nome e Cognome</label>
+                        <input name="nome_cognome" type="text">
                     </div>
-                    <div class="form-group">
-                        <label>Indirizzo di domicilio</label>
-                        <input type="text" name="domicilio">
+                    <div>
+                        <label>Data di nascita</label>
+                        <input name="data_nascita" type="date">
                     </div>
-                    <div class="form-group">
+                </div>
+                <div class="grid" style="margin-top:10px">
+                    <div>
+                        <label>Codice Fiscale</label>
+                        <input name="codice_fiscale" type="text" placeholder="XXXXXX00X00X000X">
+                    </div>
+                    <div>
                         <label>Telefono</label>
-                        <input type="tel" name="telefono">
+                        <input name="telefono" type="tel">
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email">
-                    </div>
+                </div>
+                <div style="margin-top:12px" class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('anagrafica')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('anagrafica')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="subsection">
-                <div class="section-title">Iscrizione SSN e Documentazione</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="iscrizione_ssn" name="iscrizione_ssn">
-                        <label for="iscrizione_ssn">Iscritto SSN</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="stp" name="stp">
-                        <label for="stp">STP (Straniero Temporaneamente Presente)</label>
-                    </div>
-                </div>
-                <div class="form-grid" style="margin-top: 15px;">
-                    <div class="form-group">
-                        <label>Tessera Sanitaria</label>
-                        <input type="text" name="tessera_sanitaria">
-                    </div>
-                    <div class="form-group">
-                        <label>Permesso di soggiorno</label>
-                        <select name="permesso_soggiorno">
-                            <option value="">-- Selezionare --</option>
-                            <option value="si_ok">Si - in corso</option>
-                            <option value="si_scaduto">Si - scaduto</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Medico di Medicina Generale</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Nome e Cognome MMG</label>
-                        <input type="text" name="mmg_nome">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefono MMG</label>
-                        <input type="tel" name="mmg_telefono">
-                    </div>
-                    <div class="form-group">
-                        <label>Email MMG</label>
-                        <input type="email" name="mmg_email">
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Caregiver Principale</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Tipologia caregiver</label>
-                        <select name="tipo_caregiver">
-                            <option value="">-- Selezionare --</option>
-                            <option value="familiare">Familiare</option>
-                            <option value="convivente">Convivente</option>
-                            <option value="non_familiare">Non familiare</option>
-                            <option value="volontario">Vicino di casa / Volontariato</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nome e Cognome caregiver</label>
-                        <input type="text" name="caregiver_nome">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefono caregiver</label>
-                        <input type="tel" name="caregiver_telefono">
-                    </div>
-                    <div class="form-group">
-                        <label>Email caregiver</label>
-                        <input type="email" name="caregiver_email">
-                    </div>
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('anagrafica')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('anagrafica')">Salva Sezione</button>
-            </div>
-        </div>
-
-        <!-- TAB 2: INTERVENTI ATTIVI -->
-        <div id="interventi" class="tab-content">
-            <div class="section-title">2. INTERVENTI ATTIVI</div>
-
-            <div class="info-box">
-                Indicare gli interventi sanitari, socio-sanitari e sociali attualmente attivi e in carico.
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Interventi Sanitari</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="interventi_sanitari_si">
-                        <label>Interventi sanitari in atto</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Specificare</label>
+            <!-- INTERVENTI (esempio) -->
+            <div id="interventi" class="tab-content">
+                <h3>2. Interventi</h3>
+                <div class="info">Indicare gli interventi sanitari, socio-sanitari e sociali attualmente attivi.</div>
+                <div>
+                    <label>Note interventi</label>
                     <textarea name="interventi_sanitari_spec"></textarea>
                 </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Assistenza Domiciliare Integrata (ADI)</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="adi_infermieristica">
-                        <label>ADI - Infermieristica</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="adi_riabilitazione">
-                        <label>ADI - Riabilitazione</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="adi_fisioterapia">
-                        <label>ADI - Fisioterapia</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="adi_altro">
-                        <label>ADI - Altro</label>
-                    </div>
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('interventi')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('interventi')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="subsection">
-                <div class="section-title">Servizi Sociali</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="servizio_pasti">
-                        <label>Pasti a domicilio</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="servizio_socio">
-                        <label>Servizio Sociale</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="servizio_trasporto">
-                        <label>Trasporto sociale</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="servizio_telesoccorso">
-                        <label>Telesoccorso</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="servizio_abitativo">
-                        <label>Sostegno abitativo</label>
-                    </div>
+            <!-- altri tab: autosufficienza, abitativa, economica, familiare, giuridica -->
+            <div id="autosufficienza" class="tab-content">
+                <h3>3. Autosufficienza</h3>
+                <label>ADL (punteggio)</label>
+                <input name="adl_score" type="number" min="0" max="100">
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('autosufficienza')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('autosufficienza')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="subsection">
-                <div class="section-title">Cure Palliative e Intermedie</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="cure_palliative">
-                        <label>Cure Palliative</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="cure_intermedie">
-                        <label>Cure Intermedie</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="rsa_aperta">
-                        <label>RSA Aperta</label>
-                    </div>
+            <div id="abitativa" class="tab-content">
+                <h3>4. Condizione Socio-Abitativa</h3>
+                <label>Tipo di alloggio</label>
+                <select name="tipo_alloggio"><option value="">-- Seleziona --</option><option value="proprieta">Proprietà</option><option value="affitto">Affitto</option></select>
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('abitativa')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('abitativa')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('interventi')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('interventi')">Salva Sezione</button>
-            </div>
-        </div>
-
-        <!-- TAB 3: AUTOSUFFICIENZA -->
-        <div id="autosufficienza" class="tab-content">
-            <div class="section-title">3. INDICATORI DI AUTOSUFFICIENZA</div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Indici funzionali - ADL (punteggio)</label>
-                    <input type="number" name="adl_score" min="0" max="100">
-                </div>
-                <div class="form-group">
-                    <label>Indici funzionali - IADL (punteggio)</label>
-                    <input type="number" name="iadl_score" min="0" max="100">
+            <div id="economica" class="tab-content">
+                <h3>5. Condizione Socio-Economica</h3>
+                <label>Valore ISEE</label>
+                <input name="valore_isee" type="number" step="0.01">
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('economica')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('economica')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="subsection">
-                <div class="section-title">Indici Cognitivi</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="indici_cognitivi" id="cognitivi_lieve" value="lieve">
-                        <label for="cognitivi_lieve">Lieve</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="indici_cognitivi" id="cognitivi_moderato" value="moderato">
-                        <label for="cognitivi_moderato">Moderato</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="indici_cognitivi" id="cognitivi_grave" value="grave">
-                        <label for="cognitivi_grave">Grave compromissione</label>
-                    </div>
+            <div id="familiare" class="tab-content">
+                <h3>6. Condizione Socio-Familiare</h3>
+                <label>Composizione nucleo</label>
+                <select name="composizione_nucleo"><option value="">--</option><option value="solo">Solo</option><option value="coniuge">Coniuge</option></select>
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('familiare')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('familiare')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="subsection">
-                <div class="section-title">Compliance e Comportamenti</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Compliance</label>
-                        <select name="compliance">
-                            <option value="">-- Selezionare --</option>
-                            <option value="lieve">Lieve</option>
-                            <option value="moderato">Moderato</option>
-                            <option value="grave">Grave</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Disturbi comportamentali</label>
-                        <select name="disturbi_comp">
-                            <option value="">-- Selezionare --</option>
-                            <option value="no">No</option>
-                            <option value="si_compenso">Si - in compenso</option>
-                            <option value="si_scompenso">Si - in scompenso</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="checkbox-group" style="margin-top: 15px;">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="wandering">
-                        <label>Wandering (disorientamento)</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="aggressivita">
-                        <label>Aggressività fisica</label>
-                    </div>
+            <div id="giuridica" class="tab-content">
+                <h3>7. Protezione Giuridica</h3>
+                <label>Amministratore di sostegno</label>
+                <input name="amm_sostegno_nome" type="text">
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="resetForm('giuridica')">Pulisci</button>
+                    <button class="btn-primary" onclick="salvaSezione('giuridica')">Salva Sezione</button>
                 </div>
             </div>
 
-            <div class="subsection">
-                <div class="section-title">Autonomia Terapeutica e Consapevolezza</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="autonomia_terapia">
-                        <label>Autonomia nell'assunzione della terapia</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Se no - Chi assicura l'assunzione</label>
-                    <input type="text" name="caregiver_terapia">
-                </div>
-
-                <div class="form-group" style="margin-top: 15px;">
-                    <label>Consapevolezza paziente della propria condizione</label>
-                    <select name="consapevolezza">
-                        <option value="">-- Selezionare --</option>
-                        <option value="consapevole">Consapevole</option>
-                        <option value="parziale">Alternante (momenti di consapevolezza e poca consapevolezza)</option>
-                        <option value="scarso">Scarso</option>
-                        <option value="proattivo">Proattivo</option>
-                    </select>
-                </div>
+            <!-- Azioni globali -->
+            <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <button class="btn-primary" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
+                <button class="btn-secondary" onclick="esportaDati()">📥 Esporta JSON</button>
+                <button class="btn-secondary" onclick="document.getElementById('fileImport').click()">📤 Importa JSON</button>
+                <input id="fileImport" type="file" accept="application/json" style="display:none" onchange="importaDati(event)">
+                <button class="btn-secondary" onclick="visualizzaUtenti()">👥 Vedi Utenti</button>
             </div>
 
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('autosufficienza')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('autosufficienza')">Salva Sezione</button>
-            </div>
-        </div>
-
-        <!-- TAB 4: CONDIZIONE SOCIO-ABITATIVA -->
-        <div id="abitativa" class="tab-content">
-            <div class="section-title">4. CONDIZIONE SOCIO-ABITATIVA</div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Tipo di alloggio</label>
-                    <select name="tipo_alloggio">
-                        <option value="">-- Selezionare --</option>
-                        <option value="proprieta">Di proprietà</option>
-                        <option value="affitto">In affitto / Comodato</option>
-                        <option value="pubblico">Alloggio pubblico</option>
-                        <option value="altro">Altro</option>
-                    </select>
+            <div id="modalUtenti" style="display:none;margin-top:14px;background:#fff;padding:12px;border-radius:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <h4>Database Pazienti</h4>
+                    <button onclick="closeUtenti()">Chiudi</button>
                 </div>
-                <div class="form-group">
-                    <label>Zona</label>
-                    <select name="zona">
-                        <option value="">-- Selezionare --</option>
-                        <option value="urbana">Urbana</option>
-                        <option value="suburbana">Sub-urbana</option>
-                        <option value="rurale">Rurale</option>
-                        <option value="montana">Montana</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Fruibilità Ambiente di Vita</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="abitazione_livello_unico">
-                        <label>Abitazione su unico livello</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="abitazione_piu_livelli">
-                        <label>Abitazione su più livelli</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="ascensore">
-                        <label>Ascensore</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="scale_ingresso">
-                        <label>Scale all'ingresso</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="camera_assistito">
-                        <label>Camera dedicata all'assistito</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="letto_articolato">
-                        <label>Letto articolato</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="sollevatore">
-                        <label>Sollevatore</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Servizi Igienici</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="servizi_igienici" id="servizi_agibili" value="agibili">
-                        <label for="servizi_agibili">Agibili / Accessibili</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="servizi_igienici" id="servizi_non_agibili" value="non_agibili">
-                        <label for="servizi_non_agibili">Non agibili / Accessibili</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Specificare se inadeguati</label>
-                    <textarea name="servizi_igienici_spec"></textarea>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Condizioni Igieniche</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="condizioni_igieniche" id="igiene_buone" value="buone">
-                        <label for="igiene_buone">Buone</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="condizioni_igieniche" id="igiene_discrete" value="discrete">
-                        <label for="igiene_discrete">Discrete</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="condizioni_igieniche" id="igiene_scarse" value="scarse">
-                        <label for="igiene_scarse">Scarse</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="condizioni_igieniche" id="igiene_pessime" value="pessime">
-                        <label for="igiene_pessime">Pessime</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Barriere Architettoniche e Rischi</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="barriere_architettoniche">
-                        <label>Presenza di barriere architettoniche</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Specificare tipologia barriera/rischio</label>
-                    <textarea name="barriere_spec"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Data pratica superamento barriere</label>
-                    <input type="date" name="data_pratica_barriere">
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('abitativa')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('abitativa')">Salva Sezione</button>
-            </div>
-        </div>
-
-        <!-- TAB 5: CONDIZIONE SOCIO-ECONOMICA -->
-        <div id="economica" class="tab-content">
-            <div class="section-title">5. CONDIZIONE SOCIO-ECONOMICA</div>
-
-            <div class="subsection">
-                <div class="section-title">ISEE</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="isee_presente" name="isee_presente" onchange="toggleConditional('isee_data')">
-                        <label for="isee_presente">Attestazione ISEE in corso di validità</label>
-                    </div>
-                </div>
-                <div id="isee_data" class="conditional-block">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Valore ISEE</label>
-                            <input type="number" name="valore_isee" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label>Tipologia ISEE</label>
-                            <select name="tipologia_isee">
-                                <option value="">-- Selezionare --</option>
-                                <option value="ordinario">Ordinario</option>
-                                <option value="socio_sanitario">Socio-sanitario</option>
-                                <option value="minorenni">Minorenni</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Fonti di Reddito</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="reddito_lavoro">
-                        <label>Reddito da lavoro</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="pensione_indennita">
-                        <label>Pensione / Indennità</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="reddito_altro">
-                        <label>Altro</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Specificare altre fonti</label>
-                    <input type="text" name="reddito_altro_spec">
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Situazione Economica</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="situazione_economica" value="autonomo">
-                        <label>Autonomo e in equilibrio finanziario</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="situazione_economica" value="aiuto_familiari">
-                        <label>Riceve aiuto da parenti e/o altre persone</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="situazione_economica" value="bisognoso">
-                        <label>In condizione di bisogno economico senza aiuti</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Specificare criticità economiche</label>
-                    <textarea name="criticita_economiche"></textarea>
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('economica')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('economica')">Salva Sezione</button>
-            </div>
-        </div>
-
-        <!-- TAB 6: CONDIZIONE SOCIO-FAMILIARE -->
-        <div id="familiare" class="tab-content">
-            <div class="section-title">6. CONDIZIONE SOCIO-FAMILIARE</div>
-
-            <div class="subsection">
-                <div class="section-title">Composizione Nucleo Familiare</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="composizione_nucleo" value="solo">
-                        <label>Da solo/a</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="composizione_nucleo" value="coniuge">
-                        <label>In nucleo con coniuge/convivente</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="composizione_nucleo" value="familiari">
-                        <label>In nucleo con propri familiari o parenti</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Soggetti Fragili nel Nucleo</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="altri_fragili">
-                        <label>Presenza di altri soggetti fragili (anziani non autosufficienti, disabili)</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="minori_presenti">
-                        <label>Presenza di minori</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Se minori: percorsi attivi a tutela</label>
-                    <input type="text" name="percorsi_minori">
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Genitorialità e Responsabilità</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="decadimento_genitoriale">
-                        <label>Decadimento responsabilità genitoriale</label>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label>Se si - Specificare</label>
-                    <textarea name="decadimento_spec"></textarea>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Stato del Caregiver</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="stato_caregiver" value="presente_attivo">
-                        <label>Presente e attivo nell'assistenza</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="stato_caregiver" value="fatica">
-                        <label>Fatica rispetto all'assistenza</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="stato_caregiver" value="non_attivo">
-                        <label>Non attivo</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Caregiver Competenti Professionalmente</div>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" name="caregiver_competente" value="totalmente">
-                        <label>Attivabili totalmente</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="caregiver_competente" value="parzialmente">
-                        <label>Attivabili parzialmente</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" name="caregiver_competente" value="no">
-                        <label>Non attivabili</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Conflittualità Familiare</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="conflittualita" name="conflittualita" onchange="toggleConditional('supporto_relazioni')">
-                        <label for="conflittualita">Conflittualità familiare presente</label>
-                    </div>
-                </div>
-                <div id="supporto_relazioni" class="conditional-block">
-                    <div class="form-group">
-                        <label>Percorsi ATTIVI per supporto relazioni familiari</label>
-                        <textarea name="supporto_relazioni_text"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Situazione Coniugale</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" name="separazione">
-                        <label>Separazione coniugale / Interruzione convivenza</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('familiare')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('familiare')">Salva Sezione</button>
-            </div>
-        </div>
-
-        <!-- TAB 7: PROTEZIONE GIURIDICA -->
-        <div id="giuridica" class="tab-content">
-            <div class="section-title">7. PROTEZIONE GIURIDICA</div>
-
-            <div class="subsection">
-                <div class="section-title">Amministratore di Sostegno</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="amm_sostegno" name="amm_sostegno" onchange="toggleConditional('amm_sostegno_data')">
-                        <label for="amm_sostegno">Amministratore di Sostegno presente</label>
-                    </div>
-                </div>
-                <div id="amm_sostegno_data" class="conditional-block">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nome e Cognome</label>
-                            <input type="text" name="amm_nome">
-                        </div>
-                        <div class="form-group">
-                            <label>Telefono</label>
-                            <input type="tel" name="amm_telefono">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="amm_email">
-                        </div>
-                        <div class="form-group">
-                            <label>Data incarico</label>
-                            <input type="date" name="amm_data_incarico">
-                        </div>
-                        <div class="form-group">
-                            <label>N. / RGN</label>
-                            <input type="text" name="amm_rgn">
-                        </div>
-                    </div>
-                    <div class="checkbox-group" style="margin-top: 15px;">
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="amm_assistenza">
-                            <label>Incarico di assistenza</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" name="amm_rappresentanza">
-                            <label>Incarico di rappresentanza per gli atti</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Tutore</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="tutore" name="tutore" onchange="toggleConditional('tutore_data')">
-                        <label for="tutore">Tutore presente</label>
-                    </div>
-                </div>
-                <div id="tutore_data" class="conditional-block">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nome e Cognome</label>
-                            <input type="text" name="tutore_nome">
-                        </div>
-                        <div class="form-group">
-                            <label>Telefono</label>
-                            <input type="tel" name="tutore_telefono">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="tutore_email">
-                        </div>
-                        <div class="form-group">
-                            <label>Data incarico</label>
-                            <input type="date" name="tutore_data_incarico">
-                        </div>
-                        <div class="form-group">
-                            <label>N. / RGN</label>
-                            <input type="text" name="tutore_rgn">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Curatore</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="curatore" name="curatore" onchange="toggleConditional('curatore_data')">
-                        <label for="curatore">Curatore presente</label>
-                    </div>
-                </div>
-                <div id="curatore_data" class="conditional-block">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nome e Cognome</label>
-                            <input type="text" name="curatore_nome">
-                        </div>
-                        <div class="form-group">
-                            <label>Telefono</label>
-                            <input type="tel" name="curatore_telefono">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="curatore_email">
-                        </div>
-                        <div class="form-group">
-                            <label>Data incarico</label>
-                            <input type="date" name="curatore_data_incarico">
-                        </div>
-                        <div class="form-group">
-                            <label>N. / RGN</label>
-                            <input type="text" name="curatore_rgn">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Procura Attiva</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="procura" name="procura" onchange="toggleConditional('procura_data')">
-                        <label for="procura">Procura attiva</label>
-                    </div>
-                </div>
-                <div id="procura_data" class="conditional-block">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Specificare</label>
-                            <textarea name="procura_spec"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Nome e Cognome Procurante</label>
-                            <input type="text" name="procura_nome">
-                        </div>
-                        <div class="form-group">
-                            <label>Telefono</label>
-                            <input type="tel" name="procura_telefono">
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="procura_email">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Necessità di Protezione Giuridica</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="necessita_protezione" name="necessita_protezione" onchange="toggleConditional('necessita_protezione_data')">
-                        <label for="necessita_protezione">Necessità di richiesta protezione giuridica</label>
-                    </div>
-                </div>
-                <div id="necessita_protezione_data" class="conditional-block">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Stato</label>
-                            <select name="stato_protezione">
-                                <option value="">-- Selezionare --</option>
-                                <option value="corso">In corso</option>
-                                <option value="predisporre">Predisporre documentazione</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Data istanza</label>
-                            <input type="date" name="data_istanza">
-                        </div>
-                        <div class="form-group">
-                            <label>Tribunale</label>
-                            <input type="text" name="tribunale">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="subsection">
-                <div class="section-title">Misure di Sicurezza Attive</div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="misure_sicurezza" name="misure_sicurezza" onchange="toggleConditional('misure_sicurezza_data')">
-                        <label for="misure_sicurezza">Misure di sicurezza attive</label>
-                    </div>
-                </div>
-                <div id="misure_sicurezza_data" class="conditional-block">
-                    <div class="form-group">
-                        <label>Specificare misure di sicurezza</label>
-                        <textarea name="misure_sicurezza_spec"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="resetForm('giuridica')">Pulisci</button>
-                <button class="btn btn-primary" onclick="salvaSezione('giuridica')">Salva Sezione</button>
-            </div>
-        </div>
-
-            <!-- FOOTER ACTIONS -->
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--color-border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn btn-success" id="btnSalvaCompleto" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" id="btnEsporta" onclick="esportaDati()">📥 Esporta JSON</button>
-                    <button class="btn btn-primary" id="btnImporta" onclick="document.getElementById('inputImporta').click()" style="cursor: pointer;">📤 Importa JSON</button>
-                    <input type="file" id="inputImporta" accept=".json" style="display: none;" onchange="importaDati(event)">
-                </div>
-                <button class="btn btn-primary" id="btnUtenti" onclick="visualizzaUtenti()">👥 Vedi Tutti gli Utenti</button>
-                <button class="btn btn-secondary" onclick="pulisciTutto()">🗑️ Pulisci Tutto</button>
-            </div>
-
-            <!-- Sync Status -->
-            <div style="text-align: center; margin-top: 15px; font-size: 12px;">
-                <div id="syncStatus" class="sync-indicator">
-                    <span>✓ Sincronizzazione pronta</span>
-                </div>
-            </div>
-</parameter>
-        </div>
-    </div>
-
-        <!-- Modal Utenti -->
-        <div id="modalUtenti" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; overflow:auto; padding:20px;">
-            <div style="background:white; max-width:1200px; margin:auto; border-radius:8px; padding:30px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2 style="margin:0; color:#208091;">📋 Database Pazienti</h2>
-                    <button onclick="chiudiModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">✕</button>
-                </div>
-                <div style="margin-bottom:15px;">
-                    <input type="text" id="ricercaUtente" placeholder="Cerca per nome..." style="padding:10px; width:100%; max-width:300px; border:1px solid #ecf0f1; border-radius:4px;">
-                </div>
-                <div style="overflow-x:auto;">
-                    <table id="tabellaUtenti" style="width:100%; border-collapse:collapse; font-size:13px;">
-                        <thead style="background:#ecf0f1;">
-                            <tr>
-                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Data Inserimento</th>
-                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Nome</th>
-                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Codice Fiscale</th>
-                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Telefono</th>
-                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Email</th>
-                                <th style="padding:10px; text-align:center; border-bottom:2px solid #208091;">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody id="corpoTabella"></tbody>
-                    </table>
-                    <div id="messaggioNessunDato" style="padding:20px; text-align:center; color:#7f8c8d; display:none;">
-                        <p>Nessun paziente trovato nel database. Inizia aggiungendo nuovi record.</p>
-                    </div>
-                </div>
-                <div style="margin-top:20px; text-align:right;">
-                    <button class="btn btn-primary" onclick="esportaTabellaCSV()">📊 Esporta CSV</button>
-                    <button class="btn btn-secondary" onclick="chiudiModal()">Chiudi</button>
+                <input id="cercaUtente" placeholder="Cerca per CF o nome" style="margin-top:8px;padding:8px;border:1px solid var(--color-border);border-radius:6px">
+                <div style="overflow:auto;max-height:300px;margin-top:8px">
+                    <table id="tabellaUtenti"><thead><tr><th>CF</th><th>Nome</th><th>Telefono</th><th>Azioni</th></tr></thead><tbody></tbody></table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Configuration -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <!-- Firebase SDK (compat per semplicità) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
-        // ====== GESTIONE AUTENTICAZIONE LOCALE ======
-        // Database utenti con ruoli (in produzione usare Firebase Authentication)
-        const authDatabase = {
-            // DEMO
-            'demo@asst.it': { password: 'demo123', nome: 'Demo Operatore', ruolo: 'operatore' },
-            
-            // AMMINISTRATORE
-            'andrea@asst.it': { password: 'admin2025!', nome: 'Andrea Rossi', ruolo: 'amministratore', ambito: 'Sistema' },
-            
-            // SUPERVISORE
-            'donatella@asst.it': { password: 'super2025!', nome: 'Donatella Bianchi', ruolo: 'supervisore', ambito: 'Sistema' },
-            
-            // ASST DEI SETTE LAGHI (Varese)
-            'operatore.asst1@asst.it': { password: 'asst1@2025', nome: 'Mario Verdi', ruolo: 'operatore', ambito: 'ASST Sette Laghi' },
-            'responsabile.asst1@asst.it': { password: 'asst1@2025', nome: 'Elena Rossi', ruolo: 'supervisore', ambito: 'ASST Sette Laghi' },
-            
-            // ASST DELLA VALLE OLONA (Busto Arsizio)
-            'operatore.asst2@asst.it': { password: 'asst2@2025', nome: 'Giovanni Ferrari', ruolo: 'operatore', ambito: 'ASST Valle Olona' },
-            'responsabile.asst2@asst.it': { password: 'asst2@2025', nome: 'Francesca Colombo', ruolo: 'supervisore', ambito: 'ASST Valle Olona' },
-            
-            // ASST LARIANA (Como)
-            'operatore.asst3@asst.it': { password: 'asst3@2025', nome: 'Paolo Bianchi', ruolo: 'operatore', ambito: 'ASST Lariana' },
-            'responsabile.asst3@asst.it': { password: 'asst3@2025', nome: 'Laura Gallo', ruolo: 'supervisore', ambito: 'ASST Lariana' },
-            
-            // AMBITO SETTE LAGHI - ARCISATE
-            'operatore.arcisate@ambiti.it': { password: 'arcisate@2025', nome: 'Marco Conti', ruolo: 'operatore', ambito: 'Arcisate' },
-            'responsabile.arcisate@ambiti.it': { password: 'arcisate@2025', nome: 'Silvia Rossi', ruolo: 'supervisore', ambito: 'Arcisate' },
-            
-            // AMBITO SETTE LAGHI - AZZATE
-            'operatore.azzate@ambiti.it': { password: 'azzate@2025', nome: 'Andrea Russo', ruolo: 'operatore', ambito: 'Azzate' },
-            'responsabile.azzate@ambiti.it': { password: 'azzate@2025', nome: 'Valentina Neri', ruolo: 'supervisore', ambito: 'Azzate' },
-            
-            // AMBITO SETTE LAGHI - LAVENO MOMBELLO
-            'operatore.laveno@ambiti.it': { password: 'laveno@2025', nome: 'Luca De Luca', ruolo: 'operatore', ambito: 'Laveno Mombello' },
-            'responsabile.laveno@ambiti.it': { password: 'laveno@2025', nome: 'Martina Sartori', ruolo: 'supervisore', ambito: 'Laveno Mombello' },
-            
-            // AMBITO SETTE LAGHI - LUINO
-            'operatore.luino@ambiti.it': { password: 'luino@2025', nome: 'Fabio Moretti', ruolo: 'operatore', ambito: 'Luino' },
-            'responsabile.luino@ambiti.it': { password: 'luino@2025', nome: 'Giulia Ferretti', ruolo: 'supervisore', ambito: 'Luino' },
-            
-            // AMBITO SETTE LAGHI - SESTO CALENDE
-            'operatore.sesto@ambiti.it': { password: 'sesto@2025', nome: 'Roberto Galdi', ruolo: 'operatore', ambito: 'Sesto Calende' },
-            'responsabile.sesto@ambiti.it': { password: 'sesto@2025', nome: 'Paola Martini', ruolo: 'supervisore', ambito: 'Sesto Calende' },
-            
-            // AMBITO SETTE LAGHI - TRADATE
-            'operatore.tradate@ambiti.it': { password: 'tradate@2025', nome: 'Davide Rossi', ruolo: 'operatore', ambito: 'Tradate' },
-            'responsabile.tradate@ambiti.it': { password: 'tradate@2025', nome: 'Alessia Bianchi', ruolo: 'supervisore', ambito: 'Tradate' },
-            
-            // AMBITO SETTE LAGHI - VARESE
-            'operatore.varese@ambiti.it': { password: 'varese@2025', nome: 'Marco Ponti', ruolo: 'operatore', ambito: 'Varese' },
-            'responsabile.varese@ambiti.it': { password: 'varese@2025', nome: 'Francesca Verdi', ruolo: 'supervisore', ambito: 'Varese' },
-            
-            // AMBITO VALLE OLONA - BUSTO ARSIZIO E CASTELLANZA
-            'operatore.busto@ambiti.it': { password: 'busto@2025', nome: 'Stefano Bravetti', ruolo: 'operatore', ambito: 'Busto Arsizio - Castellanza' },
-            'responsabile.busto@ambiti.it': { password: 'busto@2025', nome: 'Chiara Lombardi', ruolo: 'supervisore', ambito: 'Busto Arsizio - Castellanza' },
-            
-            // AMBITO VALLE OLONA - GALLARATE
-            'operatore.gallarate@ambiti.it': { password: 'gallarate@2025', nome: 'Lorenzo Capponi', ruolo: 'operatore', ambito: 'Gallarate' },
-            'responsabile.gallarate@ambiti.it': { password: 'gallarate@2025', nome: 'Sara Gentile', ruolo: 'supervisore', ambito: 'Gallarate' },
-            
-            // AMBITO VALLE OLONA - SARONNO
-            'operatore.saronno@ambiti.it': { password: 'saronno@2025', nome: 'Matteo Cavalli', ruolo: 'operatore', ambito: 'Saronno' },
-            'responsabile.saronno@ambiti.it': { password: 'saronno@2025', nome: 'Elena Marasca', ruolo: 'supervisore', ambito: 'Saronno' },
-            
-            // AMBITO VALLE OLONA - SOMMA LOMBARDO
-            'operatore.somma@ambiti.it': { password: 'somma@2025', nome: 'Riccardo Sartori', ruolo: 'operatore', ambito: 'Somma Lombardo' },
-            'responsabile.somma@ambiti.it': { password: 'somma@2025', nome: 'Beatrice Ferrari', ruolo: 'supervisore', ambito: 'Somma Lombardo' },
-            
-            // AMBITO LARIANA - CANTU - MARIANO COMENSE
-            'operatore.cantu@ambiti.it': { password: 'cantu@2025', nome: 'Nicola Colombo', ruolo: 'operatore', ambito: 'Cantù - Mariano Comense' },
-            'responsabile.cantu@ambiti.it': { password: 'cantu@2025', nome: 'Irene Bellini', ruolo: 'supervisore', ambito: 'Cantù - Mariano Comense' },
-            
-            // AMBITO LARIANA - COMO - CAMPIONE D'ITALIA
-            'operatore.como@ambiti.it': { password: 'como@2025', nome: 'Andrea Villani', ruolo: 'operatore', ambito: 'Como - Campione d\'Italia' },
-            'responsabile.como@ambiti.it': { password: 'como@2025', nome: 'Giuliana Rossi', ruolo: 'supervisore', ambito: 'Como - Campione d\'Italia' },
-            
-            // AMBITO LARIANA - ERBA
-            'operatore.erba@ambiti.it': { password: 'erba@2025', nome: 'Tommaso Petrini', ruolo: 'operatore', ambito: 'Erba' },
-            'responsabile.erba@ambiti.it': { password: 'erba@2025', nome: 'Monica Rosso', ruolo: 'supervisore', ambito: 'Erba' },
-            
-            // AMBITO LARIANA - LOMAZZO - FINO MORNASCO
-            'operatore.lomazzo@ambiti.it': { password: 'lomazzo@2025', nome: 'Stefano Guerrieri', ruolo: 'operatore', ambito: 'Lomazzo - Fino Mornasco' },
-            'responsabile.lomazzo@ambiti.it': { password: 'lomazzo@2025', nome: 'Valentina Conti', ruolo: 'supervisore', ambito: 'Lomazzo - Fino Mornasco' },
-            
-            // AMBITO LARIANA - MEDIO LARIO
-            'operatore.mediolario@ambiti.it': { password: 'mediolario@2025', nome: 'Giancarlo Moretti', ruolo: 'operatore', ambito: 'Medio Lario' },
-            'responsabile.mediolario@ambiti.it': { password: 'mediolario@2025', nome: 'Roberta Meloni', ruolo: 'supervisore', ambito: 'Medio Lario' },
-            
-            // AMBITO LARIANA - OLGIATE COMASCO
-            'operatore.olgiate@ambiti.it': { password: 'olgiate@2025', nome: 'Riccardo Palla', ruolo: 'operatore', ambito: 'Olgiate Comasco' },
-            'responsabile.olgiate@ambiti.it': { password: 'olgiate@2025', nome: 'Daniela Caruso', ruolo: 'supervisore', ambito: 'Olgiate Comasco' }
-        };
+    // ====== CONFIGURAZIONE FIREBASE - SOSTITUISCI CON I TUOI VALORI ======
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+        projectId: "YOUR_PROJECT",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "SENDER_ID",
+        appId: "APP_ID"
+    };
 
-        let currentUser = null;
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    // =====================================================================
 
-        // Controlla se l'utente è già loggato
-        function checkAuth() {
-            try {
-                const saved = localStorage.getItem('csi_currentUser');
-                if (saved) {
-                    currentUser = JSON.parse(saved);
-                    // Delay per permettere al DOM di essere pronto
-                    setTimeout(() => {
-                        showMainScreen();
-                    }, 100);
-                    return true;
-                }
-            } catch (error) {
-                console.error('Errore accesso storage:', error);
-            }
-            return false;
+    // UI helpers
+    function showMessage(text, type = 'success'){
+        const el = document.getElementById('message');
+        el.textContent = text; el.className = 'status show ' + (type==='error' ? 'error' : 'success');
+        setTimeout(()=>{el.className = 'status';},4000);
+    }
+
+    function setAuthStatus(text, type=''){
+        const el = document.getElementById('authStatus');
+        el.textContent = text; el.className = 'status show ' + (type==='error' ? 'error' : 'success');
+        setTimeout(()=>{el.className = 'status';},3500);
+    }
+
+    // Toggle login/register UI
+    document.getElementById('showLogin').addEventListener('click', ()=>{document.getElementById('loginBox').style.display='block';document.getElementById('registerBox').style.display='none';document.getElementById('showLogin').classList.add('active');document.getElementById('showRegister').classList.remove('active');});
+    document.getElementById('showRegister').addEventListener('click', ()=>{document.getElementById('loginBox').style.display='none';document.getElementById('registerBox').style.display='block';document.getElementById('showLogin').classList.remove('active');document.getElementById('showRegister').classList.add('active');});
+
+    // Auth actions
+    document.getElementById('btnLogin').addEventListener('click', async ()=>{
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+        try{
+            await auth.signInWithEmailAndPassword(email, pass);
+            setAuthStatus('Accesso effettuato');
+            if(document.getElementById('rememberMe').checked) localStorage.setItem('rememberEmail', email);
+        }catch(err){ setAuthStatus('Errore login: '+err.message,'error'); }
+    });
+
+    document.getElementById('btnRegister').addEventListener('click', async ()=>{
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirm').value;
+        if(!name || !email || !pass){ setAuthStatus('Compila tutti i campi','error'); return; }
+        if(pass !== confirm){ setAuthStatus('Le password non corrispondono','error'); return; }
+        try{
+            const userCred = await auth.createUserWithEmailAndPassword(email, pass);
+            // salva il displayName
+            await userCred.user.updateProfile({ displayName: name });
+            setAuthStatus('Registrazione completata');
+        }catch(err){ setAuthStatus('Errore registrazione: '+err.message,'error'); }
+    });
+
+    document.getElementById('btnResetPassword').addEventListener('click', async ()=>{
+        const email = document.getElementById('loginEmail').value;
+        if(!email){ setAuthStatus('Inserisci email per recupero','error'); return; }
+        try{ await auth.sendPasswordResetEmail(email); setAuthStatus('Email recupero inviata'); }catch(err){ setAuthStatus('Errore: '+err.message,'error'); }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', async ()=>{ await auth.signOut(); });
+
+    // Protezione UI
+    auth.onAuthStateChanged(user => {
+        if(user){
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            document.getElementById('userDisplay').textContent = user.displayName || user.email;
+        } else {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainScreen').style.display = 'none';
         }
+    });
 
-        // Ottieni il colore del ruolo
-        function getColorRuolo(ruolo) {
-            const colori = {
-                'amministratore': '#e74c3c',
-                'supervisore': '#f39c12',
-                'operatore': '#3498db'
-            };
-            return colori[ruolo] || '#95a5a6';
-        }
-
-        // Ottieni il badge del ruolo
-        function getBadgeRuolo(ruolo) {
-            const badge = {
-                'amministratore': '🔐 Amministratore',
-                'supervisore': '👨‍💼 Supervisore',
-                'operatore': '👤 Operatore'
-            };
-            return badge[ruolo] || 'Utente';
-        }
-
-        // Handle Login
-        function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value.toLowerCase();
-            const password = document.getElementById('loginPassword').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            const errorDiv = document.getElementById('loginError');
-
-            // Validazione
-            if (!email || !password) {
-                showLoginError('Email e password sono obbligatori');
-                return;
-            }
-
-            // Autenticazione (demo - in produzione usare Firebase)
-            if (authDatabase[email] && authDatabase[email].password === password) {
-                const userAuth = authDatabase[email];
-                currentUser = {
-                    email: email,
-                    nome: userAuth.nome,
-                    ruolo: userAuth.ruolo,
-                    ambito: userAuth.ambito || '',
-                    loginTime: new Date().toISOString()
-                };
-
-                // Salva in localStorage (più affidabile di sessionStorage su HTTP)
-                try {
-                    localStorage.setItem('csi_currentUser', JSON.stringify(currentUser));
-                    if (rememberMe) {
-                        localStorage.setItem('csi_lastUser', email);
-                    }
-                } catch (error) {
-                    console.error('Errore salvataggio:', error);
-                }
-
-                errorDiv.classList.remove('show');
-                document.getElementById('loginForm').reset();
-                showMainScreen();
-            } else {
-                showLoginError('❌ Email o password non corretti. Credenziali disponibili nella pagina di accesso.');
-            }
-        }
-
-        // Handle Signup
-        function handleSignup(event) {
-            event.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value.toLowerCase();
-            const password = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-
-            // Validazione
-            if (!name || !email || !password) {
-                showLoginError('Compila tutti i campi');
-                return;
-            }
-
-            if (password.length < 6) {
-                showLoginError('La password deve contenere almeno 6 caratteri');
-                return;
-            }
-
-            if (password !== confirm) {
-                showLoginError('Le password non coincidono');
-                return;
-            }
-
-            if (authDatabase[email]) {
-                showLoginError('Questo email è già registrato');
-                return;
-            }
-
-            // Registra nuovo utente
-            authDatabase[email] = { password: password, nome: name };
-            showLoginError('✓ Registrazione completata! Accedi con le tue credenziali');
-            document.getElementById('signupForm').reset();
-            
-            setTimeout(() => {
-                document.getElementById('loginError').classList.remove('show');
-                toggleRegister();
-                document.getElementById('loginEmail').value = email;
-            }, 2000);
-        }
-
-        // Toggle Register Form
-        function toggleRegister() {
-            const form = document.getElementById('registerForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Show Login Error
-        function showLoginError(message) {
-            const errorDiv = document.getElementById('loginError');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        // Show Main Screen
-        function showMainScreen() {
-            const loginScreen = document.getElementById('loginScreen');
-            const mainScreen = document.getElementById('mainScreen');
-            
-            if (!loginScreen || !mainScreen) {
-                console.error('Errore: elementi schermata non trovati');
-                return;
-            }
-            
-            loginScreen.classList.remove('active');
-            mainScreen.style.display = 'block';
-            
-            // Crea badge con informazioni utente
-            const badgeHtml = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: 600; font-size: 14px;">${currentUser.nome}</div>
-                        <div style="font-size: 12px; opacity: 0.8;">${getBadgeRuolo(currentUser.ruolo)}</div>
-                        ${currentUser.ambito ? `<div style="font-size: 11px; opacity: 0.7; color: #ecf0f1;">📍 ${currentUser.ambito}</div>` : ''}
-                    </div>
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${getColorRuolo(currentUser.ruolo)}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">
-                        ${currentUser.ruolo === 'amministratore' ? '🔐' : currentUser.ruolo === 'supervisore' ? '👨‍💼' : '👤'}
-                    </div>
-                </div>
-            `;
-            
-            const userDisplay = document.getElementById('userDisplay');
-            if (userDisplay) {
-                userDisplay.innerHTML = badgeHtml;
-            }
-            
-            // Scroll to top per assicurare che il contenuto sia visibile
-            window.scrollTo(0, 0);
-            
-            // Inizializza tab listeners DOPO che mainScreen è visibile
-            setTimeout(() => {
-                initializeTabListeners();
-                // Assicura che il primo tab sia visibile
-                const anagrafica = document.querySelector('#anagrafica');
-                const anaBtn = document.querySelector('[data-tab="anagrafica"]');
-                if (anagrafica) anagrafica.classList.add('active');
-                if (anaBtn) anaBtn.classList.add('active');
-            }, 150);
-        }
-
-        // Inizializza gli event listeners dei tab
-        function initializeTabListeners() {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    document.querySelectorAll('.tab-content').forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-                    
-                    document.querySelectorAll('.tab-btn').forEach(b => {
-                        b.classList.remove('active');
-                    });
-                    
-                    document.getElementById(tabName).classList.add('active');
-                    this.classList.add('active');
-                });
-            });
-        }
-
-        // Handle Logout
-        function handleLogout() {
-            if (confirm('Sei sicuro di voler uscire?')) {
-                currentUser = null;
-                try {
-                    localStorage.removeItem('csi_currentUser');
-                } catch (error) {
-                    console.error('Errore logout:', error);
-                }
-                document.getElementById('mainScreen').style.display = 'none';
-                document.getElementById('loginScreen').classList.add('active');
-                document.getElementById('loginForm').reset();
-                document.getElementById('registerForm').style.display = 'none';
-            }
-        }
-
-        // ====== FIREBASE CONFIGURATION ======
-        const firebaseConfig = {
-            apiKey: "AIzaSyBGZTWIYlBYrR1__W_wuLE2Cozq7r-5Aqo",
-            authDomain: "csi-insubria.firebaseapp.com",
-            databaseURL: "https://csi-insubria-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "csi-insubria",
-            storageBucket: "csi-insubria.firebasestorage.app",
-            messagingSenderId: "903236739682",
-            appId: "1:903236739682:web:d71087549bcb1f635f273b",
-            measurementId: "G-7613M0ZKEZ"
-        };
-
-        // Initialize Firebase with error handling
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            console.log('✓ Firebase inizializzato correttamente');
-        } catch (error) {
-            console.error('Errore inizializzazione Firebase:', error);
-        }
-
-        let utentiDatabase = [];
-        let syncInProgress = false;
-</parameter>
-
-        // Tab Management - Rimosso da qui, spostato in initializeTabListeners()
-        // Questo viene ora inizializzato DOPO showMainScreen()
-
-        // Conditional Display
-        function toggleConditional(elementId) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.classList.toggle('show');
-            }
-        }
-
-        // Form Status Messages
-        function showStatus(message, type = 'success') {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = `status-message show ${type}`;
-            setTimeout(() => {
-                statusDiv.classList.remove('show');
-            }, 4000);
-        }
-
-        // Save Section
-        function salvaSezione(tabName) {
-            const formData = {};
-            const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-            
-            inputs.forEach(input => {
-                if (input.type === 'checkbox') {
-                    formData[input.name] = input.checked;
-                } else if (input.type === 'radio') {
-                    if (input.checked) {
-                        formData[input.name] = input.value;
-                    }
-                } else {
-                    formData[input.name] = input.value;
-                }
-            });
-
-            localStorage.setItem(`csi_${tabName}`, JSON.stringify(formData));
-            showStatus(`Sezione "${tabName.toUpperCase()}" salvata con successo!`);
-        }
-
-        // Save Complete - WITH VALIDATION & FIREBASE INTEGRATION
-        function salvaCompleto() {
-            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
-            const cartellaCompleta = {};
-            
-            // Raccogli dati da tutti i tab
-            tabNames.forEach(tabName => {
-                const formData = {};
-                const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-                
-                inputs.forEach(input => {
-                    if (input.type === 'checkbox') {
-                        formData[input.name] = input.checked;
-                    } else if (input.type === 'radio') {
-                        if (input.checked) {
-                            formData[input.name] = input.value;
-                        }
-                    } else {
-                        formData[input.name] = input.value;
-                    }
-                });
-                cartellaCompleta[tabName] = formData;
-            });
-
-            // ====== VALIDAZIONE OBBLIGATORI ======
-            const cf = cartellaCompleta.anagrafica.codice_fiscale;
-            const nome = cartellaCompleta.anagrafica.nome_cognome;
-            const dataNascita = cartellaCompleta.anagrafica.data_nascita;
-
-            if (!nome || !nome.trim()) {
-                showStatus('❌ Nome e Cognome obbligatorio!', 'error');
-                return;
-            }
-
-            if (!dataNascita) {
-                showStatus('❌ Data di nascita obbligatoria!', 'error');
-                return;
-            }
-
-            if (!cf || !cf.trim()) {
-                showStatus('❌ Codice Fiscale obbligatorio per salvare!', 'error');
-                return;
-            }
-
-            if (!validaCodiceFiscale(cf)) {
-                showStatus('❌ Codice Fiscale non valido (16 caratteri: XXXXXX00X00X000X)', 'error');
-                return;
-            }
-
-            // Disabilita bottone e mostra loading
-            const btnSalva = document.getElementById('btnSalvaCompleto');
-            const originalText = btnSalva.innerHTML;
-            btnSalva.disabled = true;
-            btnSalva.innerHTML = '<span class="loading-spinner"></span>Salvataggio...';
-
-            // Aggiorna status
-            updateSyncStatus('syncing', 'Sincronizzazione in corso...');
-
-            // Salva in localStorage PRIMA di Firebase
-            try {
-                localStorage.setItem('csi_completa', JSON.stringify(cartellaCompleta));
-                localStorage.setItem('csi_data_salvataggio', new Date().toISOString());
-                localStorage.setItem('csi_cf_' + cf, JSON.stringify(cartellaCompleta));
-                console.log('✓ Dati salvati in localStorage');
-            } catch (error) {
-                console.error('Errore localStorage:', error);
-            }
-
-            // Salva in Firebase
-            if (!db) {
-                showStatus('⚠️ Firebase non disponibile - Salvataggio locale riuscito', 'success');
-                btnSalva.disabled = false;
-                btnSalva.innerHTML = originalText;
-                updateSyncStatus('ready', '✓ Sincronizzazione completata (locale)');
-                resetAllForms();
-                return;
-            }
-
-            const idCartella = Date.now();
-            const dataToSave = {
-                ...cartellaCompleta,
-                dataSalvataggio: new Date().toISOString(),
-                operatore: currentUser.nome,
-                operatore_email: currentUser.email,
-                codice_fiscale: cf
-            };
-
-            db.ref(`pazienti/${idCartella}`).set(dataToSave)
-                .then(() => {
-                    // Salva reference per ricerca veloce
-                    db.ref(`pazienti_cf/${cf}`).set(idCartella);
-                    
-                    showStatus('✅ Cartella salvata! Locale + Firebase (ID: ' + idCartella + ')', 'success');
-                    updateSyncStatus('ready', '✓ Sincronizzazione completata (online)');
-                    btnSalva.disabled = false;
-                    btnSalva.innerHTML = originalText;
-                    resetAllForms();
-                })
-                .catch(error => {
-                    showStatus('❌ Errore Firebase (dati salvati localmente): ' + error.message, 'error');
-                    updateSyncStatus('error', '✗ Errore sincronizzazione');
-                    btnSalva.disabled = false;
-                    btnSalva.innerHTML = originalText;
-                    console.error('Dettagli errore Firebase:', error);
-                });
-        }
-
-        // Validazione Codice Fiscale
-        function validaCodiceFiscale(cf) {
-            if (!cf) return false;
-            cf = cf.toUpperCase().trim();
-            return /^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/.test(cf);
-        }
-
-        // Aggiorna indicatore sincronizzazione
-        function updateSyncStatus(status, message) {
-            const syncStatus = document.getElementById('syncStatus');
-            if (!syncStatus) return;
-            
-            syncStatus.className = 'sync-indicator ' + (status === 'syncing' ? 'syncing' : '');
-            
-            if (status === 'syncing') {
-                syncStatus.innerHTML = '<span class="loading-spinner"></span>' + message;
-            } else if (status === 'ready') {
-                syncStatus.innerHTML = message;
-            } else if (status === 'error') {
-                syncStatus.innerHTML = message;
-                syncStatus.style.borderColor = 'var(--color-error)';
-                syncStatus.style.color = 'var(--color-error)';
-            }
-        }
-</parameter>
-
-        // Reset all forms
-        function resetAllForms() {
-            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
-            tabNames.forEach(tabName => {
-                const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = false;
-                    } else {
-                        input.value = '';
-                    }
-                });
-            });
-        }
-
-        // Export Data - Enhanced
-        function esportaDati() {
-            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
-            const cartellaCompleta = {};
-            
-            tabNames.forEach(tabName => {
-                const formData = {};
-                const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-                
-                inputs.forEach(input => {
-                    if (input.type === 'checkbox') {
-                        formData[input.name] = input.checked;
-                    } else if (input.type === 'radio') {
-                        if (input.checked) {
-                            formData[input.name] = input.value;
-                        }
-                    } else {
-                        formData[input.name] = input.value;
-                    }
-                });
-                cartellaCompleta[tabName] = formData;
-            });
-
-            const cf = cartellaCompleta.anagrafica.codice_fiscale || 'CartellaSociale';
-            const dataStr = JSON.stringify(cartellaCompleta, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `CSI_${cf}_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showStatus('📥 Cartella esportata come JSON!');
-        }
-
-        // Import Data - New
-        function importaDati(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
-                    
-                    tabNames.forEach(tabName => {
-                        if (importedData[tabName]) {
-                            const formData = importedData[tabName];
-                            const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-                            
-                            inputs.forEach(input => {
-                                if (input.type === 'checkbox') {
-                                    input.checked = formData[input.name] === true;
-                                } else if (input.type === 'radio') {
-                                    if (input.value === formData[input.name]) {
-                                        input.checked = true;
-                                    }
-                                } else {
-                                    input.value = formData[input.name] || '';
-                                }
-                            });
-                        }
-                    });
-
-                    showStatus('✅ Cartella importata con successo!');
-                    document.getElementById('inputImporta').value = '';
-                } catch (error) {
-                    showStatus('❌ Errore importazione file JSON: ' + error.message, 'error');
-                    console.error('Errore import:', error);
-                }
-            };
-            reader.readAsText(file);
-        }
-</parameter>
-
-        // Reset Form
-        function resetForm(tabName) {
-            const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                    input.checked = false;
-                } else {
-                    input.value = '';
-                }
-            });
-            showStatus('Sezione pulita!');
-        }
-
-        // Clean All
-        function pulisciTutto() {
-            if (confirm('Sei sicuro di voler eliminare tutti i dati? Questa azione non può essere annullata.')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // View All Users from Firebase - Enhanced
-        function visualizzaUtenti() {
-            const modal = document.getElementById('modalUtenti');
-            modal.style.display = 'block';
-            const corpoTabella = document.getElementById('corpoTabella');
-            corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;"><span class="loading-spinner"></span> Caricamento pazienti...</td></tr>';
-            
-            if (!db) {
-                corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Firebase non disponibile</td></tr>';
-                return;
-            }
-            
-            // Carica dati da Firebase
-            db.ref('pazienti').orderByChild('dataSalvataggio').limitToLast(100).on('value', (snapshot) => {
-                utentiDatabase = [];
-                corpoTabella.innerHTML = '';
-                document.getElementById('messaggioNessunDato').style.display = 'none';
-                
-                let count = 0;
-                const patientsArray = [];
-                
-                snapshot.forEach((childSnapshot) => {
-                    const data = childSnapshot.val();
-                    const anagrafica = data.anagrafica || {};
-                    
-                    patientsArray.push({
-                        id: childSnapshot.key,
-                        ...data
-                    });
-                });
-
-                // Ordina per data discendente (più recenti prima)
-                patientsArray.sort((a, b) => new Date(b.dataSalvataggio) - new Date(a.dataSalvataggio));
-                
-                patientsArray.forEach((patientData) => {
-                    utentiDatabase.push(patientData);
-                    const anagrafica = patientData.anagrafica || {};
-                    
-                    const row = document.createElement('tr');
-                    row.style.borderBottom = '1px solid #ecf0f1';
-                    row.style.animation = 'slideInUp 0.3s ease-out';
-                    row.innerHTML = `
-                        <td style="padding:10px; font-weight:500;">${new Date(patientData.dataSalvataggio).toLocaleDateString('it-IT')} ${new Date(patientData.dataSalvataggio).toLocaleTimeString('it-IT')}</td>
-                        <td style="padding:10px;">${anagrafica.nome_cognome || 'N/D'}</td>
-                        <td style="padding:10px; font-family:monospace; font-weight:bold; color:var(--color-primary);">${anagrafica.codice_fiscale || 'N/D'}</td>
-                        <td style="padding:10px;">${anagrafica.telefono || 'N/D'}</td>
-                        <td style="padding:10px;">${anagrafica.email || 'N/D'}</td>
-                        <td style="padding:10px; text-align:center;">
-                            <button onclick="visualizzaDettagli('${patientData.id}')" style="background:#3498db; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-right:5px; transition:all 0.3s ease;" onmouseover="this.style.background='#2980b9'" onmouseout="this.style.background='#3498db'">👁️ Vedi</button>
-                            <button onclick="scaricaCartella('${patientData.id}')" style="background:#27ae60; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-right:5px; transition:all 0.3s ease;" onmouseover="this.style.background='#229954'" onmouseout="this.style.background='#27ae60'">⬇️ Scarica</button>
-                            <button onclick="eliminaUtente('${patientData.id}')" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; transition:all 0.3s ease;" onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">🗑️ Elimina</button>
-                        </td>
-                    `;
-                    corpoTabella.appendChild(row);
-                    count++;
-                });
-                
-                if (count === 0) {
-                    document.getElementById('messaggioNessunDato').style.display = 'block';
-                }
-            }, (error) => {
-                corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Errore caricamento: ' + error.message + '</td></tr>';
-            });
-        }
-
-        // Scarica cartella singola
-        function scaricaCartella(id) {
-            const paziente = utentiDatabase.find(p => p.id === id);
-            if (paziente) {
-                const cf = paziente.anagrafica?.codice_fiscale || 'CartellaSociale';
-                const dataStr = JSON.stringify(paziente, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `CSI_${cf}_${new Date(paziente.dataSalvataggio).toISOString().split('T')[0]}.json`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                showStatus('⬇️ Cartella scaricata: ' + cf);
-            }
-        }
-</parameter>
-
-        // Search functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const ricerca = document.getElementById('ricercaUtente');
-            if (ricerca) {
-                ricerca.addEventListener('keyup', function() {
-                    const termine = this.value.toLowerCase();
-                    const righe = document.querySelectorAll('#tabellaUtenti tbody tr');
-                    righe.forEach(riga => {
-                        const testo = riga.textContent.toLowerCase();
-                        riga.style.display = testo.includes(termine) ? '' : 'none';
-                    });
-                });
-            }
+    // TAB handling
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+            btn.classList.add('active');
+            const id = btn.getAttribute('data-tab');
+            document.getElementById(id).classList.add('active');
         });
+    });
 
-        // View patient details - Enhanced
-        function visualizzaDettagli(id) {
-            const paziente = utentiDatabase.find(p => p.id === id);
-            if (paziente) {
-                const anagrafica = paziente.anagrafica || {};
-                const dettagli = `
-╔════════════════════════════════════════════════════════════════════╗
-║                     CARTELLA PAZIENTE COMPLETA                     ║
-╠════════════════════════════════════════════════════════════════════╣
+    // Utility: reset specific tab
+    function resetForm(tabId){
+        const el = document.getElementById(tabId);
+        if(!el) return;
+        el.querySelectorAll('input,select,textarea').forEach(i=>{
+            if(i.type === 'checkbox' || i.type === 'radio'){ i.checked = false; } else { i.value = ''; }
+        });
+        showMessage('Modulo ripristinato', 'success');
+    }
 
-📋 DATI ANAGRAFICI:
-  • Nome: ${anagrafica.nome_cognome || 'N/D'}
-  • Codice Fiscale: ${anagrafica.codice_fiscale || 'N/D'}
-  • Data Nascita: ${anagrafica.data_nascita || 'N/D'}
-  • Luogo Nascita: ${anagrafica.luogo_nascita || 'N/D'}
-  • Stato Civile: ${anagrafica.stato_civile || 'N/D'}
-  
-📞 CONTATTI:
-  • Telefono: ${anagrafica.telefono || 'N/D'}
-  • Email: ${anagrafica.email || 'N/D'}
-  • Residenza: ${anagrafica.residenza || 'N/D'}
+    // Salva sezione -> usa codice fiscale come chiave
+    function salvaSezione(sezione){
+        const container = document.getElementById(sezione);
+        if(!container){ showMessage('Sezione non trovata','error'); return; }
+        const fields = container.querySelectorAll('input,select,textarea');
+        const payload = {};
+        fields.forEach(f=>{
+            if(!f.name) return;
+            if(f.type === 'checkbox') payload[f.name] = f.checked;
+            else payload[f.name] = f.value || '';
+        });
+        // aggiungi data inserimento
+        payload.dataInserimento = new Date().toISOString();
 
-🏥 INFORMAZIONI SANITARIE:
-  • ID Database: ${id}
-  • Data Salvataggio: ${new Date(paziente.dataSalvataggio).toLocaleString('it-IT')}
-  • Operatore: ${paziente.operatore || 'N/D'}
-  
-💾 AZIONI:
-  • Scarica cartella completa in JSON
-  • Elimina dal database
-  
-╚════════════════════════════════════════════════════════════════════╝`;
-                
-                alert(dettagli);
-            }
-        }
-</parameter>
+        // prendi codice fiscale dal form anagrafica
+        const cf = document.querySelector('#anagrafica input[name="codice_fiscale"]').value;
+        if(!cf){ showMessage('Inserire il Codice Fiscale nel form Anagrafica prima di salvare','error'); return; }
 
-        // Delete patient - Enhanced
-        function eliminaUtente(id) {
-            const paziente = utentiDatabase.find(p => p.id === id);
-            const nome = paziente?.anagrafica?.nome_cognome || 'Paziente';
-            const cf = paziente?.anagrafica?.codice_fiscale || '';
-            
-            if (confirm(`⚠️ Eliminare definitivamente?\n\n${nome}\nCF: ${cf}\n\nQuesta azione non può essere annullata!`)) {
-                if (!db) {
-                    showStatus('Firebase non disponibile', 'error');
-                    return;
-                }
+        db.ref('pazienti/' + cf + '/' + sezione).set(payload)
+        .then(()=> showMessage('Sezione salvata','success'))
+        .catch(e=> showMessage('Errore salvataggio: '+e.message,'error'));
+    }
 
-                db.ref(`pazienti/${id}`).remove()
-                    .then(() => {
-                        if (cf) {
-                            db.ref(`pazienti_cf/${cf}`).remove();
-                        }
-                        showStatus(`✅ ${nome} eliminato dal database`);
-                        setTimeout(() => visualizzaUtenti(), 500);
-                    })
-                    .catch(error => {
-                        showStatus('❌ Errore eliminazione: ' + error.message, 'error');
-                    });
-            }
-        }
-</parameter>
-
-        // Export to CSV
-        function esportaTabellaCSV() {
-            let csv = 'Data Inserimento,Nome,Codice Fiscale,Telefono,Email\n';
-            
-            utentiDatabase.forEach(paziente => {
-                const anagrafica = paziente.anagrafica || {};
-                csv += `"${new Date(paziente.dataSalvataggio).toLocaleDateString('it-IT')}","${anagrafica.nome_cognome || 'N/D'}","${anagrafica.codice_fiscale || 'N/D'}","${anagrafica.telefono || 'N/D'}","${anagrafica.email || 'N/D'}"\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Pazienti_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-            showStatus('CSV esportato con successo!');
-        }
-
-        // Close modal
-        function chiudiModal() {
-            document.getElementById('modalUtenti').style.display = 'none';
-        }
-
-        // Auto-load from localStorage
-        window.addEventListener('load', function() {
-            // Pre-popola email se "Ricordami" era selezionato
-            try {
-                const lastUser = localStorage.getItem('csi_lastUser');
-                if (lastUser && document.getElementById('loginEmail')) {
-                    document.getElementById('loginEmail').value = lastUser;
-                    document.getElementById('rememberMe').checked = true;
-                }
-            } catch (error) {
-                console.error('Errore caricamento preferenze:', error);
-            }
-
-            // Controlla autenticazione (DOPO il caricamento del DOM)
-            setTimeout(() => {
-                checkAuth();
-            }, 200);
-
-            // Carica dati salvati
-            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
-            
-            tabNames.forEach(tabName => {
-                const saved = localStorage.getItem(`csi_${tabName}`);
-                if (saved) {
-                    const formData = JSON.parse(saved);
-                    const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
-                    
-                    inputs.forEach(input => {
-                        if (input.type === 'checkbox') {
-                            input.checked = formData[input.name] === true;
-                        } else if (input.type === 'radio') {
-                            if (input.value === formData[input.name]) {
-                                input.checked = true;
-                            }
-                        } else {
-                            input.value = formData[input.name] || '';
-                        }
-                    });
-                }
+    // Salva cartella completa
+    async function salvaCompleto(){
+        const allTabs = document.querySelectorAll('.tab-content');
+        const record = {};
+        let cf = '';
+        allTabs.forEach(tab=>{
+            const id = tab.id;
+            record[id] = {};
+            tab.querySelectorAll('input,select,textarea').forEach(f=>{
+                if(!f.name) return;
+                if(f.type === 'checkbox') record[id][f.name] = f.checked;
+                else record[id][f.name] = f.value || '';
+                if(id === 'anagrafica' && f.name === 'codice_fiscale') cf = f.value;
             });
         });
+        if(!cf){ showMessage('Inserire il Codice Fiscale prima di salvare la cartella','error'); return; }
+        record.meta = { lastSaved: new Date().toISOString(), savedBy: auth.currentUser?.email || 'anon' };
+        try{
+            await db.ref('pazienti/' + cf).set(record);
+            showMessage('Cartella salvata con successo','success');
+        }catch(e){ showMessage('Errore: '+e.message,'error'); }
+    }
+
+    // Lista pazienti
+    function visualizzaUtenti(){
+        document.getElementById('modalUtenti').style.display = 'block';
+        const tbody = document.querySelector('#tabellaUtenti tbody'); tbody.innerHTML = '';
+        db.ref('pazienti').once('value').then(snap=>{
+            if(!snap.exists()){ tbody.innerHTML = '<tr><td colspan="4">Nessun paziente</td></tr>'; return; }
+            snap.forEach(child=>{
+                const cf = child.key;
+                const anag = (child.val().anagrafica) || {};
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${cf}</td><td>${anag.nome_cognome || '-'}</td><td>${anag.telefono||'-'}</td><td><button onclick="caricaPaziente('${cf}')">Apri</button> <button onclick="eliminaPaziente('${cf}')">Elimina</button></td>`;
+                tbody.appendChild(row);
+            });
+        }).catch(e=> showMessage('Errore lettura DB: '+e.message,'error'));
+    }
+
+    function closeUtenti(){ document.getElementById('modalUtenti').style.display='none'; }
+
+    // Carica paziente
+    function caricaPaziente(cf){
+        db.ref('pazienti/' + cf).once('value').then(snap=>{
+            if(!snap.exists()){ showMessage('Paziente non trovato','error'); return; }
+            const data = snap.val();
+            Object.keys(data).forEach(section=>{
+                const container = document.getElementById(section);
+                if(!container) return;
+                container.querySelectorAll('input,select,textarea').forEach(f=>{
+                    if(f.name && data[section][f.name] !== undefined){
+                        if(f.type === 'checkbox') f.checked = !!data[section][f.name]; else f.value = data[section][f.name];
+                    }
+                });
+            });
+            showMessage('Dati caricati per ' + cf,'success');
+        }).catch(e=> showMessage('Errore caricamento: '+e.message,'error'));
+    }
+
+    function eliminaPaziente(cf){
+        if(!confirm('Eliminare definitivamente il paziente ' + cf + ' ?')) return;
+        db.ref('pazienti/' + cf).remove().then(()=>{ showMessage('Paziente eliminato','success'); visualizzaUtenti(); }).catch(e=> showMessage('Errore eliminazione: '+e.message,'error'));
+    }
+
+    // Export / Import JSON (client-side)
+    function esportaDati(){
+        const cf = document.querySelector('#anagrafica input[name="codice_fiscale"]').value;
+        if(!cf){ showMessage('Inserire CF per esportare la cartella','error'); return; }
+        db.ref('pazienti/' + cf).once('value').then(snap=>{
+            if(!snap.exists()){ showMessage('Nessuna cartella per questo CF','error'); return; }
+            const data = snap.val();
+            const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `cartella_${cf}.json`; a.click(); URL.revokeObjectURL(url);
+        }).catch(e=> showMessage('Errore export: '+e.message,'error'));
+    }
+
+    function importaDati(evt){
+        const file = evt.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = e=>{
+            try{
+                const data = JSON.parse(e.target.result);
+                // richiede CF nel file o nel form
+                const cfInFile = Object.keys(data).length && data.anagrafica && data.anagrafica.codice_fiscale ? data.anagrafica.codice_fiscale : null;
+                const cf = cfInFile || document.querySelector('#anagrafica input[name="codice_fiscale"]').value;
+                if(!cf){ showMessage('CF non trovato. Inserisci CF nel form o nel file JSON','error'); return; }
+                db.ref('pazienti/' + cf).set(data).then(()=> showMessage('Importazione completata','success')).catch(e=> showMessage('Errore import: '+e.message,'error'));
+            }catch(e){ showMessage('File JSON non valido','error'); }
+        };
+        reader.readAsText(file);
+    }
+
+    // inizializzazione: pre-fill se remembered
+    window.addEventListener('load', ()=>{
+        const rem = localStorage.getItem('rememberEmail');
+        if(rem) document.getElementById('loginEmail').value = rem;
+    });
+
     </script>
 </body>
 </html>
