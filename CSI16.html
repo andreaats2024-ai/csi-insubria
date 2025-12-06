@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏥 CSI - Cartella Sociale Informatizzata</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    button { cursor: pointer; }
+
+    /* LOGIN */
+    #loginScreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      z-index: 10000;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #loginScreen.hidden { display: none; }
+    .login-wrapper {
+      display: flex;
+      gap: 20px;
+      max-width: 900px;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 32px;
+      animation: slideIn 0.4s ease;
+    }
+    .login-container { max-width: 420px; width: 100%; }
+    .users-container { max-width: 480px; width: 100%; max-height: 600px; overflow-y: auto; display: none; }
+    .users-container.show { display: block; }
+    @keyframes slideIn { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .login-header { text-align: center; margin-bottom: 24px; }
+    .login-header h1 { font-size: 30px; color: #fff; margin-bottom: 4px; text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3); }
+    .login-header p { color: #f0f0f0; font-size: 14px; }
+    .login-form, .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-weight: 600; font-size: 14px; color: #333; }
+    .form-group input, .form-group select {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #d0d0e0;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
+    }
+    .remember-forgot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .forgot-password {
+      color: #667eea;
+      font-weight: 600;
+    }
+    .primary-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 15px;
+      margin-top: 10px;
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    }
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.45);
+      filter: brightness(1.03);
+    }
+    .secondary-btn {
+      background: #95a5a6;
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .secondary-btn:hover { background: #7f8c8d; }
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 18px 0;
+      color: #999;
+      font-size: 13px;
+    }
+    .login-divider::before, .login-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #ddd;
+    }
+    .guest-login { display: flex; gap: 10px; }
+    .ghost-btn {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #667eea;
+      color: #667eea;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .ghost-btn:hover { background: #f0f4ff; }
+
+    .alert {
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      border-left: 4px solid;
+    }
+    .alert-error { background: #fdecea; color: #c0392b; border-color: #e74c3c; }
+    .alert-success { background: #e8f8f1; color: #1e8449; border-color: #27ae60; }
+
+    .users-header { text-align: center; margin-bottom: 16px; }
+    .users-header h2 { color: #667eea; font-size: 20px; }
+    .user-item {
+      background: #f8f9fa;
+      padding: 10px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border-left: 4px solid #667eea;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .user-info { flex: 1; padding: 6px; }
+    .user-email { font-weight: 600; font-size: 13px; }
+    .user-role { font-size: 12px; color: #555; }
+    .user-org { font-size: 11px; color: #888; }
+    .danger-btn {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .danger-btn:hover { background: #c0392b; }
+    .toggle-form-btn, .support-btn {
+      width: 100%;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 9px 12px;
+      border: none;
+      color: #fff;
+    }
+    .toggle-form-btn { background: #667eea; }
+    .toggle-form-btn:hover { background: #5568d3; }
+    .support-btn { background: #27ae60; }
+    .support-btn:hover { background: #229954; }
+    .add-user-form { display: none; padding: 12px; background: #f0f4ff; border-radius: 8px; margin-bottom: 12px; }
+    .add-user-form.show { display: block; }
+
+    #fileInput { display: none; }
+
+    /* APP */
+    #appScreen { width: 100%; }
+    #appScreen.hidden { display: none; }
+    .app-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    header h1 { font-size: 20px; }
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .admin-panel {
+      background: #fff3cd;
+      padding: 12px 18px;
+      border-bottom: 1px solid #ffe08a;
+      display: none;
+      font-size: 13px;
+    }
+    .admin-panel.show { display: block; }
+    .admin-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .admin-btn {
+      background: #667eea;
+      color: #fff;
+      border-radius: 6px;
+      padding: 8px 10px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .admin-btn:hover { background: #5568d3; }
+
+    .tabs-container {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .tab-button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-bottom: 3px solid transparent;
+      color: #666;
+    }
+    .tab-button.active {
+      background: #fff;
+      border-bottom-color: #667eea;
+      color: #667eea;
+    }
+
+    .content { padding: 20px 22px 18px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .person-selector {
+      background: #f0f4ff;
+      border: 1px solid #d0d8ff;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+    .person-selector-title { font-weight: 700; color: #667eea; margin-bottom: 8px; }
+    .person-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .person-btn {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #667eea;
+      background: #fff;
+      color: #667eea;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .person-btn.active { background: #667eea; color: #fff; }
+
+    .persona-name-editor {
+      display: none;
+      background: #eef3ff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      align-items: center;
+      gap: 8px;
+    }
+    .persona-name-editor input {
+      flex: 1;
+      border-radius: 6px;
+      border: 1px solid #667eea;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
+    .form-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      background: #f0f4ff;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 16px;
+    }
+    .form-tab {
+      flex: 1 0 90px;
+      border-radius: 6px;
+      padding: 7px 6px;
+      border: 1px solid #d0d0e0;
+      font-size: 11px;
+      font-weight: 600;
+      background: #fff;
+      color: #667eea;
+      text-align: center;
+    }
+    .form-tab.active { background: #667eea; color: #fff; border-color: #667eea; }
+
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+    .section-title {
+      font-weight: 700;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+    .subsection-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-top: 14px;
+      margin-bottom: 8px;
+      padding-left: 8px;
+      border-left: 3px solid #667eea;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .form-row.full { grid-template-columns: 1fr; }
+    @media (max-width: 1024px) { .form-row { grid-template-columns: 1fr; } }
+
+    label.required::after { content: " *"; color: #e74c3c; }
+    textarea { resize: vertical; min-height: 56px; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"],
+    input[type="number"], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d0e0;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+    }
+
+    .checkbox-group, .radio-group { display: grid; gap: 6px; margin-top: 4px; }
+    .checkbox-item, .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .checkbox-item input, .radio-item input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .checkbox-item label, .radio-item label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .form-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .form-nav button { flex: 1 0 160px; }
+
+    .clean-btn {
+      background: #95a5a6;
+      color: #fff;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .clean-btn:hover { background: #7f8c8d; }
+
+    .records-list { background: #f8f9fa; border-radius: 8px; overflow: hidden; }
+    .record-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e0e0e0;
+      border-left: 4px solid #667eea;
+      background: #fff;
+    }
+    .record-item:hover { background: #f4f6ff; }
+    .record-name { font-weight: 700; font-size: 14px; }
+    .record-details { font-size: 12px; color: #555; }
+    .record-buttons { display: flex; gap: 6px; }
+    .record-btn {
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      color: #fff;
+    }
+    .record-btn-view { background: #3498db; }
+    .record-btn-edit { background: #f39c12; }
+    .record-btn-delete { background: #e74c3c; }
+
+    .no-records { padding: 26px 18px; text-align: center; font-size: 13px; color: #888; }
+
+    footer {
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+    .sync-indicator {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #27ae60;
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:.4;} }
+
+    .filter-info {
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: #2c3e50;
+    }
+    .operator-name { font-weight: 600; color: #667eea; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+      padding: 16px;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-content {
+      background: #fff;
+      max-width: 960px;
+      width: 100%;
+      border-radius: 12px;
+      padding: 20px 22px 18px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 12px;
+    }
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      color: #666;
+    }
+    .modal-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      background: #f0f4ff;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 12px;
+    }
+    .modal-tab {
+      border-radius: 6px;
+      padding: 6px 8px;
+      border: 1px solid #d0d0e0;
+      background: #fff;
+      color: #667eea;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .modal-tab.active { background: #667eea; color: #fff; border-color: #667eea; }
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <div class="login-header">
+      <h1>🏥 CSI</h1>
+      <p>Cartella Sociale Informatizzata – <strong>ATS Insubria</strong></p>
+    </div>
+    <div class="login-wrapper">
+      <div class="card login-container">
+        <div id="loginAlert"></div>
+        <form class="login-form" onsubmit="effettuaLogin(event)">
+          <div class="form-group">
+            <label for="username">📧 Email o Username</label>
+            <input id="username" type="text" placeholder="Inserisci la tua email" required />
+          </div>
+          <div class="form-group">
+            <label for="password">🔐 Password</label>
+            <input id="password" type="password" placeholder="Inserisci la tua password" required />
+          </div>
+          <div class="remember-forgot">
+            <label style="display:flex;align-items:center;gap:6px;font-weight:500;">
+              <input id="rememberMe" type="checkbox" /> Ricordami
+            </label>
+            <button type="button" class="forgot-password" onclick="passwordDimenticata()">Password dimenticata?</button>
+          </div>
+          <button type="submit" class="primary-btn" style="width:100%;">🔓 Accedi</button>
+        </form>
+        <div class="login-divider">oppure</div>
+        <div class="guest-login">
+          <button type="button" class="ghost-btn" onclick="accessoGuest()">👥 Accedi come Ospite</button>
+        </div>
+      </div>
+
+      <div class="card users-container" id="usersContainer">
+        <div class="users-header">
+          <h2>👥 Utenti disponibili</h2>
+        </div>
+        <div id="loginAlert2"></div>
+        <button class="toggle-form-btn" onclick="toggleAddUserForm()">➕ Aggiungi nuovo utente</button>
+        <div id="addUserForm" class="add-user-form">
+          <form onsubmit="aggiungiUtente(event)">
+            <div class="form-group">
+              <label for="newEmail">📧 Email *</label>
+              <input id="newEmail" type="email" required />
+            </div>
+            <div class="form-group">
+              <label for="newPassword">🔐 Password *</label>
+              <input id="newPassword" type="password" required />
+            </div>
+            <div class="form-group">
+              <label for="newNome">👤 Nome completo *</label>
+              <input id="newNome" type="text" required />
+            </div>
+            <div class="form-group">
+              <label for="newRuolo">📋 Ruolo *</label>
+              <select id="newRuolo" required>
+                <option value="">-- Selezionare --</option>
+                <option value="🔐 Amministratore">🔐 Amministratore</option>
+                <option value="👨‍💼 Supervisore">👨‍💼 Supervisore</option>
+                <option value="🏥 Operatore Sanitario">🏥 Operatore Sanitario</option>
+                <option value="👤 Operatore Sociale">👤 Operatore Sociale</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="newOrg">🏢 Organizzazione *</label>
+              <input id="newOrg" type="text" required />
+            </div>
+            <button type="submit" class="primary-btn" style="width:100%;margin-top:4px;">✅ Aggiungi</button>
+            <button type="button" class="secondary-btn" style="width:100%;margin-top:6px;" onclick="toggleAddUserForm()">❌ Annulla</button>
+          </form>
+        </div>
+        <div id="usersList"></div>
+        <div style="margin-top:14px;border-top:1px solid #e0e0e0;padding-top:10px;display:flex;flex-direction:column;gap:6px;">
+          <button class="support-btn" onclick="esportaUtentiJSON()">📥 Esporta utenti</button>
+          <button class="support-btn" onclick="document.getElementById('fileInput').click()">📤 Importa utenti</button>
+          <input id="fileInput" type="file" accept="application/json" onchange="importaUtentiJSON(event)" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appScreen" class="hidden">
+    <div class="app-container">
+      <header>
+        <h1>🏥 Cartella Sociale Informatizzata</h1>
+        <div class="header-user">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div>
+            <div id="userName" style="font-weight:600;"></div>
+            <div id="userRole" style="font-size:12px;opacity:.85;"></div>
+            <div id="userOrg" style="font-size:11px;opacity:.75;"></div>
+          </div>
+          <button class="logout-btn" onclick="effettuaLogout()">Esci</button>
+        </div>
+      </header>
+
+      <div class="admin-panel" id="adminPanel">
+        <div><strong>🔐 Pannello Amministrazione</strong> – solo ATS Insubria</div>
+        <div class="admin-buttons">
+          <button class="admin-btn" onclick="toggleUsersManagement()">👥 Gestisci utenti</button>
+          <button class="admin-btn" onclick="esportaRilevamenti()">📥 Esporta dati</button>
+          <button class="admin-btn" onclick="importaRilevamenti()">📤 Importa dati</button>
+        </div>
+      </div>
+
+      <div class="modal-backdrop" id="usersModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span>👥 Gestione utenti</span>
+            <button class="modal-close" onclick="toggleUsersManagement()">×</button>
+          </div>
+          <div id="adminUsersList" style="margin-bottom:12px;"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+            <button class="primary-btn" style="flex:1 0 150px;padding:8px 10px;font-size:13px;" onclick="toggleAddUserFormAdmin()">➕ Aggiungi utente</button>
+            <button class="secondary-btn" style="flex:1 0 150px;padding:8px 10px;font-size:13px;" onclick="toggleUsersManagement()">Chiudi</button>
+          </div>
+          <div id="addUserFormAdmin" class="add-user-form" style="margin-top:12px;">
+            <form onsubmit="aggiungiUtenteAdmin(event)">
+              <div class="form-group">
+                <label for="adminNewEmail">📧 Email *</label>
+                <input id="adminNewEmail" type="email" required />
+              </div>
+              <div class="form-group">
+                <label for="adminNewPassword">🔐 Password *</label>
+                <input id="adminNewPassword" type="password" required />
+              </div>
+              <div class="form-group">
+                <label for="adminNewNome">👤 Nome completo *</label>
+                <input id="adminNewNome" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="adminNewRuolo">📋 Ruolo *</label>
+                <select id="adminNewRuolo" required>
+                  <option value="">-- Selezionare --</option>
+                  <option value="🔐 Amministratore">🔐 Amministratore</option>
+                  <option value="👨‍💼 Supervisore">👨‍💼 Supervisore</option>
+                  <option value="🏥 Operatore Sanitario">🏥 Operatore Sanitario</option>
+                  <option value="👤 Operatore Sociale">👤 Operatore Sociale</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="adminNewOrg">🏢 Organizzazione *</label>
+                <input id="adminNewOrg" type="text" required />
+              </div>
+              <button type="submit" class="primary-btn" style="width:100%;margin-top:4px;">✅ Salva utente</button>
+              <button type="button" class="secondary-btn" style="width:100%;margin-top:6px;" onclick="toggleAddUserFormAdmin()">❌ Annulla</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <input id="fileInputApp" type="file" accept="application/json" onchange="importaRilevamentiFile(event)" style="display:none;" />
+
+      <div class="tabs-container">
+        <button class="tab-button active" data-tab="rilevamenti" onclick="switchTab(event,'rilevamenti')">📋 Rilevamenti</button>
+        <button class="tab-button" data-tab="lista" onclick="switchTab(event,'lista')">👥 Lista persone</button>
+      </div>
+
+      <div class="content">
+        <!-- TAB RILEVAMENTI -->
+        <div id="rilevamenti" class="tab-pane active">
+          <div class="person-selector">
+            <div class="person-selector-title">👤 Seleziona persona per il rilevamento</div>
+            <div id="personButtons" class="person-buttons"></div>
+            <button type="button" class="person-btn" style="margin-top:8px;background:#27ae60;color:#fff;border-color:#27ae60;" onclick="mostraFormNuovaPersona()">➕ Nuova persona</button>
+          </div>
+
+          <div id="nuovaPersonaForm" style="display:none;background:#f0f4ff;border-radius:8px;padding:14px 14px 12px;margin-bottom:14px;">
+            <div style="font-weight:700;color:#667eea;margin-bottom:10px;">➕ Aggiungi nuova persona</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="newPersonaNome" class="required">Nome e cognome</label>
+                <input id="newPersonaNome" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="newPersonaCF" class="required">Codice fiscale</label>
+                <input id="newPersonaCF" type="text" required />
+              </div>
+            </div>
+            <div class="form-nav">
+              <button type="button" class="primary-btn" onclick="creaPersona()">✅ Crea persona</button>
+              <button type="button" class="secondary-btn" onclick="nascondiFormNuovaPersona()">❌ Annulla</button>
+            </div>
+          </div>
+
+          <div id="personaNameEditor" class="persona-name-editor">
+            <span style="font-size:13px;font-weight:600;color:#667eea;">✏️ Nome persona:</span>
+            <input id="editPersonaName" type="text" />
+            <button type="button" class="primary-btn" style="padding:7px 10px;font-size:12px;" onclick="aggiornaPersonaName()">💾 Aggiorna</button>
+            <button type="button" class="secondary-btn" style="padding:7px 10px;font-size:12px;" onclick="nascondiEditorPersona()">✖</button>
+          </div>
+
+          <div id="formTabsContainer" style="display:none;">
+            <div class="form-tabs">
+              <button class="form-tab active" onclick="switchFormTab(event,'scheda1')">1️⃣ Anagrafica</button>
+              <button class="form-tab" onclick="switchFormTab(event,'scheda2')">2️⃣ Interventi</button>
+              <button class="form-tab" onclick="switchFormTab(event,'scheda3')">3️⃣ Autosufficienza</button>
+              <button class="form-tab" onclick="switchFormTab(event,'scheda4')">4️⃣ Abitativa</button>
+              <button class="form-tab" onclick="switchFormTab(event,'scheda5')">5️⃣ Economica</button>
+              <button class="form-tab" onclick="switchFormTab(event,'scheda6')">6️⃣ Familiare</button>
+              <button class="form-tab" onclick="switchFormTab(event,'scheda7')">7️⃣ Giuridica</button>
+            </div>
+
+            <!-- SCHEDA 1: ANAGRAFICA -->
+            <div id="scheda1" class="form-section active">
+              <div class="section-title">1. DATI ANAGRAFICI DEL PAZIENTE</div>
+              <div class="subsection-title">Dati personali</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_nome" class="required">Nome e cognome</label>
+                  <input id="s1_nome" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_luogo_nascita">Luogo di nascita</label>
+                  <input id="s1_luogo_nascita" type="text" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_data_nascita">Data di nascita</label>
+                  <input id="s1_data_nascita" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_stato_civile">Stato civile</label>
+                  <select id="s1_stato_civile">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Celibe/Nubile">Celibe/Nubile</option>
+                    <option value="Coniugato/a">Coniugato/a</option>
+                    <option value="Convivente">Convivente</option>
+                    <option value="Vedovo/a">Vedovo/a</option>
+                    <option value="Separato/a">Separato/a</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_cittadinanza">Cittadinanza</label>
+                  <input id="s1_cittadinanza" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_codice_fiscale">Codice fiscale</label>
+                  <input id="s1_codice_fiscale" type="text" readonly />
+                </div>
+              </div>
+              <div class="subsection-title">Contatti e residenza</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_indirizzo_residenza">Indirizzo di residenza</label>
+                  <input id="s1_indirizzo_residenza" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_indirizzo_domicilio">Indirizzo di domicilio</label>
+                  <input id="s1_indirizzo_domicilio" type="text" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_telefono">Telefono</label>
+                  <input id="s1_telefono" type="tel" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_email">Email</label>
+                  <input id="s1_email" type="email" />
+                </div>
+              </div>
+              <div class="subsection-title">Iscrizione SSN e documentazione</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Iscritto SSN</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s1_ssn" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s1_ssn" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>STP (Straniero Temporaneamente Presente)</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s1_stp" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s1_stp" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Tessera sanitaria</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s1_tessera" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s1_tessera" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s1_permesso_soggiorno">Permesso di soggiorno</label>
+                  <select id="s1_permesso_soggiorno">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Si - in corso">Si - in corso</option>
+                    <option value="Si - scaduto">Si - scaduto</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="subsection-title">Medico di medicina generale</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_mmg_nome">Nome e cognome MMG</label>
+                  <input id="s1_mmg_nome" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_mmg_tel">Telefono MMG</label>
+                  <input id="s1_mmg_tel" type="tel" />
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s1_mmg_email">Email MMG</label>
+                  <input id="s1_mmg_email" type="email" />
+                </div>
+              </div>
+              <div class="subsection-title">Caregiver principale</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_caregiver_tipo">Tipologia caregiver</label>
+                  <select id="s1_caregiver_tipo">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Familiare">Familiare</option>
+                    <option value="Convivente">Convivente</option>
+                    <option value="Non familiare">Non familiare</option>
+                    <option value="Vicino di casa / Volontariato">Vicino di casa / Volontariato</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="s1_caregiver_nome">Nome e cognome caregiver</label>
+                  <input id="s1_caregiver_nome" type="text" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s1_caregiver_tel">Telefono caregiver</label>
+                  <input id="s1_caregiver_tel" type="tel" />
+                </div>
+                <div class="form-group">
+                  <label for="s1_caregiver_email">Email caregiver</label>
+                  <input id="s1_caregiver_email" type="email" />
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda1')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda1')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- SCHEDA 2: INTERVENTI ATTIVI -->
+            <div id="scheda2" class="form-section">
+              <div class="section-title">2. INTERVENTI ATTIVI</div>
+              <p style="font-size:13px;color:#666;margin-bottom:12px;">Indicare gli interventi sanitari, socio-sanitari e sociali attualmente attivi e in carico.</p>
+              <div class="subsection-title">Interventi sanitari</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Interventi sanitari in atto</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s2_int_sanitari" type="checkbox" /> Si</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s2_int_sanitari_spec">Specificare</label>
+                  <textarea id="s2_int_sanitari_spec"></textarea>
+                </div>
+              </div>
+              <div class="subsection-title">Assistenza Domiciliare Integrata (ADI)</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Servizi ADI</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s2_adi_inferm" type="checkbox" /> ADI - Infermieristica</label></div>
+                    <div class="checkbox-item"><label><input id="s2_adi_riab" type="checkbox" /> ADI - Riabilitazione</label></div>
+                    <div class="checkbox-item"><label><input id="s2_adi_fisi" type="checkbox" /> ADI - Fisioterapia</label></div>
+                    <div class="checkbox-item"><label><input id="s2_adi_altro" type="checkbox" /> ADI - Altro</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Servizi sociali</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Servizi attivi</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s2_pasti" type="checkbox" /> Pasti a domicilio</label></div>
+                    <div class="checkbox-item"><label><input id="s2_soc_soc" type="checkbox" /> Servizio Sociale</label></div>
+                    <div class="checkbox-item"><label><input id="s2_trasporto" type="checkbox" /> Trasporto sociale</label></div>
+                    <div class="checkbox-item"><label><input id="s2_telesoccorso" type="checkbox" /> Telesoccorso</label></div>
+                    <div class="checkbox-item"><label><input id="s2_sostegno_abit" type="checkbox" /> Sostegno abitativo</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Cure palliative e intermedie</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Programmi attivi</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s2_cure_pall" type="checkbox" /> Cure Palliative</label></div>
+                    <div class="checkbox-item"><label><input id="s2_cure_inter" type="checkbox" /> Cure Intermedie</label></div>
+                    <div class="checkbox-item"><label><input id="s2_rsa_aperta" type="checkbox" /> RSA Aperta</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda2')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda2')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- SCHEDA 3: AUTOSUFFICIENZA -->
+            <div id="scheda3" class="form-section">
+              <div class="section-title">3. INDICATORI DI AUTOSUFFICIENZA</div>
+              <div class="subsection-title">Indici funzionali</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s3_adl">Indici funzionali - ADL (punteggio)</label>
+                  <input id="s3_adl" type="number" min="0" max="30" />
+                </div>
+                <div class="form-group">
+                  <label for="s3_iadl">Indici funzionali - IADL (punteggio)</label>
+                  <input id="s3_iadl" type="number" min="0" max="8" />
+                </div>
+              </div>
+              <div class="subsection-title">Indici cognitivi</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Livello cognitivo</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s3_cogn" value="Lieve" /> Lieve</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s3_cogn" value="Moderato" /> Moderato</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s3_cogn" value="Grave compromissione" /> Grave compromissione</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Compliance e comportamenti</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s3_compliance">Compliance</label>
+                  <select id="s3_compliance">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Lieve">Lieve</option>
+                    <option value="Moderato">Moderato</option>
+                    <option value="Grave">Grave</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="s3_disturbi">Disturbi comportamentali</label>
+                  <select id="s3_disturbi">
+                    <option value="">-- Selezionare --</option>
+                    <option value="No">No</option>
+                    <option value="Si - in compenso">Si - in compenso</option>
+                    <option value="Si - in scompenso">Si - in scompenso</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Specifiche comportamentali</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s3_wandering" type="checkbox" /> Wandering (disorientamento)</label></div>
+                    <div class="checkbox-item"><label><input id="s3_aggressivita" type="checkbox" /> Aggressività fisica</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Autonomia terapeutica e consapevolezza</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Autonomia nell'assunzione della terapia</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s3_auto_ter" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s3_auto_ter" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s3_assicura_ter">Se no - Chi assicura l'assunzione</label>
+                  <input id="s3_assicura_ter" type="text" />
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s3_consapevolezza">Consapevolezza paziente della propria condizione</label>
+                  <select id="s3_consapevolezza">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Consapevole">Consapevole</option>
+                    <option value="Alternante">Alternante (momenti di consapevolezza e poca consapevolezza)</option>
+                    <option value="Scarso">Scarso</option>
+                    <option value="Proattivo">Proattivo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda3')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda3')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- SCHEDA 4: ABITATIVA -->
+            <div id="scheda4" class="form-section">
+              <div class="section-title">4. CONDIZIONE SOCIO-ABITATIVA</div>
+              <div class="subsection-title">Alloggio</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s4_tipo_aloggio">Tipo di alloggio</label>
+                  <select id="s4_tipo_aloggio">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Di proprietà">Di proprietà</option>
+                    <option value="In affitto / Comodato">In affitto / Comodato</option>
+                    <option value="Alloggio pubblico">Alloggio pubblico</option>
+                    <option value="Altro">Altro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="s4_zona">Zona</label>
+                  <select id="s4_zona">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Urbana">Urbana</option>
+                    <option value="Sub-urbana">Sub-urbana</option>
+                    <option value="Rurale">Rurale</option>
+                    <option value="Montana">Montana</option>
+                  </select>
+                </div>
+              </div>
+              <div class="subsection-title">Fruibilità ambiente di vita</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Caratteristiche abitative</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s4_unico_liv" type="checkbox" /> Abitazione su unico livello</label></div>
+                    <div class="checkbox-item"><label><input id="s4_piu_liv" type="checkbox" /> Abitazione su più livelli</label></div>
+                    <div class="checkbox-item"><label><input id="s4_ascensore" type="checkbox" /> Ascensore</label></div>
+                    <div class="checkbox-item"><label><input id="s4_scale" type="checkbox" /> Scale all'ingresso</label></div>
+                    <div class="checkbox-item"><label><input id="s4_camera" type="checkbox" /> Camera dedicata all'assistito</label></div>
+                    <div class="checkbox-item"><label><input id="s4_letto_artic" type="checkbox" /> Letto articolato</label></div>
+                    <div class="checkbox-item"><label><input id="s4_sollevatore" type="checkbox" /> Sollevatore</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Servizi igienici</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Stato servizi igienici</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s4_igienici" value="Agibili / Accessibili" /> Agibili / Accessibili</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s4_igienici" value="Non agibili / Non accessibili" /> Non agibili / Non accessibili</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s4_igienici_spec">Specificare se inadeguati</label>
+                  <input id="s4_igienici_spec" type="text" />
+                </div>
+              </div>
+              <div class="subsection-title">Condizioni igieniche</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s4_cond_igien">Condizioni igieniche abitative</label>
+                  <select id="s4_cond_igien">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Buone">Buone</option>
+                    <option value="Discrete">Discrete</option>
+                    <option value="Scarse">Scarse</option>
+                    <option value="Pessime">Pessime</option>
+                  </select>
+                </div>
+              </div>
+              <div class="subsection-title">Barriere architettoniche e rischi</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Presenza di barriere architettoniche</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s4_barriere" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s4_barriere" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s4_barriere_spec">Specificare tipologia barriera/rischio</label>
+                  <textarea id="s4_barriere_spec"></textarea>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s4_data_barriere">Data pratica superamento barriere</label>
+                  <input id="s4_data_barriere" type="date" />
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda4')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda4')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- SCHEDA 5: ECONOMICA -->
+            <div id="scheda5" class="form-section">
+              <div class="section-title">5. CONDIZIONE SOCIO-ECONOMICA</div>
+              <div class="subsection-title">ISEE</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Attestazione ISEE in corso di validità</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s5_isee" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s5_isee" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s5_valore_isee">Valore ISEE</label>
+                  <input id="s5_valore_isee" type="number" />
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s5_tipologia_isee">Tipologia ISEE</label>
+                  <select id="s5_tipologia_isee">
+                    <option value="">-- Selezionare --</option>
+                    <option value="Ordinario">Ordinario</option>
+                    <option value="Socio-sanitario">Socio-sanitario</option>
+                    <option value="Minorenni">Minorenni</option>
+                  </select>
+                </div>
+              </div>
+              <div class="subsection-title">Fonti di reddito</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Fonti di reddito</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s5_reddito_lavoro" type="checkbox" /> Reddito da lavoro</label></div>
+                    <div class="checkbox-item"><label><input id="s5_pensione" type="checkbox" /> Pensione / Indennità</label></div>
+                    <div class="checkbox-item"><label><input id="s5_altro_reddito" type="checkbox" /> Altro</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s5_altre_fonti">Specificare altre fonti</label>
+                  <textarea id="s5_altre_fonti"></textarea>
+                </div>
+              </div>
+              <div class="subsection-title">Situazione economica</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Condizione economica</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s5_cond_econ" value="Autonomo e in equilibrio finanziario" /> Autonomo e in equilibrio finanziario</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s5_cond_econ" value="Riceve aiuto da parenti" /> Riceve aiuto da parenti e/o altre persone</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s5_cond_econ" value="In condizione di bisogno" /> In condizione di bisogno economico senza aiuti</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s5_criticita">Specificare criticità economiche</label>
+                  <textarea id="s5_criticita"></textarea>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda5')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda5')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- SCHEDA 6: FAMILIARE -->
+            <div id="scheda6" class="form-section">
+              <div class="section-title">6. CONDIZIONE SOCIO-FAMILIARE</div>
+              <div class="subsection-title">Composizione nucleo familiare</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Composizione del nucleo</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s6_comp" value="Da solo/a" /> Da solo/a</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s6_comp" value="In nucleo con coniuge/convivente" /> In nucleo con coniuge/convivente</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s6_comp" value="In nucleo con propri familiari" /> In nucleo con propri familiari o parenti</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Soggetti fragili nel nucleo</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Soggetti fragili</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s6_fragili_alt" type="checkbox" /> Presenza di altri soggetti fragili (anziani non autosufficienti, disabili)</label></div>
+                    <div class="checkbox-item"><label><input id="s6_minori" type="checkbox" /> Presenza di minori</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s6_minori_percorsi">Se minori: percorsi attivi a tutela</label>
+                  <textarea id="s6_minori_percorsi"></textarea>
+                </div>
+              </div>
+              <div class="subsection-title">Genitorialità e responsabilità</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Decadimento responsabilità genitoriale</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s6_decad" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s6_decad" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s6_decad_spec">Se si - Specificare</label>
+                  <textarea id="s6_decad_spec"></textarea>
+                </div>
+              </div>
+              <div class="subsection-title">Stato del caregiver</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Stato caregiver nell'assistenza</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s6_care_attivo" type="checkbox" /> Presente e attivo nell'assistenza</label></div>
+                    <div class="checkbox-item"><label><input id="s6_care_fatica" type="checkbox" /> Fatica rispetto all'assistenza</label></div>
+                    <div class="checkbox-item"><label><input id="s6_care_non_attivo" type="checkbox" /> Non attivo</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Caregiver competenti professionalmente</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Competenze caregiver</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s6_comp_care" value="Attivabili totalmente" /> Attivabili totalmente</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s6_comp_care" value="Attivabili parzialmente" /> Attivabili parzialmente</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s6_comp_care" value="Non attivabili" /> Non attivabili</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Conflittualità familiare</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Conflittualità familiare presente</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s6_conf" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s6_conf" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s6_percorsi">Percorsi ATTIVI per supporto relazioni familiari</label>
+                  <textarea id="s6_percorsi"></textarea>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Situazione coniugale</label>
+                  <div class="checkbox-group">
+                    <div class="checkbox-item"><label><input id="s6_sep" type="checkbox" /> Separazione coniugale / Interruzione convivenza</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda6')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda6')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- SCHEDA 7: GIURIDICA -->
+            <div id="scheda7" class="form-section">
+              <div class="section-title">7. PROTEZIONE GIURIDICA</div>
+              <div class="subsection-title">Amministratore di sostegno</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Amministratore di sostegno presente</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_adis" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_adis" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_adis_nome">Nome e cognome</label>
+                  <input id="s7_adis_nome" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_adis_tel">Telefono</label>
+                  <input id="s7_adis_tel" type="tel" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_adis_email">Email</label>
+                  <input id="s7_adis_email" type="email" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_adis_data">Data incarico</label>
+                  <input id="s7_adis_data" type="date" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_adis_rgn">N. / RGN</label>
+                  <input id="s7_adis_rgn" type="text" />
+                </div>
+                <div class="form-group">
+                  <label>Incarico di assistenza</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_adis_ass" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_adis_ass" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Incarico di rappresentanza per gli atti</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_adis_rappr" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_adis_rappr" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="subsection-title">Tutore</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Tutore presente</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_tutore" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_tutore" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_tut_nome">Nome e cognome</label>
+                  <input id="s7_tut_nome" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_tut_tel">Telefono</label>
+                  <input id="s7_tut_tel" type="tel" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_tut_email">Email</label>
+                  <input id="s7_tut_email" type="email" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_tut_data">Data incarico</label>
+                  <input id="s7_tut_data" type="date" />
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s7_tut_rgn">N. / RGN</label>
+                  <input id="s7_tut_rgn" type="text" />
+                </div>
+              </div>
+              <div class="subsection-title">Curatore</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Curatore presente</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_curatore" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_curatore" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_cur_nome">Nome e cognome</label>
+                  <input id="s7_cur_nome" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_cur_tel">Telefono</label>
+                  <input id="s7_cur_tel" type="tel" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_cur_email">Email</label>
+                  <input id="s7_cur_email" type="email" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_cur_data">Data incarico</label>
+                  <input id="s7_cur_data" type="date" />
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s7_cur_rgn">N. / RGN</label>
+                  <input id="s7_cur_rgn" type="text" />
+                </div>
+              </div>
+              <div class="subsection-title">Procura attiva</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label>Procura attiva</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_procura" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_procura" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s7_procura_spec">Specificare</label>
+                  <textarea id="s7_procura_spec"></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_procurante">Nome e cognome procurante</label>
+                  <input id="s7_procurante" type="text" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_proc_tel">Telefono</label>
+                  <input id="s7_proc_tel" type="tel" />
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s7_proc_email">Email</label>
+                  <input id="s7_proc_email" type="email" />
+                </div>
+              </div>
+              <div class="subsection-title">Necessità di protezione giuridica</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Necessità di richiesta protezione giuridica</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_nec_prot" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_nec_prot" value="No" /> No</label></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="s7_stato_rich">Stato</label>
+                  <select id="s7_stato_rich">
+                    <option value="">-- Selezionare --</option>
+                    <option value="In corso">In corso</option>
+                    <option value="Predisporre documentazione">Predisporre documentazione</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="s7_data_ist">Data istanza</label>
+                  <input id="s7_data_ist" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="s7_tribunale">Tribunale</label>
+                  <input id="s7_tribunale" type="text" />
+                </div>
+              </div>
+              <div class="subsection-title">Misure di sicurezza attive</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Misure di sicurezza attive</label>
+                  <div class="radio-group">
+                    <div class="radio-item"><label><input type="radio" name="s7_misure" value="Si" /> Si</label></div>
+                    <div class="radio-item"><label><input type="radio" name="s7_misure" value="No" /> No</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label for="s7_misure_spec">Specificare misure di sicurezza</label>
+                  <textarea id="s7_misure_spec"></textarea>
+                </div>
+              </div>
+              <div class="form-nav">
+                <button type="button" class="clean-btn" onclick="pulisciScheda('scheda7')">🧹 Pulisci</button>
+                <button type="button" class="primary-btn" onclick="salvaScheda('scheda7')">💾 Salva Sezione</button>
+              </div>
+            </div>
+
+            <!-- NAVIGAZIONE PRINCIPALE -->
+            <div class="form-nav" style="margin-top:20px;border-top:1px solid #e0e0e0;padding-top:20px;">
+              <button type="button" class="primary-btn" onclick="salvaPersonaCompleta()">💾 Salva Cartella Completa</button>
+              <button type="button" class="support-btn" onclick="esportaPersonaJSON()">📥 Esporta JSON</button>
+              <button type="button" class="clean-btn" onclick="pulisciTutto()">🗑️ Pulisci Tutto</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: LISTA -->
+        <div id="lista" class="tab-pane">
+          <div style="font-weight:700;color:#667eea;margin-bottom:10px;">👥 Persone rilevate</div>
+          <div id="filterInfo" class="filter-info" style="display:none;"></div>
+          <div id="personList" class="records-list"></div>
+        </div>
+      </div>
+
+      <footer>
+        <span class="sync-indicator"></span>Sincronizzazione locale pronta – dati salvati nel browser
+      </footer>
+    </div>
+
+    <!-- MODAL VISUALIZZAZIONE -->
+    <div class="modal-backdrop" id="viewModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>📋 Dettagli completi persona</span>
+          <button class="modal-close" onclick="closeViewModal()">×</button>
+        </div>
+        <div id="viewModalTabs" class="modal-tabs"></div>
+        <div id="viewModalContent"></div>
+        <div style="margin-top:14px;text-align:right;">
+          <button class="primary-btn" style="padding:8px 14px;font-size:13px;" onclick="closeViewModal()">Chiudi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let usersDB={
+      'andrea@ats.it':{password:'admin2025!',nome:'Andrea Rossi',ruolo:'🔐 Amministratore',avatar:'AR',organizzazione:'ATS Insubria - Admin'},
+      'donatella@ats.it':{password:'super2025!',nome:'Donatella Bianchi',ruolo:'👨‍💼 Supervisore',avatar:'DB',organizzazione:'ATS Insubria - Supervisione'},
+      'demo@asst.it':{password:'demo123',nome:'Demo Operatore',ruolo:'👤 Demo',avatar:'DM',organizzazione:'Demo'},
+      'operatore.lariana@asst.it':{password:'asst1@2025',nome:'Op. ASST Sette Laghi',ruolo:'🏥 Operatore Sanitario',avatar:'AS',organizzazione:'ASST Sette Laghi'},
+      'operatore.settelaghi@asst.it':{password:'asst2@2025',nome:'Op. ASST Valle Olona',ruolo:'🏥 Operatore Sanitario',avatar:'AV',organizzazione:'ASST Valle Olona'},
+      'operatore.valleolona@asst.it':{password:'asst3@2025',nome:'Op. ASST Lariana',ruolo:'🏥 Operatore Sanitario',avatar:'AL',organizzazione:'ASST Lariana'},
+      'operatore.arcisate@ambiti.it':{password:'arcisate@2025',nome:'Op. Ambito Arcisate',ruolo:'👤 Operatore Sociale',avatar:'OA',organizzazione:'Ambito Sette Laghi'},
+      'operatore.azzate@ambiti.it':{password:'azzate@2025',nome:'Op. Ambito Azzate',ruolo:'👤 Operatore Sociale',avatar:'OZ',organizzazione:'Ambito Sette Laghi'},
+      'operatore.laveno@ambiti.it':{password:'laveno@2025',nome:'Op. Ambito Laveno',ruolo:'👤 Operatore Sociale',avatar:'OL',organizzazione:'Ambito Sette Laghi'},
+      'operatore.luino@ambiti.it':{password:'luino@2025',nome:'Op. Ambito Luino',ruolo:'👤 Operatore Sociale',avatar:'OU',organizzazione:'Ambito Sette Laghi'},
+      'operatore.sesto@ambiti.it':{password:'sesto@2025',nome:'Op. Ambito Sesto',ruolo:'👤 Operatore Sociale',avatar:'OS',organizzazione:'Ambito Sette Laghi'},
+      'operatore.tradate@ambiti.it':{password:'tradate@2025',nome:'Op. Ambito Tradate',ruolo:'👤 Operatore Sociale',avatar:'OT',organizzazione:'Ambito Sette Laghi'},
+      'operatore.varese@ambiti.it':{password:'varese@2025',nome:'Op. Ambito Varese',ruolo:'👤 Operatore Sociale',avatar:'OV',organizzazione:'Ambito Sette Laghi'},
+      'operatore.busto@ambiti.it':{password:'busto@2025',nome:'Op. Ambito Busto',ruolo:'👤 Operatore Sociale',avatar:'OB',organizzazione:'Ambito Valle Olona'},
+      'operatore.gallarate@ambiti.it':{password:'gallarate@2025',nome:'Op. Ambito Gallarate',ruolo:'👤 Operatore Sociale',avatar:'OG',organizzazione:'Ambito Valle Olona'},
+      'operatore.saronno@ambiti.it':{password:'saronno@2025',nome:'Op. Ambito Saronno',ruolo:'👤 Operatore Sociale',avatar:'OR',organizzazione:'Ambito Valle Olona'},
+      'operatore.somma@ambiti.it':{password:'somma@2025',nome:'Op. Ambito Somma',ruolo:'👤 Operatore Sociale',avatar:'OX',organizzazione:'Ambito Valle Olona'},
+      'operatore.cantu@ambiti.it':{password:'cantu@2025',nome:'Op. Ambito Cantù',ruolo:'👤 Operatore Sociale',avatar:'OC',organizzazione:'Ambito Lariana'},
+      'operatore.como@ambiti.it':{password:'como@2025',nome:'Op. Ambito Como',ruolo:'👤 Operatore Sociale',avatar:'OCo',organizzazione:'Ambito Lariana'},
+      'operatore.erba@ambiti.it':{password:'erba@2025',nome:'Op. Ambito Erba',ruolo:'👤 Operatore Sociale',avatar:'OE',organizzazione:'Ambito Lariana'},
+      'operatore.lomazzo@ambiti.it':{password:'lomazzo@2025',nome:'Op. Ambito Lomazzo',ruolo:'👤 Operatore Sociale',avatar:'OW',organizzazione:'Ambito Lariana'},
+      'operatore.mediolario@ambiti.it':{password:'mediolario@2025',nome:'Op. Ambito Medio Lario',ruolo:'👤 Operatore Sociale',avatar:'OM',organizzazione:'Ambito Lariana'},
+      'operatore.olgiate@ambiti.it':{password:'olgiate@2025',nome:'Op. Ambito Olgiate',ruolo:'👤 Operatore Sociale',avatar:'OI',organizzazione:'Ambito Lariana'}
+    };
+    let personeRilevate={};
+    let currentPersonaId=null,currentUserLoggato=null;
+    const LS_USERS='CSI_usersDB',LS_PERSONE='CSI_personeRilevate',LS_USER_LOGGATO='CSI_userLoggato',LS_USER_RICORDATO='CSI_userRicordato';
+
+    function caricaDati(){try{const u=localStorage.getItem(LS_USERS);if(u)usersDB={...usersDB,...JSON.parse(u)};const p=localStorage.getItem(LS_PERSONE);if(p)personeRilevate=JSON.parse(p);}catch(e){}}
+    function salvaDati(){localStorage.setItem(LS_USERS,JSON.stringify(usersDB));localStorage.setItem(LS_PERSONE,JSON.stringify(personeRilevate));}
+    function setAlert(id,m,t){const c=document.getElementById(id);if(!m){c.innerHTML='';return;}c.innerHTML=`<div class="alert alert-${t}">${m}</div>`;setTimeout(()=>{c.innerHTML=''},5000);}
+    function showToast(m,t){const e=document.createElement('div');e.className=`alert alert-${t}`;e.textContent=m;e.style.position='fixed';e.style.top='18px';e.style.right='18px';e.style.zIndex=9999;e.style.maxWidth='380px';document.body.appendChild(e);setTimeout(()=>e.remove(),3500);}
+
+    function aggiornaListaUtentiLogin(){const l=document.getElementById('usersList');const e=Object.keys(usersDB).sort();if(!e.length){l.innerHTML='<div class="no-records">Nessun utente</div>';return;}l.innerHTML=e.map(em=>{const u=usersDB[em];return`<div class="user-item"><div class="user-info" onclick="usaUtenteLogin('${em}')"><div class="user-email">${em}</div><div class="user-role">${u.ruolo}</div><div class="user-org">${u.organizzazione}</div></div><button class="danger-btn" onclick="eliminaUtenteLogin(event,'${em}')">🗑️</button></div>`;}).join('');}
+    function toggleAddUserForm(){document.getElementById('addUserForm').classList.toggle('show');}
+    function aggiungiUtente(e){e.preventDefault();const em=document.getElementById('newEmail').value.trim().toLowerCase();const p=document.getElementById('newPassword').value.trim();const n=document.getElementById('newNome').value.trim();const r=document.getElementById('newRuolo').value;const o=document.getElementById('newOrg').value.trim();if(!em||!p||!n||!r||!o){setAlert('loginAlert2','❌ Compilare tutti i campi','error');return;}if(usersDB[em]){setAlert('loginAlert2','❌ Email già presente','error');return;}const a=n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)||'US';usersDB[em]={password:p,nome:n,ruolo:r,avatar:a,organizzazione:o};salvaDati();aggiornaListaUtentiLogin();['newEmail','newPassword','newNome','newRuolo','newOrg'].forEach(id=>document.getElementById(id).value='');toggleAddUserForm();setAlert('loginAlert2',`✅ Utente "${n}" aggiunto`,'success');}
+    function eliminaUtenteLogin(e,em){e.stopPropagation();if(!confirm(`Eliminare ${em}?`))return;delete usersDB[em];salvaDati();aggiornaListaUtentiLogin();setAlert('loginAlert2','✅ Utente eliminato','success');}
+    function usaUtenteLogin(em){document.getElementById('username').value=em;document.getElementById('password').focus();}
+    function esportaUtentiJSON(){const b=new Blob([JSON.stringify(usersDB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`CSI_Utenti_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();setAlert('loginAlert2','✅ Utenti esportati','success');}
+    function importaUtentiJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);usersDB={...usersDB,...imp};salvaDati();aggiornaListaUtentiLogin();setAlert('loginAlert2',`✅ Importati ${Object.keys(imp).length} utenti`,'success');}catch{setAlert('loginAlert2','❌ Errore','error');}finally{e.target.value='';}};r.readAsText(f);}
+
+    function effettuaLogin(e){e.preventDefault();const u=document.getElementById('username').value.trim().toLowerCase();const p=document.getElementById('password').value;const r=document.getElementById('rememberMe').checked;const ut=usersDB[u];if(!ut){setAlert('loginAlert','❌ Utente non trovato','error');return;}if(ut.password!==p){setAlert('loginAlert','❌ Password errata','error');return;}if(r)localStorage.setItem(LS_USER_RICORDATO,u);const ud={username:u,nome:ut.nome,ruolo:ut.ruolo,avatar:ut.avatar,organizzazione:ut.organizzazione,loginTime:new Date().toLocaleString('it-IT')};localStorage.setItem(LS_USER_LOGGATO,JSON.stringify(ud));currentUserLoggato=ud;setAlert('loginAlert',`✅ Benvenuto ${ut.nome}`,'success');setTimeout(mostraApp,400);}
+    function accessoGuest(){const ud={username:'ospite',nome:'Ospite',ruolo:'👥 Ospite',avatar:'OS',organizzazione:'Accesso limitato',loginTime:new Date().toLocaleString('it-IT')};localStorage.setItem(LS_USER_LOGGATO,JSON.stringify(ud));currentUserLoggato=ud;mostraApp();}
+    function passwordDimenticata(){alert('🔐 Password dimenticata?\n\nContatta andrea@ats.it');}
+
+    function mostraApp(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('appScreen').classList.remove('hidden');const u=JSON.parse(localStorage.getItem(LS_USER_LOGGATO));if(!u)return;currentUserLoggato=u;document.getElementById('userName').textContent=u.nome;document.getElementById('userRole').textContent=u.ruolo;document.getElementById('userOrg').textContent=u.organizzazione;document.getElementById('userAvatar').textContent=u.avatar;const isAdmin=u.username==='andrea@ats.it'||u.username==='donatella@ats.it';document.getElementById('adminPanel').classList.toggle('show',isAdmin);aggiornaListaPersone();aggiornaPersoneButtons();}
+    function effettuaLogout(){if(!confirm('Vuoi uscire?'))return;localStorage.removeItem(LS_USER_LOGGATO);currentUserLoggato=null;currentPersonaId=null;document.getElementById('appScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');document.getElementById('password').value='';}
+
+    function mostraFormNuovaPersona(){document.getElementById('nuovaPersonaForm').style.display='block';document.getElementById('formTabsContainer').style.display='none';nascondiEditorPersona();currentPersonaId=null;}
+    function nascondiFormNuovaPersona(){document.getElementById('nuovaPersonaForm').style.display='none';document.getElementById('newPersonaNome').value='';document.getElementById('newPersonaCF').value='';}
+    function creaPersona(){const n=document.getElementById('newPersonaNome').value.trim();const c=document.getElementById('newPersonaCF').value.trim();if(!n||!c){showToast('❌ Compilare nome e CF','error');return;}const id='p_'+Date.now();personeRilevate[id]={id,nome:n,codice_fiscale:c,creato_da:currentUserLoggato?.username||'sconosciuto',data_creazione:new Date().toISOString(),dati:{scheda1:{},scheda2:{},scheda3:{},scheda4:{},scheda5:{},scheda6:{},scheda7:{}}};salvaDati();nascondiFormNuovaPersona();aggiornaPersoneButtons();selezionaPersona(id);showToast(`✅ Persona "${n}" creata`,'success');}
+
+    function aggiornaPersoneButtons(){const c=document.getElementById('personButtons');const u=currentUserLoggato;if(!u)return;const isAdminVisione=u.username==='andrea@ats.it'||u.username==='donatella@ats.it';let l=Object.values(personeRilevate);if(!isAdminVisione)l=l.filter(p=>p.creato_da===u.username);if(!l.length){c.innerHTML='<span style="font-size:13px;color:#777;">Nessuna persona</span>';return;}c.innerHTML=l.map(p=>`<button class="person-btn ${p.id===currentPersonaId?'active':''}" onclick="selezionaPersona('${p.id}')">${p.nome}</button>`).join('');}
+
+    function selezionaPersona(id){const p=personeRilevate[id];if(!p)return;currentPersonaId=id;document.getElementById('formTabsContainer').style.display='block';document.getElementById('nuovaPersonaForm').style.display='none';document.getElementById('s1_nome').value=p.nome||'';document.getElementById('s1_codice_fiscale').value=p.codice_fiscale||'';mostraEditorPersona(p.nome||'');caricaDatiPersona();switchFormTab(null,'scheda1');aggiornaPersoneButtons();}
+    function mostraEditorPersona(n){const e=document.getElementById('personaNameEditor');e.style.display='flex';document.getElementById('editPersonaName').value=n||'';}
+    function nascondiEditorPersona(){document.getElementById('personaNameEditor').style.display='none';}
+    function aggiornaPersonaName(){if(!currentPersonaId){showToast('❌ Nessuna persona selezionata','error');return;}const n=document.getElementById('editPersonaName').value.trim();if(!n){showToast('❌ Nome valido richiesto','error');return;}const p=personeRilevate[currentPersonaId];p.nome=n;document.getElementById('s1_nome').value=n;salvaDati();aggiornaPersoneButtons();aggiornaListaPersone();showToast(`✅ Nome aggiornato`,'success');}
+
+    function caricaDatiPersona(){if(!currentPersonaId)return;const p=personeRilevate[currentPersonaId];if(!p)return;const d=p.dati;Object.keys(d).forEach(sch=>{const v=d[sch];Object.keys(v).forEach(k=>{const val=v[k];const el=document.getElementById(k);if(!el)return;if(el.type==='checkbox'){el.checked=val===true;}else if(el.type==='radio'){const r=document.querySelector(`input[name="${el.name}"][value="${val}"]`);if(r)r.checked=true;}else{el.value=val;}});});}
+
+    function switchFormTab(e,id){if(e)e.preventDefault();document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.form-tab').forEach(b=>b.classList.remove('active'));const p=document.getElementById(id);if(p)p.classList.add('active');if(e&&e.currentTarget)e.currentTarget.classList.add('active');else{const b=document.querySelector(`.form-tab[onclick*="'${id}'"]`);if(b)b.classList.add('active');}}
+
+    function salvaScheda(sch){if(!currentPersonaId){showToast('❌ Nessuna persona','error');return;}const p=personeRilevate[currentPersonaId];const d={};const ins=document.querySelectorAll(`#${sch} input, #${sch} select, #${sch} textarea`);ins.forEach(el=>{if(!el.id&&!el.name)return;if(el.type==='checkbox'){d[el.id]=el.checked;}else if(el.type==='radio'){if(el.checked)d['radio_'+el.name]=el.value;}else{d[el.id]=el.value;}});p.dati[sch]=d;salvaDati();showToast('✅ Sezione salvata','success');}
+
+    function pulisciScheda(sch){if(!confirm('Pulire questa sezione?'))return;const ins=document.querySelectorAll(`#${sch} input, #${sch} select, #${sch} textarea`);ins.forEach(el=>{if(el.type==='checkbox'||el.type==='radio'){el.checked=false;}else{el.value='}';}});showToast('✅ Sezione pulita','success');}
+
+    function salvaPersonaCompleta(){if(!currentPersonaId){showToast('❌ Nessuna persona','error');return;}const sch=['scheda1','scheda2','scheda3','scheda4','scheda5','scheda6','scheda7'];sch.forEach(s=>salvaScheda(s));aggiornaListaPersone();showToast('✅ Cartella salvata','success');}
+
+    function pulisciTutto(){if(!confirm('Pulire tutte le sezioni?'))return;const sch=['scheda1','scheda2','scheda3','scheda4','scheda5','scheda6','scheda7'];sch.forEach(s=>pulisciScheda(s));}
+
+    function esportaPersonaJSON(){if(!currentPersonaId){showToast('❌ Nessuna persona','error');return;}const p=personeRilevate[currentPersonaId];const b=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`CSI_${p.nome}_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();showToast('✅ Cartella esportata','success');}
+
+    function aggiornaListaPersone(){const l=document.getElementById('personList');const i=document.getElementById('filterInfo');const u=currentUserLoggato;if(!u)return;const isAdmin=u.username==='andrea@ats.it'||u.username==='donatella@ats.it';let li=Object.values(personeRilevate);if(!isAdmin){li=li.filter(p=>p.creato_da===u.username);i.style.display='block';i.innerHTML=`ℹ️ Filtro: visualizzi <span class="operator-name">${li.length}</span> persone da te rilevate`;}else{i.style.display='block';i.innerHTML=`✅ Accesso: <span class="operator-name">${li.length}</span> persone totali`;}if(!li.length){l.innerHTML='<div class="no-records">Nessuna persona</div>';return;}l.innerHTML=li.map(p=>{const sf=Object.keys(p.dati).filter(k=>Object.keys(p.dati[k]).length).length;const c=usersDB[p.creato_da]?.nome||p.creato_da;const ex=isAdmin&&p.creato_da!==u.username?`<br><strong>Rilevato da:</strong> ${c}`:'';return`<div class="record-item"><div><div class="record-name">👤 ${p.nome}</div><div class="record-details"><strong>CF:</strong> ${p.codice_fiscale||'-'}<br><strong>Schede:</strong> ${sf}/7${ex}</div></div><div class="record-buttons"><button class="record-btn record-btn-view" onclick="viewPersona('${p.id}')">👁️</button>${p.creato_da===u.username||isAdmin?`<button class="record-btn record-btn-edit" onclick="selezionaPersonaPerEdit('${p.id}')">✏️</button><button class="record-btn record-btn-delete" onclick="eliminaPersona('${p.id}')">🗑️</button>`:''}</div></div>`;}).join('');}
+
+    function viewPersona(id){const p=personeRilevate[id];if(!p)return;const d=p.dati;const tit={scheda1:'1️⃣ Anagrafica',scheda2:'2️⃣ Interventi',scheda3:'3️⃣ Autosufficienza',scheda4:'4️⃣ Abitativa',scheda5:'5️⃣ Economica',scheda6:'6️⃣ Familiare',scheda7:'7️⃣ Giuridica'};const tabs=Object.keys(tit).map((k,i)=>`<button class="modal-tab ${i===0?'active':''}" onclick="switchViewTab(event,'${id}','${k}')">${tit[k]}</button>`).join('');document.getElementById('viewModalTabs').innerHTML=tabs;document.getElementById('viewModalContent').innerHTML=generaContenutoScheda(d,'scheda1');document.getElementById('viewModal').classList.add('show');currentPersonaId=id;}
+
+    function generaContenutoScheda(d,s){const da=d[s]||{};let h='<div style="font-size:13px;line-height:1.6;">';Object.keys(da).forEach(k=>{const v=da[k];if(v===''||v===null||v===undefined)return;const l=k.replace(/^s\d_/,'').replace(/^radio_/,'').replace(/_/g,' ').toUpperCase();const di=typeof v==='boolean'?v?'✅ Si':'❌ No':v;h+=`<p><strong>${l}:</strong> ${di}</p>`});if(h==='<div style="font-size:13px;line-height:1.6;">') h+='<p>Nessun dato.</p>';h+='</div>';return h;}
+
+    function switchViewTab(e,id,s){const p=personeRilevate[id];if(!p)return;document.querySelectorAll('#viewModal .modal-tab').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');document.getElementById('viewModalContent').innerHTML=generaContenutoScheda(p.dati,s);}
+
+    function closeViewModal(){document.getElementById('viewModal').classList.remove('show');}
+
+    function selezionaPersonaPerEdit(id){const p=personeRilevate[id];const u=currentUserLoggato;const isAdmin=u.username==='andrea@ats.it'||u.username==='donatella@ats.it';if(p.creato_da!==u.username&&!isAdmin){showToast('❌ Non hai permessi','error');return;}switchTab(null,'rilevamenti');selezionaPersona(id);window.scrollTo({top:0,behavior:'smooth'});}
+
+    function eliminaPersona(id){const p=personeRilevate[id];const u=currentUserLoggato;const isAdmin=u.username==='andrea@ats.it'||u.username==='donatella@ats.it';if(p.creato_da!==u.username&&!isAdmin){showToast('❌ Non hai permessi','error');return;}if(!confirm(`Eliminare ${p.nome}?`))return;delete personeRilevate[id];salvaDati();if(currentPersonaId===id)currentPersonaId=null;aggiornaPersoneButtons();aggiornaListaPersone();nascondiEditorPersona();showToast('✅ Persona eliminata','success');}
+
+    function switchTab(e,id){document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));const p=document.getElementById(id);if(p)p.classList.add('active');if(e&&e.currentTarget)e.currentTarget.classList.add('active');else{const b=document.querySelector(`.tab-button[data-tab="${id}"]`);if(b)b.classList.add('active');}}
+
+    function toggleUsersManagement(){const m=document.getElementById('usersModal');m.classList.toggle('show');if(m.classList.contains('show'))aggiornaListaUtentiAdmin();}
+
+    function aggiornaListaUtentiAdmin(){const l=document.getElementById('adminUsersList');const em=Object.keys(usersDB).sort();if(!em.length){l.innerHTML='<div class="no-records">Nessun utente</div>';return;}l.innerHTML=em.map(e=>{const u=usersDB[e];return`<div class="user-item"><div class="user-info"><div class="user-email">${e}</div><div class="user-role">${u.ruolo}</div><div class="user-org">${u.organizzazione}</div></div><button class="danger-btn" onclick="eliminaUtenteAdmin('${e}')">🗑️</button></div>`;}).join('');}
+
+    function toggleAddUserFormAdmin(){document.getElementById('addUserFormAdmin').classList.toggle('show');}
+
+    function aggiungiUtenteAdmin(e){e.preventDefault();const em=document.getElementById('adminNewEmail').value.trim().toLowerCase();const p=document.getElementById('adminNewPassword').value.trim();const n=document.getElementById('adminNewNome').value.trim();const r=document.getElementById('adminNewRuolo').value;const o=document.getElementById('adminNewOrg').value.trim();if(!em||!p||!n||!r||!o){showToast('❌ Compilare tutti i campi','error');return;}if(usersDB[em]){showToast('❌ Email già presente','error');return;}const a=n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)||'US';usersDB[em]={password:p,nome:n,ruolo:r,avatar:a,organizzazione:o};salvaDati();aggiornaListaUtentiAdmin();['adminNewEmail','adminNewPassword','adminNewNome','adminNewRuolo','adminNewOrg'].forEach(id=>document.getElementById(id).value='');toggleAddUserFormAdmin();showToast(`✅ Utente aggiunto`,'success');}
+
+    function eliminaUtenteAdmin(em){if(!confirm(`Eliminare ${em}?`))return;delete usersDB[em];salvaDati();aggiornaListaUtentiAdmin();showToast('✅ Utente eliminato','success');}
+
+    function esportaRilevamenti(){const p={utente:currentUserLoggato,persone:personeRilevate,data_export:new Date().toLocaleString('it-IT')};const b=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`CSI_Rilevamenti_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();showToast('✅ Dati esportati','success');}
+
+    function importaRilevamenti(){document.getElementById('fileInputApp').click();}
+
+    function importaRilevamentiFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);personeRilevate={...personeRilevate,...(d.persone||{})};salvaDati();aggiornaPersoneButtons();aggiornaListaPersone();showToast(`✅ Importate ${Object.keys(d.persone||{}).length} persone`,'success');}catch{showToast('❌ Errore','error');}finally{e.target.value='';}};r.readAsText(f);}
+
+    window.addEventListener('load',()=>{caricaDati();aggiornaListaUtentiLogin();const u=localStorage.getItem(LS_USER_LOGGATO);const ur=localStorage.getItem(LS_USER_RICORDATO);if(u){mostraApp();}else if(ur){document.getElementById('username').value=ur;document.getElementById('password').focus();}});
+  </script>
+</body>
+</html>
