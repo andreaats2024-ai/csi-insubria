@@ -1,0 +1,2848 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartella Sociale CSI - ATS Insubria</title>
+    <style>
+        :root {
+            --color-primary: #208091;
+            --color-primary-hover: #1a6b78;
+            --color-secondary: #e67e22;
+            --color-bg: #f5f5f5;
+            --color-surface: #ffffff;
+            --color-text: #2c3e50;
+            --color-text-light: #7f8c8d;
+            --color-border: #ecf0f1;
+            --color-error: #e74c3c;
+            --color-success: #27ae60;
+            --color-warning: #f39c12;
+            --color-info: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-light);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--color-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--color-surface);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        /* ANIMAZIONI LOADING */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(32, 128, 145, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-primary);
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-message {
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .success-animation {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--color-success);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--color-success);
+        }
+
+        .sync-indicator.syncing {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--color-info);
+            color: var(--color-info);
+        }
+
+        .modal-backdrop {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .loading-spinner {
+                width: 16px;
+                height: 16px;
+                border-width: 2px;
+            }
+        }
+</parameter>
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--color-text);
+        }
+
+        .form-group.required label::after {
+            content: " *";
+            color: var(--color-error);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(32, 128, 145, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input,
+        .radio-item input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkbox-item label,
+        .radio-item label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background-color: #ddd;
+        }
+
+        .btn-success {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #229954;
+        }
+
+        .status-message {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .conditional-block {
+            display: none;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--color-warning);
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .conditional-block.show {
+            display: block;
+        }
+
+        .subsection {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            min-width: 50px;
+        }
+
+        .info-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid var(--color-info);
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #0c5460;
+        }
+
+        /* LOGIN STYLES - MODERN DESIGN */
+        .login-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #3d5a73 50%, #1e3c54 100%);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .login-screen.active {
+            display: flex;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 0;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            animation: slideInUp 0.6s ease-out 0.1s both;
+        }
+
+        .login-box h1 {
+            font-size: 26px;
+            color: #2c3e50;
+            margin: 0 0 8px 0;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            animation: slideInUp 0.6s ease-out 0.2s both;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin: 0 0 25px 0;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            animation: slideInUp 0.6s ease-out 0.3s both;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ecf0f1;
+            animation: slideInUp 0.6s ease-out 0.2s both;
+        }
+
+        .login-tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #95a5a6;
+            transition: all 0.3s ease;
+            position: relative;
+            border-bottom: 3px solid transparent;
+        }
+
+        .login-tab-btn:hover {
+            color: #7f8c8d;
+        }
+
+        .login-tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .login-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .login-tab-content.active {
+            display: block;
+        }
+
+        .login-error {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+            font-weight: 500;
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .login-error.error-type {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .login-error.success-type {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 0;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.6s ease-out 0.4s both;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(32, 128, 145, 0.25);
+        }
+
+        .login-divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #bdc3c7;
+            font-size: 13px;
+            position: relative;
+            font-weight: 500;
+            animation: slideInUp 0.6s ease-out 0.3s both;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 43%;
+            height: 1px;
+            background: #ecf0f1;
+        }
+
+        .login-divider::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 43%;
+            height: 1px;
+            background: #ecf0f1;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            animation: slideInUp 0.6s ease-out 0.5s both;
+        }
+
+        .login-footer {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #ecf0f1;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .login-footer p {
+            margin: 8px 0;
+            color: #95a5a6;
+            font-weight: 500;
+        }
+
+        .login-credentials-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 11px;
+            line-height: 1.7;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .login-credentials-box strong {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .login-credentials-box code {
+            background: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .register-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .register-header h3 {
+            margin: 0;
+            color: var(--color-primary);
+            font-size: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table thead {
+            background-color: var(--color-border);
+        }
+
+        table th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SCHERMATA DI LOGIN - MODERN DESIGN -->
+    <div id="loginScreen" class="login-screen active">
+        <div class="login-container">
+            <div class="login-box">
+                <div class="login-header">
+                    <span class="login-icon">🏥</span>
+                    <h1>CSI - Cartella Sociale</h1>
+                    <p class="login-subtitle">Accesso operatori (Firebase Authentication)</p>
+                </div>
+                
+                <div id="loginError" class="login-error"></div>
+                
+                <!-- TAB NAVIGATION -->
+                <div class="login-tabs">
+                    <button type="button" class="login-tab-btn active" onclick="switchLoginTab('accedi')">Accedi</button>
+                    <button type="button" class="login-tab-btn" onclick="switchLoginTab('registrati')">Registrati</button>
+                </div>
+
+                <!-- TAB 1: ACCEDI -->
+                <div id="tab-accedi" class="login-tab-content active">
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="loginEmail" style="font-weight: 600; color: #2c3e50;">Email</label>
+                            <input 
+                                type="email" 
+                                id="loginEmail" 
+                                name="email" 
+                                placeholder="demo@asst.it"
+                                autocomplete="username"
+                                style="margin-top: 6px;"
+                                required>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="loginPassword" style="font-weight: 600; color: #2c3e50;">Password</label>
+                            <input 
+                                type="password" 
+                                id="loginPassword" 
+                                name="password" 
+                                placeholder="••••••••"
+                                autocomplete="current-password"
+                                style="margin-top: 6px;"
+                                required>
+                        </div>
+                        
+                        <div class="checkbox-item" style="margin-bottom: 24px; gap: 10px;">
+                            <input type="checkbox" id="rememberMe" name="rememberMe" style="width: 16px; height: 16px;">
+                            <label for="rememberMe" style="font-size: 13px; font-weight: 500; color: #7f8c8d; margin: 0; cursor: pointer;">Ricordami (local)</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                            🔓 Accedi
+                        </button>
+                    </form>
+                </div>
+
+                <!-- TAB 2: REGISTRATI -->
+                <div id="tab-registrati" class="login-tab-content">
+                    <form id="signupForm" onsubmit="handleSignup(event)">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="regName" style="font-weight: 600; color: #2c3e50;">Nome e Cognome</label>
+                            <input type="text" id="regName" name="name" placeholder="Mario Rossi" style="margin-top: 6px;" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="regEmail" style="font-weight: 600; color: #2c3e50;">Email</label>
+                            <input type="email" id="regEmail" name="email" placeholder="mario.rossi@asst.it" autocomplete="username" style="margin-top: 6px;" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="regPassword" style="font-weight: 600; color: #2c3e50;">Password</label>
+                            <input type="password" id="regPassword" name="password" placeholder="Min. 8 caratteri" autocomplete="new-password" style="margin-top: 6px;" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 24px;">
+                            <label for="regConfirm" style="font-weight: 600; color: #2c3e50;">Conferma Password</label>
+                            <input type="password" id="regConfirm" name="confirm" placeholder="Ripeti password" autocomplete="new-password" style="margin-top: 6px;" required>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="width: 100%; font-size: 15px; font-weight: 600;">
+                            ✓ Registrati
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- LOGIN FOOTER -->
+                <div class="login-footer">
+                    <p><strong>📋 Credenziali Demo</strong></p>
+                    <div class="login-credentials-box">
+                        <strong>👤 Operatore (Demo):</strong><br>
+                        Email: <code>demo@asst.it</code><br>
+                        Password: <code>demo123</code> (esempio)
+                    </div>
+                    <p style="font-size: 10px; color: #95a5a6; margin-top: 12px;">
+                        ℹ️ Per altre credenziali, consultare l'amministratore di sistema
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCHERMATA PRINCIPALE (NASCOSTA FINCHÉ NON AUTENTICATO) -->
+    <div id="mainScreen" style="display: none;">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>🏥 Cartella Sociale Informatizzata (CSI)</h1>
+                    <p>ATS Insubria - ASST e Ambiti di Competenza</p>
+                </div>
+                <div class="user-info">
+                    <span id="userDisplay">Utente</span>
+                    <button type="button" class="btn btn-secondary" onclick="handleLogout()" style="margin-left: 20px;">
+                        🔐 Esci
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+        <div class="status-message" id="statusMessage"></div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="anagrafica">1. Anagrafica</button>
+            <button class="tab-btn" data-tab="interventi">2. Interventi</button>
+            <button class="tab-btn" data-tab="autosufficienza">3. Autosufficienza</button>
+            <button class="tab-btn" data-tab="abitativa">4. Socio-Abitativa</button>
+            <button class="tab-btn" data-tab="economica">5. Socio-Economica</button>
+            <button class="tab-btn" data-tab="familiare">6. Socio-Familiare</button>
+            <button class="tab-btn" data-tab="giuridica">7. Protezione Giuridica</button>
+        </div>
+
+        <!-- TAB 1: ANAGRAFICA PAZIENTE -->
+        <div id="anagrafica" class="tab-content active">
+            <div class="section-title">1. DATI ANAGRAFICI DEL PAZIENTE</div>
+
+            <div class="form-grid">
+                <div class="form-group required">
+                    <label>Nome e Cognome</label>
+                    <input type="text" name="nome_cognome" required>
+                </div>
+                <div class="form-group required">
+                    <label>Luogo e data di nascita</label>
+                    <input type="date" name="data_nascita" required>
+                </div>
+                <div class="form-group">
+                    <label>Luogo di nascita</label>
+                    <input type="text" name="luogo_nascita">
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Stato civile</label>
+                    <select name="stato_civile">
+                        <option value="">-- Selezionare --</option>
+                        <option value="celibe">Celibe/Nubile</option>
+                        <option value="coniugato">Coniugato/a</option>
+                        <option value="convivente">Convivente</option>
+                        <option value="vedovo">Vedovo/a</option>
+                        <option value="separato">Separato/a</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cittadinanza</label>
+                    <input type="text" name="cittadinanza" value="Italia">
+                </div>
+                <div class="form-group required">
+                    <label>Codice Fiscale</label>
+                    <input type="text" name="codice_fiscale" placeholder="XXXXXX00X00X000X" required>
+                    <small style="color: var(--color-text-light); margin-top: 4px; font-size: 12px;">⚠️ Campo obbligatorio per salvare</small>
+                </div>
+</parameter>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Contatti e Residenza</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Indirizzo di residenza</label>
+                        <input type="text" name="residenza">
+                    </div>
+                    <div class="form-group">
+                        <label>Indirizzo di domicilio</label>
+                        <input type="text" name="domicilio">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono</label>
+                        <input type="tel" name="telefono">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email">
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Iscrizione SSN e Documentazione</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="iscrizione_ssn" name="iscrizione_ssn">
+                        <label for="iscrizione_ssn">Iscritto SSN</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="stp" name="stp">
+                        <label for="stp">STP (Straniero Temporaneamente Presente)</label>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Tessera Sanitaria</label>
+                        <input type="text" name="tessera_sanitaria">
+                    </div>
+                    <div class="form-group">
+                        <label>Permesso di soggiorno</label>
+                        <select name="permesso_soggiorno">
+                            <option value="">-- Selezionare --</option>
+                            <option value="si_ok">Si - in corso</option>
+                            <option value="si_scaduto">Si - scaduto</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Medico di Medicina Generale</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nome e Cognome MMG</label>
+                        <input type="text" name="mmg_nome">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono MMG</label>
+                        <input type="tel" name="mmg_telefono">
+                    </div>
+                    <div class="form-group">
+                        <label>Email MMG</label>
+                        <input type="email" name="mmg_email">
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Caregiver Principale</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tipologia caregiver</label>
+                        <select name="tipo_caregiver">
+                            <option value="">-- Selezionare --</option>
+                            <option value="familiare">Familiare</option>
+                            <option value="convivente">Convivente</option>
+                            <option value="non_familiare">Non familiare</option>
+                            <option value="volontario">Vicino di casa / Volontariato</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nome e Cognome caregiver</label>
+                        <input type="text" name="caregiver_nome">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefono caregiver</label>
+                        <input type="tel" name="caregiver_telefono">
+                    </div>
+                    <div class="form-group">
+                        <label>Email caregiver</label>
+                        <input type="email" name="caregiver_email">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('anagrafica')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('anagrafica')">Salva Sezione</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: INTERVENTI ATTIVI -->
+        <div id="interventi" class="tab-content">
+            <div class="section-title">2. INTERVENTI ATTIVI</div>
+
+            <div class="info-box">
+                Indicare gli interventi sanitari, socio-sanitari e sociali attualmente attivi e in carico.
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Interventi Sanitari</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="interventi_sanitari_si">
+                        <label>Interventi sanitari in atto</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Specificare</label>
+                    <textarea name="interventi_sanitari_spec"></textarea>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Assistenza Domiciliare Integrata (ADI)</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="adi_infermieristica">
+                        <label>ADI - Infermieristica</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="adi_riabilitazione">
+                        <label>ADI - Riabilitazione</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="adi_fisioterapia">
+                        <label>ADI - Fisioterapia</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="adi_altro">
+                        <label>ADI - Altro</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Servizi Sociali</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="servizio_pasti">
+                        <label>Pasti a domicilio</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="servizio_socio">
+                        <label>Servizio Sociale</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="servizio_trasporto">
+                        <label>Trasporto sociale</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="servizio_telesoccorso">
+                        <label>Telesoccorso</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="servizio_abitativo">
+                        <label>Sostegno abitativo</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Cure Palliative e Intermedie</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="cure_palliative">
+                        <label>Cure Palliative</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="cure_intermedie">
+                        <label>Cure Intermedie</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="rsa_aperta">
+                        <label>RSA Aperta</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('interventi')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('interventi')">Salva Sezione</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: AUTOSUFFICIENZA -->
+        <div id="autosufficienza" class="tab-content">
+            <div class="section-title">3. INDICATORI DI AUTOSUFFICIENZA</div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Indici funzionali - ADL (punteggio)</label>
+                    <input type="number" name="adl_score" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Indici funzionali - IADL (punteggio)</label>
+                    <input type="number" name="iadl_score" min="0" max="100">
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Indici Cognitivi</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="indici_cognitivi" id="cognitivi_lieve" value="lieve">
+                        <label for="cognitivi_lieve">Lieve</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="indici_cognitivi" id="cognitivi_moderato" value="moderato">
+                        <label for="cognitivi_moderato">Moderato</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="indici_cognitivi" id="cognitivi_grave" value="grave">
+                        <label for="cognitivi_grave">Grave compromissione</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Compliance e Comportamenti</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Compliance</label>
+                        <select name="compliance">
+                            <option value="">-- Selezionare --</option>
+                            <option value="lieve">Lieve</option>
+                            <option value="moderato">Moderato</option>
+                            <option value="grave">Grave</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Disturbi comportamentali</label>
+                        <select name="disturbi_comp">
+                            <option value="">-- Selezionare --</option>
+                            <option value="no">No</option>
+                            <option value="si_compenso">Si - in compenso</option>
+                            <option value="si_scompenso">Si - in scompenso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="checkbox-group" style="margin-top: 15px;">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="wandering">
+                        <label>Wandering (disorientamento)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="aggressivita">
+                        <label>Aggressività fisica</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Autonomia Terapeutica e Consapevolezza</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="autonomia_terapia">
+                        <label>Autonomia nell'assunzione della terapia</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Se no - Chi assicura l'assunzione</label>
+                    <input type="text" name="caregiver_terapia">
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Consapevolezza paziente della propria condizione</label>
+                    <select name="consapevolezza">
+                        <option value="">-- Selezionare --</option>
+                        <option value="consapevole">Consapevole</option>
+                        <option value="parziale">Alternante (momenti di consapevolezza e poca consapevolezza)</option>
+                        <option value="scarso">Scarso</option>
+                        <option value="proattivo">Proattivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('autosufficienza')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('autosufficienza')">Salva Sezione</button>
+            </div>
+        </div>
+
+        <!-- TAB 4: CONDIZIONE SOCIO-ABITATIVA -->
+        <div id="abitativa" class="tab-content">
+            <div class="section-title">4. CONDIZIONE SOCIO-ABITATIVA</div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tipo di alloggio</label>
+                    <select name="tipo_alloggio">
+                        <option value="">-- Selezionare --</option>
+                        <option value="proprieta">Di proprietà</option>
+                        <option value="affitto">In affitto / Comodato</option>
+                        <option value="pubblico">Alloggio pubblico</option>
+                        <option value="altro">Altro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Zona</label>
+                    <select name="zona">
+                        <option value="">-- Selezionare --</option>
+                        <option value="urbana">Urbana</option>
+                        <option value="suburbana">Sub-urbana</option>
+                        <option value="rurale">Rurale</option>
+                        <option value="montana">Montana</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Fruibilità Ambiente di Vita</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="abitazione_livello_unico">
+                        <label>Abitazione su unico livello</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="abitazione_piu_livelli">
+                        <label>Abitazione su più livelli</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="ascensore">
+                        <label>Ascensore</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="scale_ingresso">
+                        <label>Scale all'ingresso</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="camera_assistito">
+                        <label>Camera dedicata all'assistito</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="letto_articolato">
+                        <label>Letto articolato</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="sollevatore">
+                        <label>Sollevatore</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Servizi Igienici</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="servizi_igienici" id="servizi_agibili" value="agibili">
+                        <label for="servizi_agibili">Agibili / Accessibili</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="servizi_igienici" id="servizi_non_agibili" value="non_agibili">
+                        <label for="servizi_non_agibili">Non agibili / Accessibili</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Specificare se inadeguati</label>
+                    <textarea name="servizi_igienici_spec"></textarea>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Condizioni Igieniche</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="condizioni_igieniche" id="igiene_buone" value="buone">
+                        <label for="igiene_buone">Buone</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="condizioni_igieniche" id="igiene_discrete" value="discrete">
+                        <label for="igiene_discrete">Discrete</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="condizioni_igieniche" id="igiene_scarse" value="scarse">
+                        <label for="igiene_scarse">Scarse</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="condizioni_igieniche" id="igiene_pessime" value="pessime">
+                        <label for="igiene_pessime">Pessime</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Barriere Architettoniche e Rischi</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="barriere_architettoniche">
+                        <label>Presenza di barriere architettoniche</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Specificare tipologia barriera/rischio</label>
+                    <textarea name="barriere_spec"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Data pratica superamento barriere</label>
+                    <input type="date" name="data_pratica_barriere">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('abitativa')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('abitativa')">Salva Sezione</button>
+            </div>
+        </div>
+
+        <!-- TAB 5: CONDIZIONE SOCIO-ECONOMICA -->
+        <div id="economica" class="tab-content">
+            <div class="section-title">5. CONDIZIONE SOCIO-ECONOMICA</div>
+
+            <div class="subsection">
+                <div class="section-title">ISEE</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="isee_presente" name="isee_presente" onchange="toggleConditional('isee_data')">
+                        <label for="isee_presente">Attestazione ISEE in corso di validità</label>
+                    </div>
+                </div>
+                <div id="isee_data" class="conditional-block">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Valore ISEE</label>
+                            <input type="number" name="valore_isee" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipologia ISEE</label>
+                            <select name="tipologia_isee">
+                                <option value="">-- Selezionare --</option>
+                                <option value="ordinario">Ordinario</option>
+                                <option value="socio_sanitario">Socio-sanitario</option>
+                                <option value="minorenni">Minorenni</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Fonti di Reddito</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="reddito_lavoro">
+                        <label>Reddito da lavoro</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="pensione_indennita">
+                        <label>Pensione / Indennità</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="reddito_altro">
+                        <label>Altro</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Specificare altre fonti</label>
+                    <input type="text" name="reddito_altro_spec">
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Situazione Economica</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="situazione_economica" value="autonomo">
+                        <label>Autonomo e in equilibrio finanziario</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="situazione_economica" value="aiuto_familiari">
+                        <label>Riceve aiuto da parenti e/o altre persone</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="situazione_economica" value="bisognoso">
+                        <label>In condizione di bisogno economico senza aiuti</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Specificare criticità economiche</label>
+                    <textarea name="criticita_economiche"></textarea>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('economica')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('economica')">Salva Sezione</button>
+            </div>
+        </div>
+
+        <!-- TAB 6: CONDIZIONE SOCIO-FAMILIARE -->
+        <div id="familiare" class="tab-content">
+            <div class="section-title">6. CONDIZIONE SOCIO-FAMILIARE</div>
+
+            <div class="subsection">
+                <div class="section-title">Composizione Nucleo Familiare</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="composizione_nucleo" value="solo">
+                        <label>Da solo/a</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="composizione_nucleo" value="coniuge">
+                        <label>In nucleo con coniuge/convivente</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="composizione_nucleo" value="familiari">
+                        <label>In nucleo con propri familiari o parenti</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Soggetti Fragili nel Nucleo</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="altri_fragili">
+                        <label>Presenza di altri soggetti fragili (anziani non autosufficienti, disabili)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="minori_presenti">
+                        <label>Presenza di minori</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Se minori: percorsi attivi a tutela</label>
+                    <input type="text" name="percorsi_minori">
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Genitorialità e Responsabilità</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="decadimento_genitoriale">
+                        <label>Decadimento responsabilità genitoriale</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Se si - Specificare</label>
+                    <textarea name="decadimento_spec"></textarea>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Stato del Caregiver</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="stato_caregiver" value="presente_attivo">
+                        <label>Presente e attivo nell'assistenza</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="stato_caregiver" value="fatica">
+                        <label>Fatica rispetto all'assistenza</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="stato_caregiver" value="non_attivo">
+                        <label>Non attivo</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Caregiver Competenti Professionalmente</div>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="caregiver_competente" value="totalmente">
+                        <label>Attivabili totalmente</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="caregiver_competente" value="parzialmente">
+                        <label>Attivabili parzialmente</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="caregiver_competente" value="no">
+                        <label>Non attivabili</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Conflittualità Familiare</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="conflittualita" name="conflittualita" onchange="toggleConditional('supporto_relazioni')">
+                        <label for="conflittualita">Conflittualità familiare presente</label>
+                    </div>
+                </div>
+                <div id="supporto_relazioni" class="conditional-block">
+                    <div class="form-group">
+                        <label>Percorsi ATTIVI per supporto relazioni familiari</label>
+                        <textarea name="supporto_relazioni_text"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Situazione Coniugale</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="separazione">
+                        <label>Separazione coniugale / Interruzione convivenza</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('familiare')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('familiare')">Salva Sezione</button>
+            </div>
+        </div>
+
+        <!-- TAB 7: PROTEZIONE GIURIDICA -->
+        <div id="giuridica" class="tab-content">
+            <div class="section-title">7. PROTEZIONE GIURIDICA</div>
+
+            <div class="subsection">
+                <div class="section-title">Amministratore di Sostegno</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="amm_sostegno" name="amm_sostegno" onchange="toggleConditional('amm_sostegno_data')">
+                        <label for="amm_sostegno">Amministratore di Sostegno presente</label>
+                    </div>
+                </div>
+                <div id="amm_sostegno_data" class="conditional-block">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nome e Cognome</label>
+                            <input type="text" name="amm_nome">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefono</label>
+                            <input type="tel" name="amm_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="amm_email">
+                        </div>
+                        <div class="form-group">
+                            <label>Data incarico</label>
+                            <input type="date" name="amm_data_incarico">
+                        </div>
+                        <div class="form-group">
+                            <label>N. / RGN</label>
+                            <input type="text" name="amm_rgn">
+                        </div>
+                    </div>
+                    <div class="checkbox-group" style="margin-top: 15px;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="amm_assistenza">
+                            <label>Incarico di assistenza</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="amm_rappresentanza">
+                            <label>Incarico di rappresentanza per gli atti</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Tutore</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="tutore" name="tutore" onchange="toggleConditional('tutore_data')">
+                        <label for="tutore">Tutore presente</label>
+                    </div>
+                </div>
+                <div id="tutore_data" class="conditional-block">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nome e Cognome</label>
+                            <input type="text" name="tutore_nome">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefono</label>
+                            <input type="tel" name="tutore_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="tutore_email">
+                        </div>
+                        <div class="form-group">
+                            <label>Data incarico</label>
+                            <input type="date" name="tutore_data_incarico">
+                        </div>
+                        <div class="form-group">
+                            <label>N. / RGN</label>
+                            <input type="text" name="tutore_rgn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Curatore</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="curatore" name="curatore" onchange="toggleConditional('curatore_data')">
+                        <label for="curatore">Curatore presente</label>
+                    </div>
+                </div>
+                <div id="curatore_data" class="conditional-block">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nome e Cognome</label>
+                            <input type="text" name="curatore_nome">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefono</label>
+                            <input type="tel" name="curatore_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="curatore_email">
+                        </div>
+                        <div class="form-group">
+                            <label>Data incarico</label>
+                            <input type="date" name="curatore_data_incarico">
+                        </div>
+                        <div class="form-group">
+                            <label>N. / RGN</label>
+                            <input type="text" name="curatore_rgn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Procura Attiva</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="procura" name="procura" onchange="toggleConditional('procura_data')">
+                        <label for="procura">Procura attiva</label>
+                    </div>
+                </div>
+                <div id="procura_data" class="conditional-block">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Specificare</label>
+                            <textarea name="procura_spec"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome e Cognome Procurante</label>
+                            <input type="text" name="procura_nome">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefono</label>
+                            <input type="tel" name="procura_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="procura_email">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Necessità di Protezione Giuridica</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="necessita_protezione" name="necessita_protezione" onchange="toggleConditional('necessita_protezione_data')">
+                        <label for="necessita_protezione">Necessità di richiesta protezione giuridica</label>
+                    </div>
+                </div>
+                <div id="necessita_protezione_data" class="conditional-block">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Stato</label>
+                            <select name="stato_protezione">
+                                <option value="">-- Selezionare --</option>
+                                <option value="corso">In corso</option>
+                                <option value="predisporre">Predisporre documentazione</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data istanza</label>
+                            <input type="date" name="data_istanza">
+                        </div>
+                        <div class="form-group">
+                            <label>Tribunale</label>
+                            <input type="text" name="tribunale">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="section-title">Misure di Sicurezza Attive</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="misure_sicurezza" name="misure_sicurezza" onchange="toggleConditional('misure_sicurezza_data')">
+                        <label for="misure_sicurezza">Misure di sicurezza attive</label>
+                    </div>
+                </div>
+                <div id="misure_sicurezza_data" class="conditional-block">
+                    <div class="form-group">
+                        <label>Specificare misure di sicurezza</label>
+                        <textarea name="misure_sicurezza_spec"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="resetForm('giuridica')">Pulisci</button>
+                <button class="btn btn-primary" onclick="salvaSezione('giuridica')">Salva Sezione</button>
+            </div>
+        </div>
+
+            <!-- FOOTER ACTIONS -->
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--color-border); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-success" id="btnSalvaCompleto" onclick="salvaCompleto()">💾 Salva Cartella Completa</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="btnEsporta" onclick="esportaDati()">📥 Esporta JSON</button>
+                    <button class="btn btn-primary" id="btnImporta" onclick="document.getElementById('inputImporta').click()" style="cursor: pointer;">📤 Importa JSON</button>
+                    <input type="file" id="inputImporta" accept=".json" style="display: none;" onchange="importaDati(event)">
+                </div>
+                <button class="btn btn-primary" id="btnUtenti" onclick="visualizzaUtenti()">👥 Vedi Tutti gli Utenti</button>
+                <button class="btn btn-secondary" onclick="pulisciTutto()">🗑️ Pulisci Tutto</button>
+            </div>
+
+            <!-- Sync Status -->
+            <div style="text-align: center; margin-top: 15px; font-size: 12px;">
+                <div id="syncStatus" class="sync-indicator">
+                    <span>✓ Sincronizzazione pronta</span>
+                </div>
+            </div>
+</parameter>
+        </div>
+    </div>
+
+        <!-- Modal Utenti -->
+        <div id="modalUtenti" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; overflow:auto; padding:20px;">
+            <div style="background:white; max-width:1200px; margin:auto; border-radius:8px; padding:30px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#208091;">📋 Database Pazienti</h2>
+                    <button onclick="chiudiModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">✕</button>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <input type="text" id="ricercaUtente" placeholder="Cerca per nome..." style="padding:10px; width:100%; max-width:300px; border:1px solid #ecf0f1; border-radius:4px;">
+                </div>
+                <div style="overflow-x:auto;">
+                    <table id="tabellaUtenti" style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead style="background:#ecf0f1;">
+                            <tr>
+                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Data Inserimento</th>
+                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Nome</th>
+                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Codice Fiscale</th>
+                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Telefono</th>
+                                <th style="padding:10px; text-align:left; border-bottom:2px solid #208091;">Email</th>
+                                <th style="padding:10px; text-align:center; border-bottom:2px solid #208091;">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabella"></tbody>
+                    </table>
+                    <div id="messaggioNessunDato" style="padding:20px; text-align:center; color:#7f8c8d; display:none;">
+                        <p>Nessun paziente trovato nel database. Inizia aggiungendo nuovi record.</p>
+                    </div>
+                </div>
+                <div style="margin-top:20px; text-align:right;">
+                    <button class="btn btn-primary" onclick="esportaTabellaCSV()">📊 Esporta CSV</button>
+                    <button class="btn btn-secondary" onclick="chiudiModal()">Chiudi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+    <script>
+        // ====== FIREBASE AUTHENTICATION ======
+        let auth = null;
+        let currentUser = null;
+
+        // Mapping tra UID Firebase e dati profilo (da Firestore in produzione)
+        const userProfiles = {};
+
+        // Controlla se l'utente è già loggato
+        function checkAuth() {
+            if (!auth) return false;
+            
+            try {
+                const saved = localStorage.getItem('csi_currentUser');
+                if (saved) {
+                    currentUser = JSON.parse(saved);
+                    setTimeout(() => {
+                        showMainScreen();
+                    }, 100);
+                    return true;
+                }
+            } catch (error) {
+                console.error('Errore accesso storage:', error);
+            }
+            return false;
+        }
+
+        // Carica profilo utente da Realtime Database
+        async function caricaProfiloUtente(uid) {
+            if (!db) return null;
+            
+            try {
+                const snapshot = await db.ref(`users/${uid}`).once('value');
+                if (snapshot.exists()) {
+                    return snapshot.val();
+                }
+            } catch (error) {
+                console.error('Errore caricamento profilo:', error);
+            }
+            return null;
+        }
+
+        // Ottieni il colore del ruolo
+        function getColorRuolo(ruolo) {
+            const colori = {
+                'amministratore': '#e74c3c',
+                'supervisore': '#f39c12',
+                'operatore': '#3498db'
+            };
+            return colori[ruolo] || '#95a5a6';
+        }
+
+        // Ottieni il badge del ruolo
+        function getBadgeRuolo(ruolo) {
+            const badge = {
+                'amministratore': '🔐 Amministratore',
+                'supervisore': '👨‍💼 Supervisore',
+                'operatore': '👤 Operatore'
+            };
+            return badge[ruolo] || 'Utente';
+        }
+
+        // Handle Login - Firebase Authentication
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value.toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorDiv = document.getElementById('loginError');
+            const loginBtn = document.querySelector('#loginBtn');
+
+            // Validazione
+            if (!email || !password) {
+                showLoginError('Email e password sono obbligatori');
+                return;
+            }
+
+            if (!auth) {
+                showLoginError('❌ Firebase non ancora disponibile. Riprova tra poco.');
+                return;
+            }
+
+            // UI Feedback
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span>Accesso in corso...';
+
+            try {
+                // Firebase Authentication
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const firebaseUser = userCredential.user;
+
+                // Carica profilo da Realtime Database
+                let profileData = await caricaProfiloUtente(firebaseUser.uid);
+                
+                if (!profileData) {
+                    profileData = {
+                        email: firebaseUser.email,
+                        nome: firebaseUser.displayName || 'Operatore',
+                        ruolo: 'operatore',
+                        ambito: ''
+                    };
+                }
+
+                currentUser = {
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email,
+                    nome: profileData.nome,
+                    ruolo: profileData.ruolo || 'operatore',
+                    ambito: profileData.ambito || '',
+                    loginTime: new Date().toISOString()
+                };
+
+                // Salva in localStorage
+                localStorage.setItem('csi_currentUser', JSON.stringify(currentUser));
+                if (rememberMe) {
+                    localStorage.setItem('csi_lastUser', email);
+                }
+
+                errorDiv.classList.remove('show');
+                document.getElementById('loginForm').reset();
+                showMainScreen();
+                
+            } catch (error) {
+                let errorMessage = '❌ Errore di autenticazione';
+                
+                switch(error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = '❌ Utente non trovato. Registrati prima.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = '❌ Password non corretta.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = '❌ Email non valida.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = '❌ Utente disabilitato. Contatta l\'amministratore.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = '❌ Troppi tentativi di accesso. Riprova più tardi.';
+                        break;
+                    default:
+                        errorMessage = `❌ ${error.message}`;
+                }
+                
+                showLoginError(errorMessage);
+                console.error('Errore login:', error);
+                
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '🔓 Accedi';
+            }
+        }
+
+        // Handle Signup - Firebase Authentication
+        async function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value.toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+
+            // Validazione
+            if (!name || !email || !password) {
+                showLoginError('Compila tutti i campi');
+                return;
+            }
+
+            if (password.length < 8) {
+                showLoginError('La password deve contenere almeno 8 caratteri');
+                return;
+            }
+
+            if (password !== confirm) {
+                showLoginError('Le password non coincidono');
+                return;
+            }
+
+            if (!auth) {
+                showLoginError('❌ Firebase non ancora disponibile. Riprova tra poco.');
+                return;
+            }
+
+            try {
+                // Crea utente in Firebase Authentication
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const firebaseUser = userCredential.user;
+
+                // Salva profilo in Realtime Database
+                if (db) {
+                    await db.ref(`users/${firebaseUser.uid}`).set({
+                        email: firebaseUser.email,
+                        nome: name,
+                        ruolo: 'operatore',
+                        ambito: '',
+                        dataCreazione: new Date().toISOString(),
+                        attivo: true
+                    });
+                }
+
+                showLoginError('✅ Registrazione completata! Accedi con le tue credenziali');
+                document.getElementById('signupForm').reset();
+                
+                setTimeout(() => {
+                    document.getElementById('loginError').classList.remove('show');
+                    toggleRegister();
+                    document.getElementById('loginEmail').value = email;
+                }, 2000);
+                
+            } catch (error) {
+                let errorMessage = '❌ Errore di registrazione';
+                
+                switch(error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = '❌ Questo email è già registrato.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = '❌ Email non valida.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = '❌ Password troppo debole (min. 8 caratteri).';
+                        break;
+                    default:
+                        errorMessage = `❌ ${error.message}`;
+                }
+                
+                showLoginError(errorMessage);
+                console.error('Errore signup:', error);
+            }
+        }
+
+        // Switch Login Tabs
+        function switchLoginTab(tabName) {
+            // Nascondi tutti i tab
+            document.querySelectorAll('.login-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.login-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostra tab selezionato
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Show Login Error
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Show Main Screen
+        function showMainScreen() {
+            const loginScreen = document.getElementById('loginScreen');
+            const mainScreen = document.getElementById('mainScreen');
+            
+            if (!loginScreen || !mainScreen) {
+                console.error('Errore: elementi schermata non trovati');
+                return;
+            }
+            
+            loginScreen.classList.remove('active');
+            mainScreen.style.display = 'block';
+            
+            // Crea badge con informazioni utente
+            const badgeHtml = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600; font-size: 14px;">${currentUser.nome}</div>
+                        <div style="font-size: 12px; opacity: 0.8;">${getBadgeRuolo(currentUser.ruolo)}</div>
+                        ${currentUser.ambito ? `<div style="font-size: 11px; opacity: 0.7; color: #ecf0f1;">📍 ${currentUser.ambito}</div>` : ''}
+                    </div>
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${getColorRuolo(currentUser.ruolo)}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">
+                        ${currentUser.ruolo === 'amministratore' ? '🔐' : currentUser.ruolo === 'supervisore' ? '👨‍💼' : '👤'}
+                    </div>
+                </div>
+            `;
+            
+            const userDisplay = document.getElementById('userDisplay');
+            if (userDisplay) {
+                userDisplay.innerHTML = badgeHtml;
+            }
+            
+            // Scroll to top per assicurare che il contenuto sia visibile
+            window.scrollTo(0, 0);
+            
+            // Inizializza tab listeners DOPO che mainScreen è visibile
+            setTimeout(() => {
+                initializeTabListeners();
+                // Assicura che il primo tab sia visibile
+                const anagrafica = document.querySelector('#anagrafica');
+                const anaBtn = document.querySelector('[data-tab="anagrafica"]');
+                if (anagrafica) anagrafica.classList.add('active');
+                if (anaBtn) anaBtn.classList.add('active');
+            }, 150);
+        }
+
+        // Inizializza gli event listeners dei tab
+        function initializeTabListeners() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.tab-content').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    document.getElementById(tabName).classList.add('active');
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Handle Logout - Firebase Authentication
+        function handleLogout() {
+            if (confirm('Sei sicuro di voler uscire?')) {
+                if (auth) {
+                    auth.signOut()
+                        .then(() => {
+                            currentUser = null;
+                            localStorage.removeItem('csi_currentUser');
+                            document.getElementById('mainScreen').style.display = 'none';
+                            document.getElementById('loginScreen').classList.add('active');
+                            document.getElementById('loginForm').reset();
+                            document.getElementById('registerForm').style.display = 'none';
+                            showStatus('✓ Disconnesso correttamente');
+                        })
+                        .catch((error) => {
+                            console.error('Errore logout:', error);
+                            showStatus('Errore durante la disconnessione', 'error');
+                        });
+                } else {
+                    currentUser = null;
+                    localStorage.removeItem('csi_currentUser');
+                    document.getElementById('mainScreen').style.display = 'none';
+                    document.getElementById('loginScreen').classList.add('active');
+                }
+            }
+        }
+
+        // ====== FIREBASE CONFIGURATION ======
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGZTWIYlBYrR1__W_wuLE2Cozq7r-5Aqo",
+            authDomain: "csi-insubria.firebaseapp.com",
+            databaseURL: "https://csi-insubria-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "csi-insubria",
+            storageBucket: "csi-insubria.firebasestorage.app",
+            messagingSenderId: "903236739682",
+            appId: "1:903236739682:web:d71087549bcb1f635f273b",
+            measurementId: "G-7613M0ZKEZ"
+        };
+
+        // Initialize Firebase with error handling
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.database();
+            console.log('✓ Firebase inizializzato correttamente');
+            console.log('✓ Firebase Authentication abilitato');
+            
+            // Listener per cambiamenti di stato autenticazione
+            auth.onAuthStateChanged((firebaseUser) => {
+                if (firebaseUser && !currentUser) {
+                    // Utente loggato, carica dati se non già carichi
+                    console.log('✓ Utente autenticato:', firebaseUser.email);
+                } else if (!firebaseUser && currentUser) {
+                    // Utente disconnesso
+                    console.log('✓ Utente disconnesso');
+                }
+            });
+        } catch (error) {
+            console.error('Errore inizializzazione Firebase:', error);
+        }
+
+        let utentiDatabase = [];
+        let syncInProgress = false;
+</parameter>
+
+        // Tab Management - Rimosso da qui, spostato in initializeTabListeners()
+        // Questo viene ora inizializzato DOPO showMainScreen()
+
+        // Conditional Display
+        function toggleConditional(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.classList.toggle('show');
+            }
+        }
+
+        // Form Status Messages (Enhanced)
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('statusMessage');
+            if (!statusDiv) return;
+            
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message show ${type}`;
+            
+            // Log per debugging in GitHub Pages
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            const timeout = type === 'error' ? 6000 : 4000;
+            setTimeout(() => {
+                statusDiv.classList.remove('show');
+            }, timeout);
+        }
+
+        // Save Section (Optimized)
+        function salvaSezione(tabName) {
+            const formData = collectTabData(tabName);
+            
+            if (Object.keys(formData).length === 0) {
+                showStatus('⚠️ Nessun dato da salvare', 'warning');
+                return;
+            }
+
+            try {
+                localStorage.setItem(`csi_${tabName}`, JSON.stringify(formData));
+                dataCache[tabName] = formData;
+                
+                // Sync asincrono con Firebase
+                if (db && currentUser) {
+                    syncToFirebase(tabName, formData);
+                }
+                
+                showStatus(`✅ ${tabName.charAt(0).toUpperCase() + tabName.slice(1)} salvata!`);
+            } catch (error) {
+                showStatus(`❌ Errore salvataggio: ${error.message}`, 'error');
+            }
+        }
+
+        // Save Complete - OPTIMIZED FOR GITHUB DEPLOYMENT
+        async function salvaCompleto() {
+            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+            const cartellaCompleta = {};
+            
+            // Raccogli dati da tutti i tab
+            tabNames.forEach(tabName => {
+                cartellaCompleta[tabName] = collectTabData(tabName);
+            });
+
+            // ====== VALIDAZIONE OBBLIGATORI ======
+            const cf = cartellaCompleta.anagrafica.codice_fiscale?.trim();
+            const nome = cartellaCompleta.anagrafica.nome_cognome?.trim();
+            const dataNascita = cartellaCompleta.anagrafica.data_nascita;
+
+            if (!nome) {
+                showStatus('❌ Nome e Cognome obbligatorio!', 'error');
+                return;
+            }
+
+            if (!dataNascita) {
+                showStatus('❌ Data di nascita obbligatoria!', 'error');
+                return;
+            }
+
+            if (!cf) {
+                showStatus('❌ Codice Fiscale obbligatorio!', 'error');
+                return;
+            }
+
+            if (!validaCodiceFiscale(cf)) {
+                showStatus('❌ Codice Fiscale non valido (16 caratteri)', 'error');
+                return;
+            }
+
+            // UI Feedback
+            const btnSalva = document.getElementById('btnSalvaCompleto');
+            const originalText = btnSalva.innerHTML;
+            btnSalva.disabled = true;
+            btnSalva.innerHTML = '<span class="loading-spinner"></span>Salvataggio...';
+            updateSyncStatus('syncing', 'Sincronizzazione in corso...');
+
+            try {
+                // Salva in localStorage
+                const timestamp = new Date().toISOString();
+                const cartellaId = Date.now().toString();
+                const cartellaMeta = {
+                    ...cartellaCompleta,
+                    dataSalvataggio: timestamp,
+                    operatore: currentUser.nome,
+                    operatore_email: currentUser.email,
+                    operatore_ambito: currentUser.ambito || 'generale',
+                    operatore_ruolo: currentUser.ruolo,
+                    codice_fiscale: cf,
+                    version: 2,
+                    env: 'github',
+                    visibilita: 'privato' // 'privato' | 'pubblico' | 'supervisore'
+                };
+
+                localStorage.setItem('csi_completa', JSON.stringify(cartellaMeta));
+                localStorage.setItem('csi_data_salvataggio', timestamp);
+                localStorage.setItem(`csi_cf_${cf}`, JSON.stringify(cartellaMeta));
+                
+                // Sync con Firebase se disponibile
+                if (db && currentUser) {
+                    // Salva la cartella nel nodo principale
+                    await db.ref(`pazienti/${cartellaId}`).set(cartellaMeta);
+                    
+                    // Crea un index per velocizzare le query per operatore
+                    await db.ref(`pazienti_per_operatore/${currentUser.email}/${cartellaId}`).set(timestamp);
+                    
+                    // Index per codice fiscale (per ricerca veloce)
+                    await db.ref(`pazienti_cf/${cf}`).set(cartellaId);
+                    
+                    showStatus('✅ Cartella salvata su Locale + Firebase!', 'success');
+                } else {
+                    showStatus('✅ Cartella salvata localmente (GitHub Mode)', 'success');
+                }
+
+                updateSyncStatus('ready', '✓ Sincronizzazione completata');
+                resetAllForms();
+                
+            } catch (error) {
+                console.error('Errore salvataggio:', error);
+                showStatus(`❌ Errore: ${error.message}`, 'error');
+                updateSyncStatus('error', '✗ Errore sincronizzazione');
+            } finally {
+                btnSalva.disabled = false;
+                btnSalva.innerHTML = originalText;
+            }
+        }
+
+        // Validazione Codice Fiscale
+        function validaCodiceFiscale(cf) {
+            if (!cf) return false;
+            cf = cf.toUpperCase().trim();
+            return /^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/.test(cf);
+        }
+
+        // Aggiorna indicatore sincronizzazione
+        function updateSyncStatus(status, message) {
+            const syncStatus = document.getElementById('syncStatus');
+            if (!syncStatus) return;
+            
+            syncStatus.className = 'sync-indicator ' + (status === 'syncing' ? 'syncing' : '');
+            
+            if (status === 'syncing') {
+                syncStatus.innerHTML = '<span class="loading-spinner"></span>' + message;
+            } else if (status === 'ready') {
+                syncStatus.innerHTML = message;
+            } else if (status === 'error') {
+                syncStatus.innerHTML = message;
+                syncStatus.style.borderColor = 'var(--color-error)';
+                syncStatus.style.color = 'var(--color-error)';
+            }
+        }
+</parameter>
+
+        // Reset all forms
+        function resetAllForms() {
+            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+            tabNames.forEach(tabName => {
+                const inputs = document.getElementById(tabName).querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+            });
+        }
+
+        // Export Data - GitHub Optimized
+        function esportaDati() {
+            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+            const cartellaCompleta = {};
+            
+            tabNames.forEach(tabName => {
+                cartellaCompleta[tabName] = collectTabData(tabName);
+            });
+
+            const cf = cartellaCompleta.anagrafica.codice_fiscale?.trim() || 'CartellaSociale';
+            const timestamp = new Date().toISOString().split('T')[0];
+            
+            try {
+                const dataStr = JSON.stringify(cartellaCompleta, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `CSI_${cf}_${timestamp}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showStatus('✅ Cartella esportata come JSON');
+            } catch (error) {
+                showStatus(`❌ Errore esportazione: ${error.message}`, 'error');
+            }
+        }
+
+        // Import Data - GitHub Optimized
+        function importaDati(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validazione file
+            if (!file.name.endsWith('.json')) {
+                showStatus('❌ Seleziona un file JSON valido', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showStatus('❌ File troppo grande (max 5MB)', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+                    
+                    let importedCount = 0;
+                    tabNames.forEach(tabName => {
+                        if (importedData[tabName]) {
+                            const formData = importedData[tabName];
+                            restoreTabData(tabName, formData);
+                            dataCache[tabName] = formData;
+                            importedCount++;
+                        }
+                    });
+
+                    if (importedCount > 0) {
+                        showStatus(`✅ Importati ${importedCount} tab!`);
+                        // Salva in localStorage
+                        tabNames.forEach(name => {
+                            if (importedData[name]) {
+                                localStorage.setItem(`csi_${name}`, JSON.stringify(importedData[name]));
+                            }
+                        });
+                    } else {
+                        showStatus('⚠️ File JSON valido ma vuoto', 'warning');
+                    }
+                    
+                    document.getElementById('inputImporta').value = '';
+                } catch (error) {
+                    showStatus(`❌ Errore importazione: ${error.message}`, 'error');
+                    console.error('Errore import:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+</parameter>
+
+        // Reset Form
+        function resetForm(tabName) {
+            if (confirm('Sei sicuro di voler pulire questa sezione?')) {
+                const tabElement = document.getElementById(tabName);
+                if (!tabElement) return;
+                
+                const inputs = tabElement.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                localStorage.removeItem(`csi_${tabName}`);
+                delete dataCache[tabName];
+                showStatus('✓ Sezione pulita!');
+            }
+        }
+
+        // Clean All (Optimized)
+        function pulisciTutto() {
+            if (confirm('⚠️ ATTENZIONE: Eliminerai TUTTI i dati locali!\n\nQuesta azione NON può essere annullata.')) {
+                try {
+                    // Backup prima di eliminare
+                    const backup = localStorage.getItem('csi_completa');
+                    if (backup) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(new Blob([backup], { type: 'application/json' }));
+                        link.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+                        link.click();
+                    }
+                    
+                    localStorage.clear();
+                    dataCache = {};
+                    location.reload();
+                } catch (error) {
+                    showStatus(`❌ Errore: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // View All Users from Firebase - FILTERED BY OPERATORE
+        function visualizzaUtenti() {
+            const modal = document.getElementById('modalUtenti');
+            modal.style.display = 'block';
+            const corpoTabella = document.getElementById('corpoTabella');
+            corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;"><span class="loading-spinner"></span> Caricamento cartelle...</td></tr>';
+            
+            if (!db) {
+                corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Firebase non disponibile</td></tr>';
+                return;
+            }
+            
+            // ACCESSO BASATO SU RUOLO:
+            // - Amministratore: vede TUTTE le cartelle
+            // - Supervisore: vede cartelle segnate come pubbliche o del suo ambito
+            // - Operatore: vede SOLO le sue cartelle
+            
+            const isAdmin = currentUser.ruolo === 'amministratore';
+            const isSupervisore = currentUser.ruolo === 'supervisore';
+            const operatoreEmail = currentUser.email;
+            
+            // Carica dati da Firebase usando la struttura di index per operatore
+            if (isAdmin) {
+                // AMMINISTRATORE: vede tutte le cartelle
+                db.ref('pazienti').orderByChild('dataSalvataggio').limitToLast(100).on('value', processPatients);
+            } else if (isSupervisore) {
+                // SUPERVISORE: vede le cartelle pubbliche del suo ambito + quelle segnate per supervisore
+                db.ref('pazienti').orderByChild('operatore_ambito').equalTo(currentUser.ambito).on('value', processPatients);
+            } else {
+                // OPERATORE: vede SOLO le sue cartelle
+                db.ref(`pazienti_per_operatore/${operatoreEmail}`).orderByValue().limitToLast(100).on('value', (snapshot) => {
+                    const cartelle = [];
+                    snapshot.forEach((childSnapshot) => {
+                        cartelle.push(childSnapshot.key);
+                    });
+                    
+                    if (cartelle.length === 0) {
+                        corpoTabella.innerHTML = '';
+                        document.getElementById('messaggioNessunDato').style.display = 'block';
+                        document.getElementById('messaggioNessunDato').innerHTML = '<p>👤 Nessuna cartella creata da te. <strong>Crea una nuova cartella</strong> per iniziare.</p>';
+                        return;
+                    }
+                    
+                    // Carica i dettagli delle cartelle dell'operatore
+                    db.ref('pazienti').on('value', (snapshot) => {
+                        const allPatients = [];
+                        snapshot.forEach((childSnapshot) => {
+                            if (cartelle.includes(childSnapshot.key)) {
+                                allPatients.push({
+                                    id: childSnapshot.key,
+                                    ...childSnapshot.val()
+                                });
+                            }
+                        });
+                        processPatients({ val: () => allPatients.reduce((acc, p) => ({ ...acc, [p.id]: p }), {}) });
+                    });
+                });
+                return;
+            }
+            
+            function processPatients(snapshot) {
+                utentiDatabase = [];
+                corpoTabella.innerHTML = '';
+                document.getElementById('messaggioNessunDato').style.display = 'none';
+                
+                let count = 0;
+                const patientsArray = [];
+                
+                const snapshotVal = snapshot.val ? snapshot.val() : snapshot;
+                if (!snapshotVal || typeof snapshotVal !== 'object') {
+                    document.getElementById('messaggioNessunDato').style.display = 'block';
+                    return;
+                }
+                
+                Object.entries(snapshotVal).forEach(([key, data]) => {
+                    if (!data) return;
+                    
+                    const anagrafica = data.anagrafica || {};
+                    
+                    // FILTRI DI CONTROLLO ACCESSO
+                    if (!isAdmin) {
+                        if (isSupervisore) {
+                            // Supervisore: vede solo se pubblico o del suo ambito
+                            const visibilita = data.visibilita || 'privato';
+                            if (visibilita !== 'pubblico' && data.operatore_email !== operatoreEmail) {
+                                return; // Salta questa cartella
+                            }
+                        } else {
+                            // Operatore: vede solo le sue
+                            if (data.operatore_email !== operatoreEmail) {
+                                return; // Salta questa cartella
+                            }
+                        }
+                    }
+                    
+                    patientsArray.push({
+                        id: key,
+                        ...data
+                    });
+                });
+
+                if (patientsArray.length === 0) {
+                    document.getElementById('messaggioNessunDato').style.display = 'block';
+                    if (isSupervisore) {
+                        document.getElementById('messaggioNessunDato').innerHTML = '<p>📋 Nessuna cartella disponibile nel tuo ambito di supervisione.</p>';
+                    }
+                    return;
+                }
+
+                // Ordina per data discendente (più recenti prima)
+                patientsArray.sort((a, b) => new Date(b.dataSalvataggio) - new Date(a.dataSalvataggio));
+                
+                patientsArray.forEach((patientData) => {
+                    utentiDatabase.push(patientData);
+                    const anagrafica = patientData.anagrafica || {};
+                    
+                    const row = document.createElement('tr');
+                    row.style.borderBottom = '1px solid #ecf0f1';
+                    row.style.animation = 'slideInUp 0.3s ease-out';
+                    row.innerHTML = `
+                        <td style="padding:10px; font-weight:500;">${new Date(patientData.dataSalvataggio).toLocaleDateString('it-IT')} ${new Date(patientData.dataSalvataggio).toLocaleTimeString('it-IT')}</td>
+                        <td style="padding:10px;">${anagrafica.nome_cognome || 'N/D'}</td>
+                        <td style="padding:10px; font-family:monospace; font-weight:bold; color:var(--color-primary);">${anagrafica.codice_fiscale || 'N/D'}</td>
+                        <td style="padding:10px;">${anagrafica.telefono || 'N/D'}</td>
+                        <td style="padding:10px;">${anagrafica.email || 'N/D'}</td>
+                        <td style="padding:10px; text-align:center;">
+                            <button onclick="visualizzaDettagli('${patientData.id}')" style="background:#3498db; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-right:5px; transition:all 0.3s ease;" onmouseover="this.style.background='#2980b9'" onmouseout="this.style.background='#3498db'">👁️ Vedi</button>
+                            <button onclick="scaricaCartella('${patientData.id}')" style="background:#27ae60; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; margin-right:5px; transition:all 0.3s ease;" onmouseover="this.style.background='#229954'" onmouseout="this.style.background='#27ae60'">⬇️ Scarica</button>
+                            <button onclick="eliminaUtente('${patientData.id}')" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; transition:all 0.3s ease;" onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">🗑️ Elimina</button>
+                        </td>
+                    `;
+                    corpoTabella.appendChild(row);
+                    count++;
+                });
+                
+                if (count === 0) {
+                    document.getElementById('messaggioNessunDato').style.display = 'block';
+                }
+            }, (error) => {
+                corpoTabella.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Errore caricamento: ' + error.message + '</td></tr>';
+            });
+        }
+
+        // Scarica cartella singola
+        function scaricaCartella(id) {
+            const paziente = utentiDatabase.find(p => p.id === id);
+            if (paziente) {
+                const cf = paziente.anagrafica?.codice_fiscale || 'CartellaSociale';
+                const dataStr = JSON.stringify(paziente, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `CSI_${cf}_${new Date(paziente.dataSalvataggio).toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showStatus('⬇️ Cartella scaricata: ' + cf);
+            }
+        }
+</parameter>
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const ricerca = document.getElementById('ricercaUtente');
+            if (ricerca) {
+                ricerca.addEventListener('keyup', function() {
+                    const termine = this.value.toLowerCase();
+                    const righe = document.querySelectorAll('#tabellaUtenti tbody tr');
+                    righe.forEach(riga => {
+                        const testo = riga.textContent.toLowerCase();
+                        riga.style.display = testo.includes(termine) ? '' : 'none';
+                    });
+                });
+            }
+        });
+
+        // View patient details - Enhanced
+        function visualizzaDettagli(id) {
+            const paziente = utentiDatabase.find(p => p.id === id);
+            if (paziente) {
+                const anagrafica = paziente.anagrafica || {};
+                const dettagli = `
+╔════════════════════════════════════════════════════════════════════╗
+║                     CARTELLA PAZIENTE COMPLETA                     ║
+╠════════════════════════════════════════════════════════════════════╣
+
+📋 DATI ANAGRAFICI:
+  • Nome: ${anagrafica.nome_cognome || 'N/D'}
+  • Codice Fiscale: ${anagrafica.codice_fiscale || 'N/D'}
+  • Data Nascita: ${anagrafica.data_nascita || 'N/D'}
+  • Luogo Nascita: ${anagrafica.luogo_nascita || 'N/D'}
+  • Stato Civile: ${anagrafica.stato_civile || 'N/D'}
+  
+📞 CONTATTI:
+  • Telefono: ${anagrafica.telefono || 'N/D'}
+  • Email: ${anagrafica.email || 'N/D'}
+  • Residenza: ${anagrafica.residenza || 'N/D'}
+
+🏥 INFORMAZIONI SANITARIE:
+  • ID Database: ${id}
+  • Data Salvataggio: ${new Date(paziente.dataSalvataggio).toLocaleString('it-IT')}
+  • Operatore: ${paziente.operatore || 'N/D'}
+  
+💾 AZIONI:
+  • Scarica cartella completa in JSON
+  • Elimina dal database
+  
+╚════════════════════════════════════════════════════════════════════╝`;
+                
+                alert(dettagli);
+            }
+        }
+</parameter>
+
+        // Delete patient - WITH ACCESS CONTROL
+        function eliminaUtente(id) {
+            const paziente = utentiDatabase.find(p => p.id === id);
+            const nome = paziente?.anagrafica?.nome_cognome || 'Paziente';
+            const cf = paziente?.anagrafica?.codice_fiscale || '';
+            
+            // CONTROLLO ACCESSO: solo admin o il proprietario può eliminare
+            if (currentUser.ruolo !== 'amministratore' && paziente?.operatore_email !== currentUser.email) {
+                showStatus('❌ Non hai i permessi per eliminare questa cartella', 'error');
+                return;
+            }
+            
+            if (confirm(`⚠️ Eliminare definitivamente?\n\n${nome}\nCF: ${cf}\n\nQuesta azione non può essere annullata!`)) {
+                if (!db) {
+                    showStatus('Firebase non disponibile', 'error');
+                    return;
+                }
+
+                const operatorEmail = paziente?.operatore_email || currentUser.email;
+                
+                db.ref(`pazienti/${id}`).remove()
+                    .then(() => {
+                        if (cf) {
+                            db.ref(`pazienti_cf/${cf}`).remove();
+                        }
+                        // Rimuovi anche dall'index per operatore
+                        db.ref(`pazienti_per_operatore/${operatorEmail}/${id}`).remove();
+                        showStatus(`✅ ${nome} eliminato dal database`);
+                        setTimeout(() => visualizzaUtenti(), 500);
+                    })
+                    .catch(error => {
+                        showStatus('❌ Errore eliminazione: ' + error.message, 'error');
+                    });
+            }
+        }
+</parameter>
+
+        // Export to CSV
+        function esportaTabellaCSV() {
+            let csv = 'Data Inserimento,Nome,Codice Fiscale,Telefono,Email\n';
+            
+            utentiDatabase.forEach(paziente => {
+                const anagrafica = paziente.anagrafica || {};
+                csv += `"${new Date(paziente.dataSalvataggio).toLocaleDateString('it-IT')}","${anagrafica.nome_cognome || 'N/D'}","${anagrafica.codice_fiscale || 'N/D'}","${anagrafica.telefono || 'N/D'}","${anagrafica.email || 'N/D'}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Pazienti_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showStatus('CSV esportato con successo!');
+        }
+
+        // Close modal
+        function chiudiModal() {
+            document.getElementById('modalUtenti').style.display = 'none';
+        }
+
+        // ====== GESTIONE DATI LOCALI E FIREBASE ======
+        // Cache per dati in memoria (auto-sync ogni 30 secondi)
+        let dataCache = {};
+        let syncTimer = null;
+
+        // Auto-save ogni 30 secondi (auto-sync)
+        function setupAutoSync() {
+            if (syncTimer) clearInterval(syncTimer);
+            syncTimer = setInterval(() => {
+                if (currentUser) autoSaveAllTabs();
+            }, 30000);
+        }
+
+        // Auto-salva tutti i tab in background
+        function autoSaveAllTabs() {
+            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+            
+            tabNames.forEach(tabName => {
+                const formData = collectTabData(tabName);
+                if (Object.keys(formData).length > 0) {
+                    localStorage.setItem(`csi_${tabName}`, JSON.stringify(formData));
+                    dataCache[tabName] = formData;
+                    
+                    // Sync con Firebase se disponibile
+                    if (db && currentUser) {
+                        syncToFirebase(tabName, formData);
+                    }
+                }
+            });
+            
+            console.log('✓ Auto-sync completato');
+        }
+
+        // Raccogli dati da un tab
+        function collectTabData(tabName) {
+            const formData = {};
+            const tabElement = document.getElementById(tabName);
+            if (!tabElement) return formData;
+            
+            const inputs = tabElement.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    formData[input.name] = input.checked;
+                } else if (input.type === 'radio') {
+                    if (input.checked) formData[input.name] = input.value;
+                } else if (input.value) {
+                    formData[input.name] = input.value;
+                }
+            });
+            
+            return formData;
+        }
+
+        // Restaura dati da localStorage
+        function restoreTabData(tabName, formData) {
+            const tabElement = document.getElementById(tabName);
+            if (!tabElement) return;
+            
+            const inputs = tabElement.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = formData[input.name] === true;
+                } else if (input.type === 'radio') {
+                    if (input.value === formData[input.name]) {
+                        input.checked = true;
+                    }
+                } else {
+                    input.value = formData[input.name] || '';
+                }
+            });
+        }
+
+        // Sync tab su Firebase (non bloccante)
+        function syncToFirebase(tabName, formData) {
+            if (!db || !currentUser) return;
+            
+            const sessionId = localStorage.getItem('csi_sessionId') || Date.now().toString();
+            localStorage.setItem('csi_sessionId', sessionId);
+            
+            db.ref(`draft/${currentUser.email}/${tabName}`).set({
+                data: formData,
+                timestamp: new Date().toISOString(),
+                version: 1
+            }).catch(err => console.warn('Firebase sync skipped:', err.message));
+        }
+
+        // Auto-load from localStorage
+        window.addEventListener('load', function() {
+            // Pre-popola email se "Ricordami" era selezionato
+            try {
+                const lastUser = localStorage.getItem('csi_lastUser');
+                if (lastUser && document.getElementById('loginEmail')) {
+                    document.getElementById('loginEmail').value = lastUser;
+                    document.getElementById('rememberMe').checked = true;
+                }
+            } catch (error) {
+                console.error('Errore caricamento preferenze:', error);
+            }
+
+            // Controlla autenticazione (DOPO il caricamento del DOM)
+            setTimeout(() => {
+                checkAuth();
+                setupAutoSync();
+            }, 200);
+
+            // Carica dati salvati
+            const tabNames = ['anagrafica', 'interventi', 'autosufficienza', 'abitativa', 'economica', 'familiare', 'giuridica'];
+            
+            tabNames.forEach(tabName => {
+                const saved = localStorage.getItem(`csi_${tabName}`);
+                if (saved) {
+                    try {
+                        const formData = JSON.parse(saved);
+                        dataCache[tabName] = formData;
+                        restoreTabData(tabName, formData);
+                    } catch (e) {
+                        console.error(`Errore caricamento ${tabName}:`, e);
+                    }
+                }
+            });
+        });
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            if (syncTimer) clearInterval(syncTimer);
+            autoSaveAllTabs();
+        });
+    </script>
+</body>
+</html>
