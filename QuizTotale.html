@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Corso SharePoint, OneDrive e Teams</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #020617 0%, #1e293b 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 3px solid #38bdf8;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #06b6d4);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 40px 30px;
+            min-height: 500px;
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .quiz-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-counter {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #f1f5f9;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #cbd5e1;
+        }
+
+        .option:hover {
+            border-color: #38bdf8;
+            background: #293548;
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+        }
+
+        .option.selected {
+            border-color: #38bdf8;
+            background: #1e3a4c;
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: #064e3b;
+            color: #a7f3d0;
+        }
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #064e3b;
+            border-left: 4px solid #10b981;
+            color: #a7f3d0;
+        }
+
+        .feedback.incorrect {
+            background: #7f1d1d;
+            border-left: 4px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #22d3ee;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+
+        .summary {
+            text-align: center;
+        }
+
+        .score {
+            font-size: 3rem;
+            color: #38bdf8;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .score-text {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            color: #38bdf8;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: #1e3a4c;
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Quiz Corso</h1>
+            <p>SharePoint, OneDrive e Teams - 5 Giorni</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="content">
+            <!-- Quiz Questions -->
+            <div id="quiz"></div>
+
+            <!-- Summary -->
+            <div id="summary" class="quiz-section" style="display: none;">
+                <div class="summary">
+                    <h2 style="color: #38bdf8; margin-bottom: 20px;">Quiz Completato! ✅</h2>
+                    <div class="score" id="finalScore">0/20</div>
+                    <div class="score-text" id="scoreMessage">Ottimo lavoro!</div>
+                    
+                    <div class="summary-stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="correctCount">0</div>
+                            <div class="stat-label">Risposte Corrette</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="incorrectCount">0</div>
+                            <div class="stat-label">Risposte Sbagliate</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="percentageScore">0%</div>
+                            <div class="stat-label">Percentuale</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <button class="btn-primary" onclick="restartQuiz()" style="width: 200px;">Ricomincia Quiz</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                day: 1,
+                text: "Qual è il primo passo per configurare OneDrive su un client desktop?",
+                options: [
+                    "Scaricare il client da microsoft.com e installarlo",
+                    "Accedere direttamente a office.com",
+                    "Creare una cartella locale",
+                    "Abilitare la sincronizzazione senza installare il client"
+                ],
+                correct: 0,
+                explanation: "Il primo passo è scaricare il client OneDrive da microsoft.com e seguire l'installazione guidata."
+            },
+            {
+                day: 1,
+                text: "Dove si trova la funzione 'Cronologia Versioni' per un documento in OneDrive?",
+                options: [
+                    "Nel menu contestuale del desktop",
+                    "In office.com → OneDrive → Informazioni → Cronologia versioni",
+                    "Solo nel client desktop",
+                    "Non è disponibile in OneDrive"
+                ],
+                correct: 1,
+                explanation: "La Cronologia Versioni è accessibile da office.com, selezionando il file, cliccando 'Informazioni' e poi 'Cronologia versioni'."
+            },
+            {
+                day: 1,
+                text: "Quale tipo di link di condivisione è più sicuro per documenti sensibili?",
+                options: [
+                    "Chiunque - con visualizzazione",
+                    "Persone specifiche - con scadenza e password",
+                    "Link pubblico generico",
+                    "Nessun link, solo condivisione diretta"
+                ],
+                correct: 1,
+                explanation: "Il link 'Persone specifiche' con scadenza e password è il più sicuro poiché limita l'accesso agli utenti specificati."
+            },
+            {
+                day: 2,
+                text: "Qual è la procedura corretta per creare un nuovo Sito Team in SharePoint?",
+                options: [
+                    "Office.com → Launcher App → SharePoint → + Crea sito → Sito Team",
+                    "SharePoint → Impostazioni → Nuovo sito",
+                    "Direttamente da Teams senza passare per SharePoint",
+                    "Solo tramite PowerShell"
+                ],
+                correct: 0,
+                explanation: "La procedura è: Accedi a office.com, clicca il launcher (9 quadratini), seleziona SharePoint, clicca '+ Crea sito', scegli 'Sito Team'."
+            },
+            {
+                day: 2,
+                text: "Quale delle seguenti è una best practice per organizzare una libreria documenti?",
+                options: [
+                    "Caricare tutti i file nella root senza sottocartelle",
+                    "Usare una struttura gerarchica con colonne personalizzate e viste filtrate",
+                    "Usare solo nomi generici per i file",
+                    "Non applicare metadati ai documenti"
+                ],
+                correct: 1,
+                explanation: "Una libreria ben organizzata deve avere una struttura gerarchica, colonne personalizzate per i metadati e viste per facilitare la ricerca."
+            },
+            {
+                day: 2,
+                text: "Qual è la differenza tra i ruoli 'Membro' e 'Visitatore' in SharePoint?",
+                options: [
+                    "Non c'è differenza, è la stessa cosa",
+                    "Membro può visualizzare e modificare; Visitatore può solo visualizzare",
+                    "Membro deve approvare i documenti",
+                    "Visitatore ha accesso illimitato"
+                ],
+                correct: 1,
+                explanation: "Membro ha permessi di modifica (può caricare, modificare file), mentre Visitatore ha solo permessi di visualizzazione."
+            },
+            {
+                day: 3,
+                text: "Cos'è una 'Retention Policy' in SharePoint?",
+                options: [
+                    "Una regola di crittografia dei documenti",
+                    "Una policy che definisce quanto tempo conservare i documenti e quante versioni mantenere",
+                    "Una restrizione di accesso",
+                    "Un filtro di ricerca"
+                ],
+                correct: 1,
+                explanation: "Una Retention Policy specifica il numero di versioni da conservare, il periodo di mantenimento e quando eliminare il contenuto automaticamente."
+            },
+            {
+                day: 3,
+                text: "Quale colonna SharePoint è utile per tracciare lo stato di un documento in approvazione?",
+                options: [
+                    "Data Creazione",
+                    "Autore",
+                    "Stato Approvazione (Scelta personalizzata con opzioni: Da Approvare, Approvato, Rifiutato)",
+                    "Dimensione file"
+                ],
+                correct: 2,
+                explanation: "Una colonna di tipo 'Scelta' denominata 'Stato Approvazione' consente di tracciare il flusso di lavoro di revisione dei documenti."
+            },
+            {
+                day: 3,
+                text: "Come si definisce un 'Content Type' in SharePoint?",
+                options: [
+                    "Un tipo di browser",
+                    "Un template che definisce la struttura, le colonne e il comportamento di un documento",
+                    "Una cartella speciale",
+                    "Un permesso di accesso"
+                ],
+                correct: 1,
+                explanation: "Un Content Type è un template riusabile che definisce come un documento deve essere strutturato, quali colonne deve avere e quali metadati associare."
+            },
+            {
+                day: 4,
+                text: "Qual è il primo elemento da configurare quando si crea un flow in Power Automate?",
+                options: [
+                    "L'azione di notifica",
+                    "Il trigger (evento che avvia il flow, es. 'Nuovo file caricato')",
+                    "L'approvazione",
+                    "La condizione"
+                ],
+                correct: 1,
+                explanation: "Il trigger è il primo elemento - definisce l'evento che attiva automaticamente il flow."
+            },
+            {
+                day: 4,
+                text: "In un flow Power Automate, cosa fa una 'Condizione'?",
+                options: [
+                    "Interrompe il flow",
+                    "Crea rami alternativi nel flusso in base a logica (Se X allora Y, altrimenti Z)",
+                    "Invia sempre una notifica",
+                    "Modifica il trigger"
+                ],
+                correct: 1,
+                explanation: "Una Condizione permette di creare logica If/Then/Else - esegue azioni diverse in base al risultato della condizione."
+            },
+            {
+                day: 4,
+                text: "Come si integra SharePoint con Teams in termini di documenti?",
+                options: [
+                    "I documenti non possono essere condivisi tra i due tool",
+                    "Copiando manualmente i file",
+                    "Collegando un canale Teams a una libreria SharePoint, sincronizzando i file automaticamente",
+                    "Usando solo Teams senza SharePoint"
+                ],
+                correct: 2,
+                explanation: "Un canale Teams può essere collegato a una libreria SharePoint tramite 'Connetti a SharePoint', sincronizzando i file automaticamente in una scheda File."
+            },
+            {
+                day: 5,
+                text: "Quale struttura di canali è consigliata per un Team ben organizzato?",
+                options: [
+                    "Un solo canale #generale per tutto",
+                    "Canali per argomento (#annunci, #progetti, #documenti, #supporto, ecc.) con chiari scopi",
+                    "Canali per persona",
+                    "Nessuna struttura definita"
+                ],
+                correct: 1,
+                explanation: "Avere canali tematici con scopi chiari (#annunci per comunicazioni, #progetti per work, #documenti per file, etc.) migliora l'organizzazione."
+            },
+            {
+                day: 5,
+                text: "Come si configura una riunione ricorrente in Teams?",
+                options: [
+                    "Non è possibile in Teams",
+                    "Solo tramite outlook, non da Teams",
+                    "In Teams, nel canale si clicca 'Crea riunione' e si imposta 'Ricorrenza' (giornaliera, settimanale, mensile)",
+                    "Creando manualmente ogni riunione"
+                ],
+                correct: 2,
+                explanation: "In Teams, nella scheda Calendario, si clicca 'Crea riunione' e si configura la ricorrenza (es. Lunedì-Venerdì alle 9:00 AM)."
+            },
+            {
+                day: 5,
+                text: "Quale vantaggio principale offre un Team rispetto ai soli documenti in SharePoint?",
+                options: [
+                    "Nessuno, è la stessa cosa",
+                    "Comunicazione real-time, chat, riunioni integrate + gestione documentale",
+                    "Solo comunicazione, i documenti non si sincronizzano",
+                    "Accesso più lento"
+                ],
+                correct: 1,
+                explanation: "Teams combina comunicazione (chat, riunioni), gestione documentale (collegamento a SharePoint) e collaborazione in un unico spazio."
+            },
+            {
+                day: 1,
+                text: "Qual è il limite di versioni che OneDrive consente per impostazione predefinita?",
+                options: [
+                    "5 versioni",
+                    "Illimitato",
+                    "500 versioni",
+                    "100 versioni"
+                ],
+                correct: 1,
+                explanation: "OneDrive mantiene tutte le versioni di un documento per impostazione predefinita, permettendo di tornare indietro nel tempo senza limiti."
+            },
+            {
+                day: 2,
+                text: "Cosa rappresenta una 'Vista' in una libreria SharePoint?",
+                options: [
+                    "Un backup del documento",
+                    "Una rappresentazione filtrata e ordinata dei documenti della libreria",
+                    "Una copia della libreria",
+                    "Una cartella speciale"
+                ],
+                correct: 1,
+                explanation: "Una Vista è una visualizzazione personalizzata della libreria - puoi filtrare, ordinare e raggruppare i documenti senza cambiarli."
+            },
+            {
+                day: 3,
+                text: "In un workflow di approvazione SharePoint, quale colonna memorizza chi ha approvato il documento?",
+                options: [
+                    "Data Creazione",
+                    "Una colonna personalizzata di tipo 'Persone' denominata 'Approvato da'",
+                    "Autore",
+                    "Modifica personale"
+                ],
+                correct: 1,
+                explanation: "Si crea una colonna di tipo 'Persone' (es. 'Approvato da') per tracciare chi ha approvato il documento."
+            },
+            {
+                day: 4,
+                text: "Quale azione è corretta in un flow per inviare una notifica quando un documento viene caricato?",
+                options: [
+                    "Invia email al proprio account personale",
+                    "Invia messaggio di chat Teams con i dettagli del documento",
+                    "Copia il file in un'altra libreria",
+                    "Elimina il file automaticamente"
+                ],
+                correct: 1,
+                explanation: "L'azione 'Invia messaggio di chat' in un flow permette di notificare in Teams quando un evento si verifica in SharePoint."
+            },
+            {
+                day: 5,
+                text: "In uno scenario di progetto telemedicina integrato, quali componenti dovresti usare?",
+                options: [
+                    "Solo OneDrive",
+                    "Solo Teams",
+                    "SharePoint (gestione doc) + Teams (collaborazione) + Power Automate (automazione) + OneDrive (file personali)",
+                    "Solo email"
+                ],
+                correct: 2,
+                explanation: "Un progetto complesso richiede: SharePoint per i documenti formali, Teams per la collaborazione, Power Automate per l'automazione, OneDrive per file temporanei."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let answers = new Array(questions.length).fill(null);
+
+        function initQuiz() {
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const quiz = document.getElementById('quiz');
+            quiz.innerHTML = '';
+
+            const q = questions[currentQuestion];
+            const section = document.createElement('div');
+            section.className = 'quiz-section active';
+
+            let html = `
+                <div class="question-counter">Domanda ${currentQuestion + 1} di ${questions.length}</div>
+                <div class="day-badge">Giorno ${q.day}</div>
+                <div class="question-text">${q.text}</div>
+                <div class="options">
+            `;
+
+            q.options.forEach((option, idx) => {
+                const isSelected = answers[currentQuestion] === idx;
+                html += `
+                    <label class="option ${isSelected ? 'selected' : ''}">
+                        <input type="radio" name="answer" value="${idx}" ${isSelected ? 'checked' : ''} 
+                               onchange="selectAnswer(${idx})">
+                        ${option}
+                    </label>
+                `;
+            });
+
+            html += `</div>`;
+
+            if (answers[currentQuestion] !== null) {
+                const isCorrect = answers[currentQuestion] === q.correct;
+                html += `
+                    <div class="feedback show ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="feedback-title">${isCorrect ? '✅ Risposta Corretta!' : '❌ Risposta Scorretta'}</div>
+                        <div>${q.explanation}</div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="controls">
+                    <button class="btn-secondary" onclick="previousQuestion()" ${currentQuestion === 0 ? 'disabled' : ''}>← Precedente</button>
+                    <button class="btn-primary" onclick="nextQuestion()" ${answers[currentQuestion] === null ? 'disabled' : ''}>Avanti →</button>
+                </div>
+            `;
+
+            section.innerHTML = html;
+            quiz.appendChild(section);
+
+            updateProgress();
+        }
+
+        function selectAnswer(idx) {
+            answers[currentQuestion] = idx;
+            if (idx === questions[currentQuestion].correct) {
+                correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
+            } else {
+                correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
+            }
+            displayQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            } else {
+                showSummary();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showSummary() {
+            correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+
+            let message = '';
+            if (percentage === 100) message = '🏆 Perfetto! Hai completato il corso con successo!';
+            else if (percentage >= 80) message = '🎉 Ottimo risultato! Hai una buona comprensione del corso.';
+            else if (percentage >= 60) message = '👍 Buon lavoro! Continua a praticare.';
+            else message = '📚 Riprova il quiz per consolidare le conoscenze.';
+
+            document.getElementById('finalScore').textContent = `${correctAnswers}/${questions.length}`;
+            document.getElementById('scoreMessage').textContent = message;
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('incorrectCount').textContent = questions.length - correctAnswers;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('summary').style.display = 'block';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            correctAnswers = 0;
+            answers = new Array(questions.length).fill(null);
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('summary').style.display = 'none';
+            initQuiz();
+        }
+
+        // Initialize quiz on page load
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
