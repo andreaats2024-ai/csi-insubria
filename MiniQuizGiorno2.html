@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Quiz Giorno 2 - SharePoint Siti Team</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #020617 0%, #1e293b 100%);
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 3px solid #10b981;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #06b6d4);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 40px 30px;
+            min-height: 500px;
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .quiz-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-counter {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #f1f5f9;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #cbd5e1;
+        }
+
+        .option:hover {
+            border-color: #10b981;
+            background: #293548;
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+        }
+
+        .option.selected {
+            border-color: #10b981;
+            background: #1e3a4c;
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: #064e3b;
+            color: #a7f3d0;
+        }
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #064e3b;
+            border-left: 4px solid #10b981;
+            color: #a7f3d0;
+        }
+
+        .feedback.incorrect {
+            background: #7f1d1d;
+            border-left: 4px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: #0f172a;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+
+        .summary {
+            text-align: center;
+        }
+
+        .score {
+            font-size: 3rem;
+            color: #10b981;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .score-text {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: #064e3b;
+            color: #10b981;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Mini Quiz Giorno 2</h1>
+            <p>SharePoint - Siti Team e Librerie Documenti</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="content">
+            <div id="quiz"></div>
+
+            <div id="summary" class="quiz-section" style="display: none;">
+                <div class="summary">
+                    <h2 style="color: #10b981; margin-bottom: 20px;">Mini Quiz Completato! ✅</h2>
+                    <div class="score" id="finalScore">0/5</div>
+                    <div class="score-text" id="scoreMessage">Ottimo lavoro!</div>
+                    
+                    <div class="summary-stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="correctCount">0</div>
+                            <div class="stat-label">Risposte Corrette</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="incorrectCount">0</div>
+                            <div class="stat-label">Risposte Sbagliate</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="percentageScore">0%</div>
+                            <div class="stat-label">Percentuale</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <button class="btn-primary" onclick="restartQuiz()" style="width: 200px;">Ricomincia Quiz</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "Qual è il primo passo per creare un Sito Team in SharePoint?",
+                options: [
+                    "Office.com → Launcher App → SharePoint → + Crea sito → Sito Team",
+                    "SharePoint → Impostazioni → Nuovo sito",
+                    "Direttamente da Teams senza passare per SharePoint",
+                    "Solo tramite PowerShell"
+                ],
+                correct: 0,
+                explanation: "La procedura corretta è: Accedi a office.com, clicca il launcher (9 quadratini), seleziona SharePoint, clicca '+ Crea sito', scegli 'Sito Team'."
+            },
+            {
+                text: "Cosa rappresenta una 'Libreria Documenti' in SharePoint?",
+                options: [
+                    "Una cartella per archiviare file fisici",
+                    "Un contenitore web per gestire documenti digitali con metadati, versioning e permessi",
+                    "Un database non modificabile",
+                    "Un backup automatico di OneDrive"
+                ],
+                correct: 1,
+                explanation: "Una Libreria Documenti è un contenitore web che permette di gestire documenti con funzioni avanzate come metadati, cronologia versioni e permessi granulari."
+            },
+            {
+                text: "Quale colonna personalizzata è più utile per organizzare documenti per categoria?",
+                options: [
+                    "Solo la colonna 'Autore'",
+                    "Una colonna di tipo 'Scelta' con opzioni predefinite",
+                    "Solo la data di creazione",
+                    "Non è possibile aggiungere colonne"
+                ],
+                correct: 1,
+                explanation: "Una colonna di tipo 'Scelta' consente di selezionare valori predefiniti, facilitando la categorizzazione e il filtraggio dei documenti."
+            },
+            {
+                text: "Quali sono i tre livelli di permesso principali in SharePoint?",
+                options: [
+                    "Admin, User, Guest",
+                    "Proprietario (accesso completo), Membro (modifica), Visitatore (visualizzazione)",
+                    "Editor, Viewer, Reviewer",
+                    "Master, Developer, Reader"
+                ],
+                correct: 1,
+                explanation: "I tre livelli principali sono: Proprietario (accesso totale), Membro (può modificare documenti), Visitatore (solo visualizzazione)."
+            },
+            {
+                text: "Cosa permette una 'Vista' in una libreria SharePoint?",
+                options: [
+                    "Creare un backup del documento",
+                    "Filtrare, ordinare e raggruppare i documenti senza modificarli",
+                    "Eliminare documenti in massa",
+                    "Nascondere permanentemente i file"
+                ],
+                correct: 1,
+                explanation: "Una Vista è una rappresentazione personalizzata della libreria - puoi filtrare, ordinare e raggruppare i documenti senza cambiarli."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let answers = new Array(questions.length).fill(null);
+
+        function initQuiz() {
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const quiz = document.getElementById('quiz');
+            quiz.innerHTML = '';
+
+            const q = questions[currentQuestion];
+            const section = document.createElement('div');
+            section.className = 'quiz-section active';
+
+            let html = `
+                <div class="question-counter">Domanda ${currentQuestion + 1} di ${questions.length}</div>
+                <div class="day-badge">Giorno 2</div>
+                <div class="question-text">${q.text}</div>
+                <div class="options">
+            `;
+
+            q.options.forEach((option, idx) => {
+                const isSelected = answers[currentQuestion] === idx;
+                html += `
+                    <label class="option ${isSelected ? 'selected' : ''}">
+                        <input type="radio" name="answer" value="${idx}" ${isSelected ? 'checked' : ''} 
+                               onchange="selectAnswer(${idx})">
+                        ${option}
+                    </label>
+                `;
+            });
+
+            html += `</div>`;
+
+            if (answers[currentQuestion] !== null) {
+                const isCorrect = answers[currentQuestion] === q.correct;
+                html += `
+                    <div class="feedback show ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="feedback-title">${isCorrect ? '✅ Risposta Corretta!' : '❌ Risposta Scorretta'}</div>
+                        <div>${q.explanation}</div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="controls">
+                    <button class="btn-secondary" onclick="previousQuestion()" ${currentQuestion === 0 ? 'disabled' : ''}>← Precedente</button>
+                    <button class="btn-primary" onclick="nextQuestion()" ${answers[currentQuestion] === null ? 'disabled' : ''}>Avanti →</button>
+                </div>
+            `;
+
+            section.innerHTML = html;
+            quiz.appendChild(section);
+
+            updateProgress();
+        }
+
+        function selectAnswer(idx) {
+            answers[currentQuestion] = idx;
+            correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
+            displayQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            } else {
+                showSummary();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showSummary() {
+            correctAnswers = answers.filter((a, i) => a === questions[i].correct).length;
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+
+            let message = '';
+            if (percentage === 100) message = '🏆 Perfetto! Hai completato il mini quiz con successo!';
+            else if (percentage >= 80) message = '🎉 Ottimo risultato! Hai una buona comprensione del Giorno 2.';
+            else if (percentage >= 60) message = '👍 Buon lavoro! Continua a praticare.';
+            else message = '📚 Riprova il quiz per consolidare le conoscenze.';
+
+            document.getElementById('finalScore').textContent = `${correctAnswers}/${questions.length}`;
+            document.getElementById('scoreMessage').textContent = message;
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('incorrectCount').textContent = questions.length - correctAnswers;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('summary').style.display = 'block';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            correctAnswers = 0;
+            answers = new Array(questions.length).fill(null);
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('summary').style.display = 'none';
+            initQuiz();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
