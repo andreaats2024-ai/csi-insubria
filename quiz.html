@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Quiz Forensics & AI Security</title>
+<style>
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#030712;
+  --surface:#0c1120;
+  --surface2:#111827;
+  --border:#1e2d3d;
+  --border2:#2a3a4d;
+  --accent:#6366f1;
+  --accent2:#818cf8;
+  --accent-glow:rgba(99,102,241,0.35);
+  --green:#22c55e;
+  --green-bg:rgba(22,163,74,0.18);
+  --green-border:#16a34a;
+  --red:#ef4444;
+  --red-bg:rgba(185,28,28,0.22);
+  --red-border:#b91c1c;
+  --yellow:#facc15;
+  --orange:#f97316;
+  --text:#f1f5f9;
+  --text2:#94a3b8;
+  --text3:#64748b;
+  --pill:999px;
+  --r:16px;
+  --r2:12px;
+}
+html{font-size:16px}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 90% 60% at 10% 0%,rgba(30,58,138,0.28) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 100%,rgba(15,118,110,0.18) 0%,transparent 55%);
+}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1100px;margin:0 auto;padding:28px 16px 48px}
+.header{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+.header-left{}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.logo-text{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em;color:#f8fafc}
+.logo-badge{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;background:linear-gradient(90deg,rgba(30,64,175,.6),rgba(6,95,70,.6));border:1px solid rgba(148,163,184,.3);border-radius:var(--pill);padding:2px 9px;color:#cbd5e1;align-self:flex-end;margin-bottom:4px}
+.tagline{font-size:.82rem;color:var(--text2);max-width:500px;line-height:1.5}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:1fr 300px;gap:14px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+/* ── CARD ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+}
+.card::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 0% 0%,rgba(99,102,241,.07),transparent 50%);
+  pointer-events:none;
+}
+
+/* ── STATUS BAR ── */
+.status-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;padding:4px 10px;border-radius:var(--pill);border:1px solid var(--border2);background:var(--surface2);color:var(--text2)}
+.badge-dot{width:6px;height:6px;border-radius:50%}
+.badge-green .badge-dot{background:var(--green)}
+.badge-green{border-color:rgba(34,197,94,.4)}
+.badge-yellow .badge-dot{background:var(--yellow)}
+.badge-yellow{border-color:rgba(250,204,21,.4);color:#fde68a}
+.badge-blue .badge-dot{background:var(--accent2)}
+.badge-blue{border-color:rgba(99,102,241,.4);color:var(--accent2)}
+
+/* ── PROGRESS ── */
+.prog-wrap{width:100%;margin-top:4px}
+.prog-row{display:flex;justify-content:space-between;font-size:.7rem;color:var(--text3);margin-bottom:4px}
+.prog-track{height:5px;background:rgba(255,255,255,.06);border-radius:var(--pill);overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),#3b82f6);border-radius:var(--pill);transition:width .3s ease}
+
+/* ── QUESTION HEADER ── */
+.q-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 8px}
+.q-num{font-size:.8rem;font-weight:600;color:var(--accent2)}
+.q-area{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:var(--pill);border:1px solid rgba(99,102,241,.4);background:rgba(30,64,175,.25);color:#c7d2fe}
+.q-text{font-size:1rem;line-height:1.55;font-weight:500;color:#f8fafc;margin-bottom:18px;min-height:48px}
+
+/* ── OPTIONS ── */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+@media(max-width:640px){.options{grid-template-columns:1fr}}
+
+.opt{
+  display:flex;align-items:flex-start;gap:9px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:11px 13px;
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:left;color:var(--text);font-size:.875rem;line-height:1.4;
+  position:relative;overflow:hidden;
+}
+.opt::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(255,255,255,.05),transparent 60%);opacity:0;transition:opacity .15s;pointer-events:none}
+.opt:hover:not(.disabled){border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.opt:hover:not(.disabled)::before{opacity:1}
+.opt.disabled{cursor:default;pointer-events:none}
+.opt.correct{background:var(--green-bg);border-color:var(--green-border);color:#dcfce7}
+.opt.wrong{background:var(--red-bg);border-color:var(--red-border);color:#fee2e2}
+.opt.correct .ol,.opt.wrong .ol{border-color:inherit}
+
+.ol{
+  min-width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:var(--text2);flex-shrink:0;
+  background:rgba(255,255,255,.05);
+  transition:all .15s;
+}
+.opt:hover:not(.disabled) .ol{border-color:var(--accent2);color:var(--accent2)}
+.opt.correct .ol{background:rgba(22,163,74,.4);color:#86efac;border-color:#4ade80}
+.opt.wrong .ol{background:rgba(185,28,28,.4);color:#fca5a5;border-color:#f87171}
+
+/* ── FEEDBACK ── */
+.fb{
+  min-height:32px;display:flex;align-items:center;gap:8px;
+  font-size:.88rem;border-radius:10px;padding:7px 12px;margin-bottom:14px;
+  opacity:0;transform:translateY(4px);transition:all .2s ease;
+}
+.fb.show{opacity:1;transform:translateY(0)}
+.fb.correct{background:var(--green-bg);border:1px solid rgba(34,197,94,.3);color:#86efac}
+.fb.wrong{background:var(--red-bg);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.fb-icon{font-size:1rem}
+
+/* ── CONTROLS ── */
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:var(--pill);border:none;padding:9px 18px;
+  font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;
+}
+.btn-primary{background:linear-gradient(135deg,#4338ca,#6366f1);color:#f0f4ff;border:1px solid rgba(129,140,248,.6);box-shadow:0 4px 15px rgba(99,102,241,.3)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.45)}
+.btn-primary:disabled{background:#1e2d3d;color:#475569;border-color:var(--border);box-shadow:none;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text);border-color:#4b5563;background:rgba(255,255,255,.04)}
+.btn-danger{background:rgba(127,29,29,.4);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(185,28,28,.5)}
+.shortcut-hint{font-size:.68rem;color:var(--text3);margin-left:auto}
+kbd{display:inline-block;padding:1px 5px;border-radius:4px;border:1px solid var(--border2);background:var(--surface2);font-family:inherit;font-size:.68rem;color:var(--text2)}
+
+/* ── SIDEBAR ── */
+.side-section{margin-bottom:18px}
+.side-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:10px;font-weight:600}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.kpi{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:10px 12px}
+.kpi-v{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.kpi-l{font-size:.68rem;color:var(--text2);margin-top:3px}
+.kpi-answered .kpi-v{color:#93c5fd}
+.kpi-correct .kpi-v{color:var(--green)}
+.kpi-errors .kpi-v{color:var(--orange)}
+.kpi-pct .kpi-v{color:#c084fc}
+
+/* ── ERROR GAUGE ── */
+.gauge-wrap{margin-bottom:14px}
+.gauge-label-row{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text2);margin-bottom:5px}
+.gauge-track{height:8px;background:rgba(255,255,255,.06);border-radius:var(--pill);overflow:hidden}
+.gauge-fill{height:100%;border-radius:var(--pill);transition:width .4s ease,background .4s ease}
+
+/* ── MODE SELECTOR ── */
+.mode-group{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.mode-btn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:8px 12px;cursor:pointer;
+  transition:all .15s;color:var(--text2);font-size:.78rem;font-weight:500;
+}
+.mode-btn:hover{border-color:var(--border2);color:var(--text)}
+.mode-btn.active{border-color:rgba(99,102,241,.7);background:rgba(30,64,175,.3);color:#c7d2fe}
+.mode-icon{font-size:.9rem}
+.mode-check{margin-left:auto;color:var(--green);font-size:.9rem;opacity:0}
+.mode-btn.active .mode-check{opacity:1}
+
+/* ── AREA FILTER ── */
+.area-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+.area-pill{
+  font-size:.65rem;padding:3px 8px;border-radius:var(--pill);cursor:pointer;
+  border:1px solid var(--border);background:var(--surface2);color:var(--text3);
+  transition:all .15s;
+}
+.area-pill:hover{border-color:var(--border2);color:var(--text2)}
+.area-pill.active{border-color:rgba(99,102,241,.6);background:rgba(30,64,175,.4);color:#c7d2fe}
+
+/* ── FINE SESSIONE ── */
+.end-screen{text-align:center;padding:30px 10px}
+.end-trophy{font-size:3.5rem;margin-bottom:10px}
+.end-title{font-size:1.3rem;font-weight:700;margin-bottom:6px}
+.end-sub{font-size:.85rem;color:var(--text2);margin-bottom:20px}
+.score-big{font-size:3rem;font-weight:900;letter-spacing:-.04em;margin-bottom:4px}
+.score-label{font-size:.8rem;color:var(--text2)}
+.score-green{color:var(--green)}
+.score-yellow{color:var(--yellow)}
+.score-red{color:var(--red)}
+
+/* ── ANIMAZIONI ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.q-anim{animation:fadeIn .22s ease}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.loading{animation:pulse 1s infinite;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon">🔍</div>
+        <div class="logo-text">Forensics &amp; AI Security</div>
+        <span class="logo-badge">Quiz continuo</span>
+      </div>
+      <p class="tagline">250 domande su Digital Forensics, File System, Memory Analysis, MM-Forensics e Sicurezza IA — domande e risposte sempre rimescolate.</p>
+    </div>
+  </header>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- ── COLONNA PRINCIPALE ── -->
+    <section class="card">
+
+      <!-- status -->
+      <div class="status-bar">
+        <span class="badge badge-green"><span class="badge-dot"></span><span id="bs-status">Sessione attiva</span></span>
+        <span class="badge badge-yellow"><span class="badge-dot"></span><span id="bs-err">Errori: 0%</span></span>
+        <span class="badge badge-blue"><span class="badge-dot"></span><span id="bs-area">Tutte le aree</span></span>
+      </div>
+
+      <!-- progress -->
+      <div class="prog-wrap">
+        <div class="prog-row"><span>Avanzamento sessione</span><span id="prog-text">0 / 0</span></div>
+        <div class="prog-track"><div id="prog-fill" class="prog-fill" style="width:0%"></div></div>
+      </div>
+
+      <!-- question -->
+      <div id="q-panel">
+        <div class="q-meta">
+          <span id="q-num" class="q-num">Domanda 1</span>
+          <span id="q-area" class="q-area">—</span>
+        </div>
+        <div id="q-text" class="q-text loading">Caricamento...</div>
+        <div id="options" class="options"></div>
+
+        <div id="fb" class="fb">
+          <span id="fb-icon" class="fb-icon"></span>
+          <span id="fb-text"></span>
+        </div>
+
+        <div class="controls">
+          <button id="btn-next" class="btn btn-primary" disabled>Prossima domanda →</button>
+          <button id="btn-reshuffle" class="btn btn-ghost">↺ Nuovo campione</button>
+          <button id="btn-reset" class="btn btn-danger">⟳ Azzera statistiche</button>
+          <span class="shortcut-hint"><kbd>↵ Enter</kbd> avanza</span>
+        </div>
+      </div>
+
+      <!-- end screen (hidden) -->
+      <div id="end-screen" class="end-screen" style="display:none">
+        <div class="end-trophy">🏆</div>
+        <div class="end-title">Sessione completata!</div>
+        <div id="end-sub" class="end-sub"></div>
+        <div id="end-score" class="score-big"></div>
+        <div class="score-label">risposta corrette</div>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button id="end-new" class="btn btn-primary">Nuovo campione →</button>
+          <button id="end-reset" class="btn btn-ghost">↺ Ricomincia dall'inizio</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── SIDEBAR ── -->
+    <aside>
+      <!-- KPI -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="side-section">
+          <div class="side-title">Statistiche globali</div>
+          <div class="kpi-grid">
+            <div class="kpi kpi-answered"><div id="kpi-ans" class="kpi-v">0</div><div class="kpi-l">Risposte date</div></div>
+            <div class="kpi kpi-correct"><div id="kpi-ok" class="kpi-v">0</div><div class="kpi-l">Corrette</div></div>
+            <div class="kpi kpi-errors"><div id="kpi-err" class="kpi-v">0</div><div class="kpi-l">Errori totali</div></div>
+            <div class="kpi kpi-pct"><div id="kpi-pct" class="kpi-v">0%</div><div class="kpi-l">% Corrette</div></div>
+          </div>
+
+          <div class="gauge-wrap">
+            <div class="gauge-label-row"><span>Tasso di errore</span><span id="gauge-label">0%</span></div>
+            <div class="gauge-track"><div id="gauge-fill" class="gauge-fill" style="width:0%;background:var(--green)"></div></div>
+          </div>
+        </div>
+
+        <!-- Modalità -->
+        <div class="side-section">
+          <div class="side-title">Modalità sessione</div>
+          <div class="mode-group">
+            <button class="mode-btn active" data-mode="full"><span class="mode-icon">📚</span> Tutte le domande (250)<span class="mode-check">✓</span></button>
+            <button class="mode-btn" data-mode="50"><span class="mode-icon">🎯</span> Campione 50<span class="mode-check">✓</span></button>
+            <button class="mode-btn" data-mode="30"><span class="mode-icon">⚡</span> Campione 30<span class="mode-check">✓</span></button>
+            <button class="mode-btn" data-mode="20"><span class="mode-icon">🏃</span> Campione 20<span class="mode-check">✓</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtro area -->
+      <div class="card">
+        <div class="side-section" style="margin-bottom:0">
+          <div class="side-title">Filtra per area</div>
+          <div id="area-pills" class="area-pills">
+            <button class="area-pill active" data-area="ALL">Tutte</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /grid -->
+</div><!-- /wrap -->
+
+<script>
+const QUESTIONS = [{"id": "Q001", "area": "Analisi Forense – Intro", "text": "Quali di questi scenari è tipico dell'analisi forense", "options": ["il recupero di dati da dischi cifrati e/o dati nascosti all'interno di dispositivi", "il fingersi un hacker per valutare la sicurezza di un sistema o di un'infrastruttura", "l'analisi della sicurezza tramite strumenti automatizzati come Nessus", "l'analisi delle performance di rete tramite Wireshark"], "correctIndex": 0}, {"id": "Q002", "area": "Analisi Forense – Intro", "text": "Quale di questi è uno strumento utilizzato per l'analisi forense", "options": ["Volatility", "Persistency", "ls", "df"], "correctIndex": 0}, {"id": "Q003", "area": "Analisi Forense – Intro", "text": "Wireshark è uno strumento utilizzato per", "options": ["l'analisi del traffico di rete", "l'analisi dei file nascosti sul sistema", "l'analisi della sicurezza di un sistema", "il reverse engineering"], "correctIndex": 0}, {"id": "Q004", "area": "Analisi Forense – Intro", "text": "La decompilazione di un file è utile per", "options": ["analizzare se questo può avere un comportamento malevolo", "analizzare se questo risulta essere un'immagine o un video", "analizzare se questo file risulta essere un deepfake", "garantire che il file sia originale"], "correctIndex": 0}, {"id": "Q005", "area": "Analisi Forense – Intro", "text": "Un file può", "options": ["contenere più flussi di informazione", "contenere un unico flusso di informazione", "essere esclusivamente o un file multimediale o un eseguibile", "essere analizzato tramite volatility in qualsiasi caso"], "correctIndex": 0}, {"id": "Q006", "area": "Analisi Forense – Intro", "text": "La professione dell'analista forense è", "options": ["regolamentata da standard specifici come GDPR e ISO/IEC 27037", "non regolamentata", "illegale e superata", "regolamentata dal solo GDPR"], "correctIndex": 0}, {"id": "Q007", "area": "Analisi Forense – Intro", "text": "L'informatica forense trova applicazione", "options": ["in numerosi contesti come indagini penali e civili", "solamente in indagini penali", "solamente in indagini civili", "solamente come disciplina tecnica"], "correctIndex": 0}, {"id": "Q008", "area": "Analisi Forense – Intro", "text": "L'etica nel campo dell'informatica forense", "options": ["è un pilastro fondamentale", "non è necessaria", "è fondamentale: l'analista deve sempre prendere una posizione non neutrale", "è fondamentale ma non richiede professionalità"], "correctIndex": 0}, {"id": "Q009", "area": "Analisi Forense – Intro", "text": "Quale pratica è fondamentale per garantire la sicurezza delle prove", "options": ["firma digitale", "cifratura dei dischi", "uso di volatility", "uso di dd"], "correctIndex": 0}, {"id": "Q010", "area": "Analisi Forense – Intro", "text": "La catena di custodia è", "options": ["l'insieme di procedure documentali e tecniche che garantiscono l'autenticità delle prove", "l'insieme di procedure tecniche per analizzare file multimediali", "l'insieme di procedure documentali per la scrittura di un report", "uno strumento per l'analisi forense"], "correctIndex": 0}, {"id": "Q011", "area": "Prove Digitali", "text": "Per prova digitale si intende", "options": ["qualsiasi informazione che sia rilevante ai fini del processo che sia generata, memorizzata o trasferita in formato digitale", "le foto delle prove acquisite tramite camere digitali", "documenti cartacei relativi a dati intangibili", "solamente dati multimediali"], "correctIndex": 0}, {"id": "Q012", "area": "Prove Digitali", "text": "Per volatilità si intende", "options": ["la caratteristica dei dati di non essere salvati su supporti resistenti a interruzione di corrente o eliminazione", "la caratteristica dei dati di essere salvati in formato digitale", "la caratteristica delle informazioni di poter essere \"backuppate\"", "la caratteristica dei dati di poter essere pubblicati sul dark web, ad esempio a seguito di un attacco informatico"], "correctIndex": 0}, {"id": "Q013", "area": "Prove Digitali", "text": "Le norme relative alle prove digitali in Italia", "options": ["sono distribuite in un mosaico di norme.", "fanno fronte principalmente al regolamento eIDAS.", "sono descritte solo nel Codice dell'Amministrazione Digitale.", "non sono definite in nessun documento."], "correctIndex": 0}, {"id": "Q014", "area": "Prove Digitali", "text": "Le prove digitali vengono acquisite da", "options": ["molteplici attori come polizia, pubblico ministero e giudice.", "solamente la polizia postale.", "solamente la polizia giudiziaria.", "solamente il giudice."], "correctIndex": 0}, {"id": "Q015", "area": "Prove Digitali", "text": "La catena di custodia è", "options": ["la successione ininterrotta di passaggi che interessano un reperto", "la catena di software usati per analizzare un dato", "la catena di hardware utilizzati per analizzare un dato", "i nomi dei responsabili che hanno analizzato il dato"], "correctIndex": 0}, {"id": "Q016", "area": "Prove Digitali", "text": "Supponendo l'analisi di un telefono cellulare, questo", "options": ["può essere spento o lasciato acceso a seconda del caso", "deve essere necessariamente spento", "deve essere lasciato acceso", "non può essere analizzato"], "correctIndex": 0}, {"id": "Q017", "area": "Prove Digitali", "text": "Supponendo l'analisi di un server Linux, questo", "options": ["può essere spento o lasciato acceso a seconda del caso", "deve essere necessariamente spento", "deve essere lasciato acceso", "non può essere analizzato"], "correctIndex": 0}, {"id": "Q018", "area": "Prove Digitali", "text": "L'operazione di hash consiste nel", "options": ["generare una \"firma\" di un dato in modo da comprendere se è stato modificato", "generare una foto del dato in modo da poterlo riottenere nel caso di manomissione", "controllare quali modifiche sono state apportate a un file", "controllare quali modifiche sono state effettuate a un supporto hardware"], "correctIndex": 0}, {"id": "Q019", "area": "Prove Digitali", "text": "Una fotografia a schermo", "options": ["è una prova con gradi di affidabilità minori rispetto a un hash concordante su due file", "è una prova con gradi di affidabilità maggiori rispetto a un hash concordante su due file", "è una prova con gradi di affidabilità equivalenti rispetto a un hash concordante su due file", "non è una prova"], "correctIndex": 0}, {"id": "Q020", "area": "Prove Digitali", "text": "Una prova", "options": ["non deve mai essere modificata, avvalendosi di strumenti hardware e software per evitare manipolazioni", "può essere modificata tranquillamente", "non può essere modificata tecnicamente", "non può essere modificata perché i dati sono sempre immodificabili"], "correctIndex": 0}, {"id": "Q021", "area": "Autopsy", "text": "Autopsy è", "options": ["una piattaforma per la digital forensic", "una piattaforma per l'analisi malware", "una piattaforma per l'analisi di rete", "una piattaforma per l'analisi delle AI"], "correctIndex": 0}, {"id": "Q022", "area": "Autopsy", "text": "Alla base di autopsy c'è", "options": ["The Sleuth Kit", "The Strange Kid", "The Sleuth Kat", "The Slot Kit"], "correctIndex": 0}, {"id": "Q023", "area": "Autopsy", "text": "Il concetto di blackboard è", "options": ["un'area logica dove vengono conservate le prove ottenute", "un'area fisica dove vengono inserite le foto trovate", "un'area di RAM immodificabile usata da Autopsy", "un'area del disco già analizzata"], "correctIndex": 0}, {"id": "Q024", "area": "Autopsy", "text": "Un caso di autopsy richiede le seguenti informazioni", "options": ["nome del caso, nome dell'esaminatore, informazioni dell'esaminatore come telefono, indirizzo etc", "solo il nome del caso", "il numero di telefono dell'analizzato e il serial number del disco da analizzare", "il product number del disco da analizzare"], "correctIndex": 0}, {"id": "Q025", "area": "Autopsy", "text": "Un data source può essere", "options": ["un disco locale", "un file xml", "un'immagine JPG", "un file audio"], "correctIndex": 0}, {"id": "Q026", "area": "Autopsy", "text": "Autopsy può calcolare", "options": ["gli hash delle prove ottenute", "la somma della dimensione dei vari file", "la possibilità di un attacco informatico", "la durata dei video trovati nel disco analizzato"], "correctIndex": 0}, {"id": "Q027", "area": "Autopsy", "text": "Un modulo di ingestione è", "options": ["una procedura per l'ingestione e il processamento di dati trovati in un disco", "una procedura per generare il report finale", "una procedura per l'invio delle mail con il risultato del report", "un'operazione in grado di controllare se un file è stato modificato (modulo hash)"], "correctIndex": 0}, {"id": "Q028", "area": "Autopsy", "text": "Un DFIR è", "options": ["il gruppo di risposta agli incidenti", "una procedura di autopsy per l'analisi delle foto", "una procedura di Autopsy per l'analisi dei dischi", "il gruppo di analisti malware"], "correctIndex": 0}, {"id": "Q029", "area": "Autopsy", "text": "Le immagini disco possono essere ottenute con", "options": ["dd", "ls", "cat", "type"], "correctIndex": 0}, {"id": "Q030", "area": "Autopsy", "text": "Un uso \"di default\" di autopsy", "options": ["non è consigliato in quanto porterebbe a costi computazionali elevati e sprechi di spazio", "è consigliato in quanto l'uso tipico da parte di un'analista", "è consigliato in quanto ottimizzato per la macchina da analizzare", "è consigliato in quanto ottimizzato per la macchina analizzante"], "correctIndex": 0}, {"id": "Q031", "area": "VirtualBox & Forensics", "text": "VirtualBox è", "options": ["un hypervisor di tipo 2", "un hypervisor di tipo 1", "una virtual machine", "un sistema per la digital forensics"], "correctIndex": 0}, {"id": "Q032", "area": "VirtualBox & Forensics", "text": "Un Hypervisor di tipo 2 è", "options": ["un gestore di virtual machine installato in un sistema operativo", "un gestore di virtual machine installato al posto di un sistema operativo", "il sistema operativo del sistema host", "il sistema operativo del sistema guest"], "correctIndex": 0}, {"id": "Q033", "area": "VirtualBox & Forensics", "text": "Un host che esegue VirtualBox", "options": ["può essere analizzato e devono essere analizzate anche le virtual machine presenti su di esso", "non può essere analizzato", "può essere analizzato ma non serve analizzare le virtual machine presenti su di esso", "deve essere analizzato ma non possono essere analizzate le virtual machine presenti su di esso"], "correctIndex": 0}, {"id": "Q034", "area": "VirtualBox & Forensics", "text": "Uno snapshot è", "options": ["un'immagine di una virtual machine", "un'immagine jpg", "il calcolo dell'hash di un disco", "un'acquisizione forense"], "correctIndex": 0}, {"id": "Q035", "area": "VirtualBox & Forensics", "text": "Per operazioni di digital forensics è possibile", "options": ["importare i dischi acquisiti da una macchina da analizzare", "importare l'interfaccia di rete acquisita da una macchina da analizzare", "importare gli snapshot acquisiti da una macchina host da analizzare", "analizzare una Virtual machine \"live\" direttamente sulla macchina da analizzare"], "correctIndex": 0}, {"id": "Q036", "area": "VirtualBox & Forensics", "text": "Un'interfaccia di rete host'only", "options": ["è un'interfaccia che permette di accedere e comunicare solo con l'host locale", "è un'interfaccia che permette di accedere a internet", "è un'interfaccia che permette di accedere alla rete LAN", "è un'interfaccia WiFi"], "correctIndex": 0}, {"id": "Q037", "area": "VirtualBox & Forensics", "text": "Il comando VBoxManage permette", "options": ["di automatizzare VirtualBox, creando, modificando e rimuovendo macchine", "di analizzare forensicamente macchine e snapshots", "di analizzare dati video", "di analizzare dischi delle virtual machine"], "correctIndex": 0}, {"id": "Q038", "area": "VirtualBox & Forensics", "text": "Un laboratorio forense", "options": ["può utilizzare VirtualBox come strumento per l'analisi forense", "non può essere creato", "non può utilizzare VirtualBox come strumento per l'analisi dati", "può utilizzare VirtualBox come strumento per l'analisi immagini"], "correctIndex": 0}, {"id": "Q039", "area": "VirtualBox & Forensics", "text": "Un laboratorio di analisi malware", "options": ["può utilizzare VirtualBox come strumento per l'analisi forense", "non può essere creato", "non può utilizzare VirtualBox come strumento per l'analisi malware in quanto si disattivano", "può utilizzare VirtualBox come strumento per l'analisi immagini"], "correctIndex": 0}, {"id": "Q040", "area": "VirtualBox & Forensics", "text": "La valutazione di un sistema acquisito", "options": ["può utilizzare VirtualBox come strumento per l'analisi dei dischi", "non può essere creato", "non può utilizzare VirtualBox come strumento per l'analisi dati", "non può utilizzare VirtualBox come strumento per l'analisi dischi in quanto si disattivano"], "correctIndex": 0}, {"id": "Q041", "area": "Write Blocker", "text": "Un write blocker è", "options": ["un sistema per evitare le scritture su disco", "un sistema per evitare le letture da disco", "un programma forense per l'acquisizione da disco", "un programma forense per l'acquisizione di rete"], "correctIndex": 0}, {"id": "Q042", "area": "Write Blocker", "text": "Un read blocker", "options": ["un sistema non utilizzato per l'analisi forense", "un sistema inutile", "un sistema alternativo al write blocker", "una protezione presente sugli hard disk"], "correctIndex": 0}, {"id": "Q043", "area": "Write Blocker", "text": "Un write blocker è", "options": ["sempre necessario nel caso di analisi forense", "consigliato nel caso di analisi forense", "non consigliato nel caso di analisi forense", "vietato nel caso di analisi forense"], "correctIndex": 0}, {"id": "Q044", "area": "Write Blocker", "text": "Un write blocker può essere", "options": ["software o hardware", "hardware", "software", "firmware"], "correctIndex": 0}, {"id": "Q045", "area": "Write Blocker", "text": "Un write blocker hardware", "options": ["risulta essere più efficace in termini di bloccaggio", "non viene più usato in quanto superato", "risulta essere l'unica soluzione", "viene usato solo in laboratori professionali"], "correctIndex": 0}, {"id": "Q046", "area": "Write Blocker", "text": "Un write blocker software", "options": ["risulta essere meno efficace di un write blocker hardware ma comunque utilizzato in alcuni casi (e.g. VM)", "risulta essere meno efficace di un write blocker hardware e quindi non utilizzato", "è superato", "è la nuova frontiera dei write blocker"], "correctIndex": 0}, {"id": "Q047", "area": "Write Blocker", "text": "Normalmente viene consigliata", "options": ["la combinazione di write blocker hardware e software", "l'uso di write blocker software", "l'evitare l'uso di write blocker", "l'evitare la documentazione di quale write blocker è stato utilizzato"], "correctIndex": 0}, {"id": "Q048", "area": "Write Blocker", "text": "I comandi degli SSD come TRIM", "options": ["possono interferire col disco, quindi devono essere bloccati dal write blocker", "non interferiscono coi dati presenti sul disco", "interferiscono coi dati presenti sul disco ma non possono essere bloccati da un write blocker", "interferiscono con la creazione di nuovi file, quindi non sono interessanti per l'analisi forense"], "correctIndex": 0}, {"id": "Q049", "area": "Write Blocker", "text": "Le eliminazioni di file", "options": ["possono interferire col disco, quindi devono essere bloccati dal write blocker", "non interferiscono coi dati presenti sul disco", "interferiscono coi dati presenti sul disco ma non possono essere bloccati da un write blocker", "interferiscono con la creazione di nuovi file, quindi non sono interessanti per l'analisi forense"], "correctIndex": 0}, {"id": "Q050", "area": "Write Blocker", "text": "La scrittura di log", "options": ["possono interferire col disco, quindi devono essere bloccati dal write blocker", "non interferiscono coi dati presenti sul disco", "interferiscono coi dati presenti sul disco ma non possono essere bloccati da un write blocker", "interferiscono con la creazione di nuovi file, quindi non sono interessanti per l'analisi forense"], "correctIndex": 0}, {"id": "Q051", "area": "Acquisizione Forense", "text": "Una acquisizione forense è", "options": ["un'acquisizione bit a bit dell'intero contenuto del disco", "comparabile a un backup dei dati", "esattamente un backup dei dati", "un'analisi del contenuto dei file"], "correctIndex": 0}, {"id": "Q052", "area": "Acquisizione Forense", "text": "Tramite un semplice backup non verrebbero analizzate", "options": ["aree non allocate del disco", "immagini", "video", "file multimediali"], "correctIndex": 0}, {"id": "Q053", "area": "Acquisizione Forense", "text": "RAM e connessioni di rete vanno acquisite prima di", "options": ["log e backup", "processi", "variabili", "file temporanei su ramfs"], "correctIndex": 0}, {"id": "Q054", "area": "Acquisizione Forense", "text": "Un'acquisizione a freddo", "options": ["consiste nel rimuovere i supporti di memorizzazione o analizzarli da sistema \"spento\"", "consiste nell'analizzare i supporti di memorizzazione tramite write blocker", "consiste nell'effettuare un backup dei supporti di memorizzazione", "consiste nel analizzare le immagini presenti su disco"], "correctIndex": 0}, {"id": "Q055", "area": "Acquisizione Forense", "text": "I supporti hardware specifici per BitLocker (e.g. TPM)", "options": ["non permettono di effettuare acquisizioni a freddo staccando il disco dalla macchina originale", "permettono di effettuare acquisizioni a freddo staccando il disco dalla macchina originale", "non influiscono nelle acquisizioni a freddo", "non rendono possibile effettuare acquisizioni a freddo"], "correctIndex": 0}, {"id": "Q056", "area": "Acquisizione Forense", "text": "FTK Imager è", "options": ["uno strumento per l'acquisizione forense", "uno strumento per l'analisi delle immagini", "uno strumento per la creazione di immagini JPG dei dischi", "uno strumento per l'analisi dei deepfake"], "correctIndex": 0}, {"id": "Q057", "area": "Acquisizione Forense", "text": "Un'acquisizione bit-per-bit disk-to-image", "options": ["permette di acquisire i dischi bit per bit e convertirli in un'immagine raw", "permette di acquisire i dischi bit per bit e convertirli in un'immagine JPG", "permette di acquisire i dischi bit per bit e convertirli in un'immagine PNG", "permette di acquisire i dischi bit per bit e copiarli in un altro disco"], "correctIndex": 0}, {"id": "Q058", "area": "Acquisizione Forense", "text": "Un'acquisizione bit-per-bit disk-to-disk", "options": ["permette di acquisire i dischi bit per bit e copiarli in un altro disco", "permette di acquisire i dischi bit per bit e convertirli in un'immagine JPG", "permette di acquisire i dischi bit per bit e convertirli in un'immagine PNG", "permette di acquisire i dischi bit per bit e convertirli in un'immagine raw"], "correctIndex": 0}, {"id": "Q059", "area": "Acquisizione Forense", "text": "L'acquisizione della RAM", "options": ["permette di ottenere informazioni sul sistema come processi e connessioni", "permette di ottenere file nascosti nel sistema", "permette di decifrare i file cifrati anche se questi non sono stati aperti", "è superata e non viene più effettuata"], "correctIndex": 0}, {"id": "Q060", "area": "Acquisizione Forense", "text": "Volatility è", "options": ["uno strumento per l'analisi delle immagini di memoria", "uno strumento per l'analisi delle immagini jpg", "uno strumento per l'analisi delle immagini disco create con FTK Imager", "uno strumento per effettuare il \"dump\" della memoria su Windows"], "correctIndex": 0}, {"id": "Q061", "area": "Linux & Memory Forensics", "text": "I sistemi Linux", "options": ["hanno peculiarità diverse rispetto agli altri sistemi per quanto riguarda la memory forensics", "sono identici ai sistemi macOS per quanto riguarda la memory forensics", "sono identici ai sistemi BSD per quanto riguarda la memory forensics", "sono identici ai sistemi Windows per quanto riguarda la memory forensics"], "correctIndex": 0}, {"id": "Q062", "area": "Linux & Memory Forensics", "text": "LVM è un sistema per la getsione dei dischi utilizzato sui sistemi", "options": ["Linux", "BSD", "macOS", "Windows"], "correctIndex": 0}, {"id": "Q063", "area": "Linux & Memory Forensics", "text": "geli è un sistema per la cifratura usato sui sistemi", "options": ["BSD", "macOS", "Linux", "Windows"], "correctIndex": 0}, {"id": "Q064", "area": "Linux & Memory Forensics", "text": "Il chip T2", "options": ["cifra i dati \"at rest\", rendendo difficoltosa l'analisi forense sui sistemi macOS", "cifra i dati \"at rest\", rendendo difficoltosa l'analisi forense sui sistemi Windows", "non influisce sull'analisi forense", "è tipico dei sistemi Linux"], "correctIndex": 0}, {"id": "Q065", "area": "Linux & Memory Forensics", "text": "LUKS è un sistema", "options": ["software per la cifratura dei dati \"at rest\"", "hardware per la cifratura dei dati \"at rest\"", "software per la cifratura della memoria RAM", "hardware per la cifratura della memoria RAM"], "correctIndex": 0}, {"id": "Q066", "area": "Linux & Memory Forensics", "text": "geli è un sistema", "options": ["software per la cifratura dei dati \"at rest\"", "hardware per la cifratura dei dati \"at rest\"", "software per la cifratura della memoria RAM", "hardware per la cifratura della memoria RAM"], "correctIndex": 0}, {"id": "Q067", "area": "Linux & Memory Forensics", "text": "dd è", "options": ["uno strumento per l'acquisizione di immagini da dischi", "uno strumento per l'analisi delle immagini dei dischi", "uno strumento per il backup", "uno strumento per l'analisi di memoria su Linux"], "correctIndex": 0}, {"id": "Q068", "area": "Linux & Memory Forensics", "text": "Il parametro if di dd indica", "options": ["il disco o l'immagine di input", "il disco o l'immagine di output", "il numero di blocchi da copiare", "il nome dell'interfaccia hardware da usare come write blocker"], "correctIndex": 0}, {"id": "Q069", "area": "Linux & Memory Forensics", "text": "Il parametro of di dd indica", "options": ["il disco o l'immagine di output", "il disco o l'immagine di input", "il numero di blocchi da copiare", "il nome dell'interfaccia hardware da usare come write blocker"], "correctIndex": 0}, {"id": "Q070", "area": "Linux & Memory Forensics", "text": "L'acquisizione live dei sistemi è", "options": ["sconsigliata per molti casi, da valutare se da integrare con l'acquisizione a freddo", "consigliata", "superata", "sempre sconsigliata e da abolire"], "correctIndex": 0}, {"id": "Q071", "area": "Bento Toolkit", "text": "Bento è", "options": ["una collezione di strumenti utili per l'analisi forense", "una collezione di strumenti per la reportistica forense", "una collezione di strumenti per l'analisi dei file video", "un motore di ricerca"], "correctIndex": 0}, {"id": "Q072", "area": "Bento Toolkit", "text": "Bento può essere usato per", "options": ["effettuare operazioni \"live\" e acquisizione di prove forensi e analisi offline", "effettuare operazioni solamente \"live\"", "effettuare operazioni solamente \"offline\"", "creare report di attività forensi"], "correctIndex": 0}, {"id": "Q073", "area": "Bento Toolkit", "text": "La cattura della RAM", "options": ["è possibile tramite alcuni strumenti integrati in Bento", "non è possibile utilizzando Bento", "è possibile usando FTK Imager su Bento", "è possibile solo su Linux"], "correctIndex": 0}, {"id": "Q074", "area": "Bento Toolkit", "text": "FTK imager", "options": ["è uno strumento che non c'entra con Bento", "è uno strumento presente all'interno della suite Bento", "è uno strumento che non viene più utilizzato", "è uno strumento innovativo che viene usato solamente in casi di ricerca"], "correctIndex": 0}, {"id": "Q075", "area": "Bento Toolkit", "text": "Si può intendere Bento come", "options": ["un launcher di applicativi preinstallati", "un sistema operativo", "una distribuzione Linux", "una distribuzione Windows"], "correctIndex": 0}, {"id": "Q076", "area": "Bento Toolkit", "text": "Magnet RAM Capture è", "options": ["uno strumento presente all'interno di Bento per catturare la memoria RAM (dump)", "uno strumento non presente all'interno di Bento", "uno strumento presente all'interno di Bento per analizzare la memoria RAM", "uno strumento presente all'interno di Bento per analizzare i dischi rigidi"], "correctIndex": 0}, {"id": "Q077", "area": "Bento Toolkit", "text": "La sezione HASHING di Bento contiene", "options": ["strumenti per l'analisi delle \"firme hash\" dei file e immagini disco", "strumenti per la copia dei dischi bit a bit (hashing)", "strumenti per la cattura della RAM (hashing)", "strumenti per la \"live response\" e ottenere dati su un sistema live Windows"], "correctIndex": 0}, {"id": "Q078", "area": "Bento Toolkit", "text": "Per un sequestro di un sistema Windows", "options": ["Bento è un sistema particolarmente adatto", "Bento non è un sistema adatto in quanto funziona solo su Android", "Bento non è un sistema adatto in quanto funziona solo su Windows", "Bento non è un sistema adatto in quanto funziona solo su macOS"], "correctIndex": 0}, {"id": "Q079", "area": "Bento Toolkit", "text": "Bento per un laboratorio accademico", "options": ["è adatto per la varietà degli strumenti che integra al suo interno", "non è adatto in quanto gli strumenti che integra al suo interno sono troppo avanzati", "non è adatto in quanto gli strumenti che integra al suo interno sono troppo datati", "non è adatto in quanto gli strumenti che integra al suo interno possono essere identificati come virus malevoli"], "correctIndex": 0}, {"id": "Q080", "area": "Bento Toolkit", "text": "Bento per il reporting", "options": ["non è uno strumento adatto", "è perfetto in quanto contiene al suo interno strumenti come FTK imager", "è ottimo in quanto contiene strumenti per il dump della RAM", "è consigliabile rispetto ad altri strumenti"], "correctIndex": 0}, {"id": "Q081", "area": "Comando dd", "text": "dd è", "options": ["uno strumento per l'acquisizione dei dischi", "uno strumento per l'acquizisione di file multimediali", "uno strumento per analizzare file multimediali", "una AI"], "correctIndex": 0}, {"id": "Q082", "area": "Comando dd", "text": "Il parametro if di dd indica", "options": ["il disco o l'immagine di input da cui acquisire i dati", "l'interfacca da cui acquisire i dati", "il disco o l'immagine di output da cui acquisire i dati", "il disco o l'immagine di output su cui salvare i dati"], "correctIndex": 0}, {"id": "Q083", "area": "Comando dd", "text": "Il parametro of di dd indica", "options": ["il disco o l'immagine di output su cui salvare i dati", "il disco o l'immagine di input da cui acquisire i dati", "l'interfacca da cui acquisire i dati", "il disco o l'immagine di output da cui acquisire i dati"], "correctIndex": 0}, {"id": "Q084", "area": "Comando dd", "text": "dd risulta essere", "options": ["stato analizzato dal NIST", "stato analizzato dalla CIA", "stato analizzato dalla ACN", "non analizzato da nessun ente governativo"], "correctIndex": 0}, {"id": "Q085", "area": "Comando dd", "text": "Il comando lsblk", "options": ["mostra le partizioni presenti sui dischi installati sulla macchina", "mostra i file estratti con dd", "mostra i file estraibili con dd", "mostra le cartelle presenti sul filesystem"], "correctIndex": 0}, {"id": "Q086", "area": "Comando dd", "text": "L'opzione conv=noerror,sync", "options": ["permette di far continuare dd anche in caso di errore di lettura", "permette di fermare dd in caso di errore di lettura", "permette di velocizzare la lettura da disco", "permette di ottenere un'immagine del disco noerror"], "correctIndex": 0}, {"id": "Q087", "area": "Comando dd", "text": "L'opzione status=progress", "options": ["mostra il processo di acquisizione a schermo", "permette di far continuare dd anche in caso di errore di lettura", "permette di velocizzare la lettura da disco", "permette di ottenere un'immagine del disco progress"], "correctIndex": 0}, {"id": "Q088", "area": "Comando dd", "text": "Volendo effettuare un'operazione di hash sul disco", "options": ["è possibile usare dc3dd", "è possibile usare dc4dd", "è possibile usare dd", "è possibile usare il comando hash=sha256"], "correctIndex": 0}, {"id": "Q089", "area": "Comando dd", "text": "dc3dd è", "options": ["un'evoluzione di dd, con capacita come hashing dell'immagine acquisita", "il precursore di dd", "uno strumento da utilizzare in congiunzione con dd per analizzare i dati", "uno strumento da usare sempre al posto di dd"], "correctIndex": 0}, {"id": "Q090", "area": "Comando dd", "text": "dd risulta essere", "options": ["tuttora utilizzato come strumento d'acquizione \"leggero\"", "obsoleto", "superato da altri strumenti e da non utilizzare", "innovativo"], "correctIndex": 0}, {"id": "Q091", "area": "File System", "text": "Un file system è", "options": ["un insieme di strutture dati", "un insieme di file", "un insieme di cartelle", "la struttura fisica del disco"], "correctIndex": 0}, {"id": "Q092", "area": "File System", "text": "Su un file system intatto è possibile operare", "options": ["navigando i file", "solo tramite carving", "solo se viene effettuato un FSCK", "in nessun caso"], "correctIndex": 0}, {"id": "Q093", "area": "File System", "text": "Su un file system intatto ma con file danneggiati è possibile operare", "options": ["solo tramite carving", "navigando i file", "solo se viene effettuato un FSCK", "in nessun caso"], "correctIndex": 0}, {"id": "Q094", "area": "File System", "text": "Su un file system parzialmente danneggiato è possibile operare", "options": ["solo se viene effettuato un FSCK", "solo tramite carving", "navigando i file", "in nessun caso"], "correctIndex": 0}, {"id": "Q095", "area": "File System", "text": "Su un file system molto danneggiato è possibile operare", "options": ["solo tramite carving", "solo se viene effettuato un FSCK", "navigando i file", "in nessun caso"], "correctIndex": 0}, {"id": "Q096", "area": "File System", "text": "Quale tra questi è un file system a tabella di allocazione file \"semplice\"", "options": ["FAT", "ext4", "NTFS", "APFS"], "correctIndex": 0}, {"id": "Q097", "area": "File System", "text": "Quale tra questi è un file system largamente utilizzato su Linux", "options": ["ext4", "ext8", "NTFS", "APFS"], "correctIndex": 0}, {"id": "Q098", "area": "File System", "text": "Il ritrovamento della stringa JFIF all'interno di uno spazio non allocato su un disco può indicare", "options": ["la presenza di un'immagine non indicizzata nel filesystem", "la presenza di un video non indicizzato nel filesystem", "nulla", "un file non recuperabile"], "correctIndex": 0}, {"id": "Q099", "area": "File System", "text": "Un analista può effettuare un'operazione di carving basandosi su", "options": ["footer", "file indicizzati dal file system", "file non danneggiati", "partizioni non danneggiate"], "correctIndex": 0}, {"id": "Q100", "area": "File System", "text": "Uno degli strumenti più utilizzati in questo ambito per il recupero di dati tramite carving è", "options": ["testdisk", "trydisk", "forecast", "foredisk"], "correctIndex": 0}, {"id": "Q101", "area": "File System 2", "text": "Un filesystem è", "options": ["un formato particolare di strutturazione dei dati all'interno di supporti di memoria, principalmente secondaria", "una cartella speciale che indica quali sono i file sul sistema", "un formato particolare di strutturazione dei dati all'interno di supporti di memoria, principalmente primaria", "il disco C"], "correctIndex": 0}, {"id": "Q102", "area": "File System 2", "text": "Uno dei filesystem più utilizzati è", "options": ["FAT", "FATFS", "RAT", "C"], "correctIndex": 0}, {"id": "Q103", "area": "File System 2", "text": "Uno dei filesystem più comuni in ambito Windows risulta essere", "options": ["NTFS", "EXT4", "EXT5", "NFS"], "correctIndex": 0}, {"id": "Q104", "area": "File System 2", "text": "Un filesystem ad allocazione contigua", "options": ["è usato per casi molto particolari (e.g. sistemi embedded mission critical)", "non è più utilizzato", "è ancora usato per casi in cui serva un filesystem semplice ma non estremamente semplice", "è la base di ext4"], "correctIndex": 0}, {"id": "Q105", "area": "File System 2", "text": "Lo svantaggio principale di un filesystem ad allocazione contigua è", "options": ["la frammentazione", "la semplicità", "la difficile implementazione dei driver", "l'esosa richiesta di risorse computazionali"], "correctIndex": 0}, {"id": "Q106", "area": "File System 2", "text": "Il vantaggio principale di un filesystem ad allocazione contigua è", "options": ["la semplicità", "la frammentazione", "l'ottimizzazione dello spazio", "il supporto dei maggiori sistemi operativi"], "correctIndex": 0}, {"id": "Q107", "area": "File System 2", "text": "Il filesystem FAT", "options": ["è ancora usato per casi in cui serva un filesystem semplice ma non estremamente semplice", "non è più utilizzato", "è usato per casi molto particolari (e.g. sistemi embedded mission critical)", "è la base di ext4"], "correctIndex": 0}, {"id": "Q108", "area": "File System 2", "text": "La caratteristica principale del filesystem FAT è", "options": ["la tabella di allocazione dei file", "la cartella di allocazione dei file", "la tabella di allocazione delle cartelle", "i metadati"], "correctIndex": 0}, {"id": "Q109", "area": "File System 2", "text": "Se viene corrotta la FAT", "options": ["è presente un suo backup all'interno del filesystem", "non succede niente", "i dati sono persi e bisogna ricorrere al carving", "nemmeno il carving può più recuperare i dati"], "correctIndex": 0}, {"id": "Q110", "area": "File System 2", "text": "Un metadato di FAT è", "options": ["la dimensione del file in byte", "i permessi sui file", "l'hash del file", "la dimensione del file in gigabyte"], "correctIndex": 0}, {"id": "Q111", "area": "Ext4", "text": "Ext4 fa parte", "options": ["della famiglia ext come ext2 ed ext3", "della famiglia fat", "della famiglia nfts", "dei filesystem principali di windows"], "correctIndex": 0}, {"id": "Q112", "area": "Ext4", "text": "Ext4 è stato rilasciato nel", "options": ["2006", "1993", "2001", "1992"], "correctIndex": 0}, {"id": "Q113", "area": "Ext4", "text": "La principale differenza tra ext3 ed ext2 risulta essere", "options": ["la presenza del journaling", "la presenza degli extents", "la possibilità di creare file molto grandi", "la possibilità di essere usato anche sugli SSD"], "correctIndex": 0}, {"id": "Q114", "area": "Ext4", "text": "Un superblock è", "options": ["la struttura \"core\" del filesystem ext, che descrive le restanti parti del filesystem", "la struttura \"core\" di ogni file rappresentato nel filesystem", "la struttura \"core\" di ogni cartella presente nel file system", "un programma o hardware usato per le acquisizioni forensi"], "correctIndex": 0}, {"id": "Q115", "area": "Ext4", "text": "Un extent è", "options": ["la rappresentazione di intervalli contigui di disco direttamente all'interno del file system", "un quarto livello di indirezione (inode)", "un primo livello di indirezione (inode)", "la rappresentazione di \"salti\" all'interno del disco direttamente all'interno del file system"], "correctIndex": 0}, {"id": "Q116", "area": "Ext4", "text": "Il journal è", "options": ["un registro di operazioni che sono effettuate sul disco per non perdere i dati in caso di spegnimento", "un registro di operazioni effettuate dal server (log)", "un registro di operazioni mantenute dall'operatore forense", "un insieme di appunti per creare un report"], "correctIndex": 0}, {"id": "Q117", "area": "Ext4", "text": "Ext4 è", "options": ["compatibile con i precedenti ext, ma non al 100%", "compatibile al 100% con i precedenti ext", "non utilizzato e da non utilizzare", "obsoleto"], "correctIndex": 0}, {"id": "Q118", "area": "Ext4", "text": "Gli analisti di ext4 incontrano questo sistema normalmente", "options": ["su Linux e Android", "su Windows", "su iOS", "nei sistemi embedded"], "correctIndex": 0}, {"id": "Q119", "area": "Ext4", "text": "La cancellazione di un file su ext4", "options": ["marca l'area di memoria come libera, permettendo di sovrascriverla con un altro file", "marca l'area di memoria come occupata, permettendo di sovrascriverla con un altro file", "elimina I dati presenti sul disco", "elimina I dati in modo persistente"], "correctIndex": 0}, {"id": "Q120", "area": "Ext4", "text": "Le caratteristiche di ext4 come extents e journaling", "options": ["potrebbero facilitare il compito di un analista in quanto mantengono tracce dei file", "potrebbero complicare il compito di un analista in quanto complicano il sistema", "potrebbero complicare il compito di un analista in quanto eliminano più spesso i file", "potrebbero facilitare il compito di un analista in quanto cancellano più spesso i file"], "correctIndex": 0}, {"id": "Q121", "area": "NTFS", "text": "NTFS è", "options": ["un filesystem multi utente", "un file system singolo utente", "un file system solo per windows", "un file system solo per Linux"], "correctIndex": 0}, {"id": "Q122", "area": "NTFS", "text": "NTFS risulta essere", "options": ["più complesso da analizzare rispetto a FAT", "identico a FAT", "meno complesso di FAT", "rischioso come filesystem (e.g. possibilità di perdere i dati)"], "correctIndex": 0}, {"id": "Q123", "area": "NTFS", "text": "NTFS presenta", "options": ["un supporto per il journaling", "l'impossibilità di associare i permessi", "l'impossibilità di utilizzare il journaling", "un sistema di AI integrato"], "correctIndex": 0}, {"id": "Q124", "area": "NTFS", "text": "La complessità di NTFS per un analista forense", "options": ["può essere un vantaggio, ci sono più punti di analisi per ricostruire i file", "risulta essere un problema, i file sono più difficili da ricostruire", "risulta essere un problema, non esistono software per analizzare NTFS", "è indifferente"], "correctIndex": 0}, {"id": "Q125", "area": "NTFS", "text": "Un file resident è", "options": ["un file che risiede completamente nella sua MFT", "un file che non risiede nella sua MFT ma deve essere indicizzato esternamente", "un file di sistema", "un file utente"], "correctIndex": 0}, {"id": "Q126", "area": "NTFS", "text": "Un file non resident è", "options": ["un file che non risiede nella sua MFT ma deve essere indicizzato esternamente", "un file che risiede completamente nella sua MFT", "un file di sistema", "un file utente"], "correctIndex": 0}, {"id": "Q127", "area": "NTFS", "text": "L'attributo BadClus indica", "options": ["un cluster danneggiato (e.g. parte di disco da non utilizzare perché mal-funzionante)", "un cluster toccato da un malware", "un cluster ben funzionante sul quale il sistema operativo preferirà salvare i dati", "un attributo inventato"], "correctIndex": 0}, {"id": "Q128", "area": "NTFS", "text": "L'attributo Bitmap indica", "options": ["i cluster utilizzati e liberi", "i cluster danneggiati", "i cluster toccati da malware (e.g. ransomware)", "nulla, è un attributo inventato"], "correctIndex": 0}, {"id": "Q129", "area": "NTFS", "text": "La cancellazione di un file su NTFS", "options": ["imposta nella bitmap i settori liberi", "riempie la parte di disco associata al file con il valore 0", "riempie la parte di disco associata al file con il valore 1", "imposta nella badclus i settori liberi"], "correctIndex": 0}, {"id": "Q130", "area": "NTFS", "text": "Il timestamp di NTFS", "options": ["è facilmente alterabile come tecnica di anti-forensic", "non è facilmente alterabile in quanto cifrato", "non è facilmente alterabile in quanto firmato", "non è presente nelle nuove versioni"], "correctIndex": 0}, {"id": "Q131", "area": "Metadati & Carving", "text": "Per slack space si intende", "options": ["lo spazio di memorizzazione di un file non \"allocato\"", "lo spazio di memorizzazione nella RAM", "lo spazio di memorizzazione nella ROM", "lo spazio di memorizzazione nell'MBR"], "correctIndex": 0}, {"id": "Q132", "area": "Metadati & Carving", "text": "I metadati sono presenti", "options": ["sia nel filesystem che nei file multimediali, a diversi livelli", "solo nel contenuto del file", "solo nel filesystem", "solo \"esternamente\" al file"], "correctIndex": 0}, {"id": "Q133", "area": "Metadati & Carving", "text": "La stringa \"JFIF\" all'interno di un file potrebbe significare", "options": ["la presenza di un'immagine JPEG", "la presenza di un'immagine PNG", "la presenza di un video MP4", "la presenza di una partizione Linux"], "correctIndex": 0}, {"id": "Q134", "area": "Metadati & Carving", "text": "Il timestamp di creazione di un file", "options": ["è un metadato presente nel filesystem", "è un metadato presente all'interno del contenuto del file multimediale", "è un metadato presente in una lista di metadati all'interno di un file speciale (registro)", "non è un metadato ma un dato"], "correctIndex": 0}, {"id": "Q135", "area": "Metadati & Carving", "text": "Il data carving può", "options": ["recuperare file cancellati, non in tutte le occasioni", "recuperare file cancellati in tutte le occasioni", "recuperare file cancellati ma di cui è presente un backup", "recuperare file non cancellati da filesystem danneggiati"], "correctIndex": 0}, {"id": "Q136", "area": "Metadati & Carving", "text": "Un file carved risulta", "options": ["privo di qualsiasi metadato di filesystem come nome o timestamp di creazione", "privo solo del nome", "privo di tutti i metadati", "completo anche di metadati come timestamp di creazione o nome"], "correctIndex": 0}, {"id": "Q137", "area": "Metadati & Carving", "text": "Per effettuare data carving è possibile", "options": ["interpretare le strutture del file system (e.g. NTFS) per agevolare il recupero dei dati", "interpretare le strutture dei backup per agevolare il recupero dei dati", "interpretare le strutture del disco per agevolare il recupero dei dati", "interpretare le strutture Linux per agevolare il recupero dei dati"], "correctIndex": 0}, {"id": "Q138", "area": "Metadati & Carving", "text": "Il formato exif indica", "options": ["metadati associati alle immagini JPEG", "metadati associati a documenti come DOCX", "metadati associati a file PDFF", "dati di file multimediali come JPEG"], "correctIndex": 0}, {"id": "Q139", "area": "Metadati & Carving", "text": "Le immagini JPEG possono contenere nei metadati interni al file", "options": ["la posizione geografica dove la foto è stata scattata (coordinate GPS)", "il nome del file", "la data e ora dell'ultima modifica", "la cartella di appartenenza del file"], "correctIndex": 0}, {"id": "Q140", "area": "Metadati & Carving", "text": "Non sono contenuti metadati in file", "options": ["TXT", "JPEG", "DOCX", "EXE"], "correctIndex": 0}, {"id": "Q141", "area": "Photorec & TestDisk", "text": "Photorec e testdisk sono compatibili", "options": ["con la maggior parte dei formati di file e filesystem, non con i formati proprietari e alcune fotocamere", "con tutte le fotocamere", "solo con le fotocamere", "con tutti i filesystem e formati di file"], "correctIndex": 0}, {"id": "Q142", "area": "Photorec & TestDisk", "text": "Photorec permette di recuperare", "options": ["solo il contenuto dei file", "solo i nomi dei file", "sia nomi che contenuto dei file", "il contenuto delle cartelle"], "correctIndex": 0}, {"id": "Q143", "area": "Photorec & TestDisk", "text": "Photorec è un software", "options": ["di carving", "di caving", "di registrazione", "di file system check"], "correctIndex": 0}, {"id": "Q144", "area": "Photorec & TestDisk", "text": "TestDisk è in grado di", "options": ["ricostruire la struttura dei filesystem", "analizzare i dischi per capire se sono ancora affidabili", "recuperare foto e video tramite carving", "recuperare documenti tramite carving"], "correctIndex": 0}, {"id": "Q145", "area": "Photorec & TestDisk", "text": "TestDisk lavora a livello", "options": ["di file system", "di file", "di disco rigido", "di SSD"], "correctIndex": 0}, {"id": "Q146", "area": "Photorec & TestDisk", "text": "TestDisk è in grado di ricostruire", "options": ["la tabella delle partizioni", "i file immagine", "le interazioni con il disco", "i driver per l'interazione con il disco"], "correctIndex": 0}, {"id": "Q147", "area": "Photorec & TestDisk", "text": "Photorec è in grado di", "options": ["recuperare file multimediali e non", "registrare lo schermo tramite screenshot", "recuperare solo le foto", "creare report forensi garantendo la catena di custodia per tutti gli strumenti usati"], "correctIndex": 0}, {"id": "Q148", "area": "Photorec & TestDisk", "text": "Photorec è in grado di ottenere", "options": ["file con formati facilmente riconoscibili", "solo file immagine", "solo file JPEG", "solo file RAW Canon"], "correctIndex": 0}, {"id": "Q149", "area": "Photorec & TestDisk", "text": "Photorec richiede il tipo di filesystem per", "options": ["ottimizzare la ricerca dei dati", "ottenere i file", "ottenere i video", "ricostruire la tabella delle partizioni"], "correctIndex": 0}, {"id": "Q150", "area": "Photorec & TestDisk", "text": "I file recuperabili da Photorec risultano essere", "options": ["privi dei propri nomi originali e della struttura in cartelle", "privi del proprio nome originale", "privi della propria struttura in cartelle", "esattamente identici alle loro controparti originali"], "correctIndex": 0}, {"id": "Q151", "area": "Memory Analysis", "text": "Tramite l'analisi di memoria è possibile", "options": ["ottenere la lista dei processi", "ottenere i file salvati", "ottenere i nomi dei file \"carved\"", "nulla di più rispetto all'analisi \"post-mortem\""], "correctIndex": 0}, {"id": "Q152", "area": "Memory Analysis", "text": "L'analisi di memoria si concentra sull'analisi di", "options": ["RAM", "ROM", "SSD", "Hard Disk"], "correctIndex": 0}, {"id": "Q153", "area": "Memory Analysis", "text": "Memoria secondaria e primaria contengono, rispettivamente", "options": ["File e Strutture del Kernel", "Strutture del Kernel e File", "Connessioni e processi", "Processi e Connessioni"], "correctIndex": 0}, {"id": "Q154", "area": "Memory Analysis", "text": "Il comando windows.pslist può essere utilizzato per ottenere", "options": ["la lista dei processi su un dump di memoria Windows", "la lista dei processi su un dump di memoria Linux", "la lista delle connessioni", "la lista dei file temporanei presenti sul sistema"], "correctIndex": 0}, {"id": "Q155", "area": "Memory Analysis", "text": "Un plugin di volatility è", "options": ["un'estensione di volatility per l'implementazione di funzionalità aggiuntive", "un'estensione di volatility proprietaria e richiesta per il suo funzionamento", "un sistema per ottenere un dump di memoria", "un sistema per l'analisi dei file presenti sul disco"], "correctIndex": 0}, {"id": "Q156", "area": "Memory Analysis", "text": "Per estendere le funzionalità di volatility", "options": ["è possibile scrivere plugin tramite il framework integrato", "è possibile installare software di terze parti standalone in grado di interagire con volatility", "non è possibile estendere le funzionalità di volatility", "è possibile solamente tramite comandi Linux"], "correctIndex": 0}, {"id": "Q157", "area": "Memory Analysis", "text": "Precedentemente all'uso di volatility è necessario", "options": ["effettuare un dump della memoria", "spegnere la macchina ed operare tramite dd", "spegnere la macchina ed operare tramite FTK Imager", "copiare il registro di sistema"], "correctIndex": 0}, {"id": "Q158", "area": "Memory Analysis", "text": "La versione principale di volatility da utilizzare è", "options": ["la 3 e la 2 per casi particolari", "la 2", "la 3", "la 4"], "correctIndex": 0}, {"id": "Q159", "area": "Memory Analysis", "text": "Volatility può essere usato per", "options": ["analizzare dump di memoria ed estrarre informazioni dalle strutture del sistema operativo", "analizzare dump di memoria ed estrarre file tramite carving", "analizzare dump di memoria ed estrarre le connessioni presenti sul sistema host", "analizzare i file presenti sul disco dopo un'analisi \"post-mortem\""], "correctIndex": 0}, {"id": "Q160", "area": "Memory Analysis", "text": "Il comando imageinfo è usato per", "options": ["ottenere informazioni come la versione del sistema operativo su un dump di memoria", "ottenere informazioni sui file multimediali presenti all'interno del sistema", "effettuare carving sul sistema", "ottenere un dump di memoria sul sistema"], "correctIndex": 0}, {"id": "Q161", "area": "SD Card & Flash", "text": "Le SD card e le memorie Flash", "options": ["differiscono per fattore di forma", "differiscono per il meccanismo con cui vengono accedute a livello di filesystem", "non hanno differenze", "differiscono per tecnologia di memorizzazione"], "correctIndex": 0}, {"id": "Q162", "area": "SD Card & Flash", "text": "I blocchi delle schede SD", "options": ["contengono le pagine", "sono contenuti in pagine", "sono un'alternativa alle pagine", "memorizzano singoli bit"], "correctIndex": 0}, {"id": "Q163", "area": "SD Card & Flash", "text": "La cancellazione di un dato", "options": ["avviene a blocchi", "avviene a pagine", "avviene ad intera scheda SD", "avviene a bit"], "correctIndex": 0}, {"id": "Q164", "area": "SD Card & Flash", "text": "Il comando TRIM", "options": ["viene usato per forzare l'eliminazione dei blocchi sporchi", "viene usato per liberare spazio", "non è più utilizzato e non implementato", "viene usato per ragioni di sicurezza"], "correctIndex": 0}, {"id": "Q165", "area": "SD Card & Flash", "text": "Per wear leveling si intende", "options": ["uno spostamento dei blocchi in modo da garantire la scrittura dei dati 'uniforme' sull'intero disco", "uno spostamento dei blocchi in modo da garantire la scrittura dei dati sempre nello stesso blocco", "l'eliminazione dei dati in modalità automatica da parte del controller", "una procedura di memory forensics"], "correctIndex": 0}, {"id": "Q166", "area": "SD Card & Flash", "text": "Nel caso di blocchi non funzionanti", "options": ["il controller della scheda SD può rimapparli su blocchi funzionanti", "la scheda SD risulta inutilizzabile", "la scheda SD viene posta in sola lettura", "il controller della scheda SD"], "correctIndex": 0}, {"id": "Q167", "area": "SD Card & Flash", "text": "L'efficacia di un recupero di un file su una scheda SD dipende da", "options": ["filesystem, wear leveling, garbage collector, stato fisico della scheda", "solamente dallo stato dei blocchi", "solamente dallo stato fisico della scheda", "solamente dal filesystem"], "correctIndex": 0}, {"id": "Q168", "area": "SD Card & Flash", "text": "L'interfaccia JTAG viene usata per", "options": ["il debug delle schede SD e l'ottenimento dei blocchi", "inviare i comandi come TRIM", "inviare il comando di eliminazione dei file", "ottenere informazioni sulla scheda SD come modello del chip flash"], "correctIndex": 0}, {"id": "Q169", "area": "SD Card & Flash", "text": "La procedura di chip-off", "options": ["è estremamente invasiva", "è una procedura molto utilizzata", "è una procedura poco invasiva", "è una procedura superata"], "correctIndex": 0}, {"id": "Q170", "area": "SD Card & Flash", "text": "La procedura di chip-off", "options": ["richiede hardware dedicato", "è una procedura software", "è solo teorica e non implementabile", "dipende dal file system"], "correctIndex": 0}, {"id": "Q171", "area": "Chip-off & JTAG", "text": "La tecnica chip-off utilizza", "options": ["le interfacce a basso livello per la lettura diretta del chip flash", "le interfacce USB e SD", "interfacce JTAG", "interfacce SSD"], "correctIndex": 0}, {"id": "Q172", "area": "Chip-off & JTAG", "text": "La tecnica chip-off è", "options": ["meno invasiva dell'uso di interfacce JTAG   NO", "più invasiva rispetto all'uso di interfacce JTAG  SI", "meno invasiva rispetto a un'estrazione logica", "meno invasiva rispetto a un backup"], "correctIndex": 0}, {"id": "Q173", "area": "Chip-off & JTAG", "text": "La tecnica chip-off può essere distruttiva poiché", "options": ["l'estrazione del chip flash può distruggerne i componenti elettronici", "l'estrazione del chip flash può avere ricadute a livello software", "l'interazione con l'interfaccia JTAG può rompere il chip flash", "l'interazione con l'interfaccia USB può rompere il chip flash"], "correctIndex": 0}, {"id": "Q174", "area": "Chip-off & JTAG", "text": "Il chip flash", "options": ["deve essere identificato e analizzato a livello hardware prima di procedere", "è facilmente identificabile tramite procedure software", "è facilmente identificabile tramite attacchi informatici", "deve essere identificato a livello sotfware prima di procedere"], "correctIndex": 0}, {"id": "Q175", "area": "Chip-off & JTAG", "text": "Un chip flash può essere di tipo BGA, questo implica", "options": ["che il chip non ha pin fisici e risulta molto più difficile interagire con esso a livello fisico", "la frase è falsa, un chip flash non è mai BGA", "che ha pin fisici e risulta molto più semplice interagire con esso", "che non ha pin"], "correctIndex": 0}, {"id": "Q176", "area": "Chip-off & JTAG", "text": "Una volta dissaldato il chip", "options": ["possono incorrere problemi di interfacciamento", "è impossibile ottenerne il contenuto", "è necessario distruggere la copertura del chip per ottenere i dati", "è possibile distruggerlo"], "correctIndex": 0}, {"id": "Q177", "area": "Chip-off & JTAG", "text": "La tecnica chip-off richiede all'analista", "options": ["un'analisi preliminare molto accurata sulle possiblità", "una velocità di esecuzione del processo molto alta", "pochi dettagli sull'esecuzione nella relazione finale", "un supporto da parte del produttore della scheda di memoria"], "correctIndex": 0}, {"id": "Q178", "area": "Chip-off & JTAG", "text": "Le aree di memoria delle schede SD", "options": ["non sono sempre accessibili, nemmeno con la tecnica chip-off", "sono sempre accessibili, soprattutto con la tecnica chip-off", "sono accessibili solo con le interfacce JTAG", "sono accessibili sempre tramite software"], "correctIndex": 0}, {"id": "Q179", "area": "Chip-off & JTAG", "text": "La catena di supporti hardware e software, nel caso della tecnica chip-off", "options": ["risulta mediamente più lunga rispetto ad altre catene di acquisizione", "risulta identica a catene di acquisizione software", "risulta mediamente più corta rispetto ad altre catene di acquisizione", "non è paragonabile ad altre catene di acquisizione"], "correctIndex": 0}, {"id": "Q180", "area": "Chip-off & JTAG", "text": "La tecnica chip-off si colloca nel panorama delle tecniche di digital forensics", "options": ["come una tecnica da affiancare ad altre tecniche meno invasive", "come una tecnica fondamentale da applicare in tutti i casi", "come una tecnica superata e non più utilizzabile", "come una tecnica inutilizzabile nella maggior parte dei casi"], "correctIndex": 0}, {"id": "Q181", "area": "Android Forensics", "text": "ART nei sistemi Android", "options": ["è la macchina virtuale Java su cui sono eseguite le applicazioni", "è un sistema per aumentare la sicurezza passando da un modello DAC a un modello MAC", "è un sistema per l'astrazione dell'hardware, in modo da funzionare su diversi dispositivi", "è un sistema per la cosiddetta IPC, la comunicazione tra processi"], "correctIndex": 0}, {"id": "Q182", "area": "Android Forensics", "text": "SeLinux è", "options": ["è un sistema per aumentare la sicurezza passando da un modello DAC a un modello MAC", "è un sistema per l'astrazione dell'hardware, in modo da funzionare su diversi dispositivi", "è un sistema per la cosiddetta IPC, la comunicazione tra processi", "è la macchina virtuale Java su cui sono eseguite le applicazioni"], "correctIndex": 0}, {"id": "Q183", "area": "Android Forensics", "text": "HAL nei sistemi Android", "options": ["è un sistema per l'astrazione dell'hardware, in modo da funzionare su diversi dispositivi", "è un sistema per la cosiddetta IPC, la comunicazione tra processi", "è la macchina virtuale Java su cui sono eseguite le applicazioni", "è un sistema per aumentare la sicurezza passando da un modello DAC a un modello MAC"], "correctIndex": 0}, {"id": "Q184", "area": "Android Forensics", "text": "Binder nei sistemi Android", "options": ["è un sistema per la cosiddetta IPC, la comunicazione tra processi", "è la macchina virtuale Java su cui sono eseguite le applicazioni", "è un sistema per aumentare la sicurezza passando da un modello DAC a un modello MAC", "è un sistema per l'astrazione dell'hardware, in modo da funzionare su diversi dispositivi"], "correctIndex": 0}, {"id": "Q185", "area": "Android Forensics", "text": "I dati applicativi su Android vengono salvati in", "options": ["/data", "/system", "/vendor", "nella partizione di recovery"], "correctIndex": 0}, {"id": "Q186", "area": "Android Forensics", "text": "La partizione recovery di Android contiene", "options": ["un sistema operativo alternativo in grado di ripristinare il sistema base", "i dati dell'utente", "i dati delle applicazioni di sistema", "i dati per il bootloader"], "correctIndex": 0}, {"id": "Q187", "area": "Android Forensics", "text": "La partizione system di Android contiene", "options": ["i dati delle applicazioni di sistema", "un sistema operativo alternativo in grado di ripristinare il sistema base", "i dati dell'utente", "i dati per il bootloader"], "correctIndex": 0}, {"id": "Q188", "area": "Android Forensics", "text": "Per FDE si intende", "options": ["una cifratura dell'intero disco", "una cifratura basata su file", "una cifratura dei metadati dei file", "una cifratura di solo i dati dei file"], "correctIndex": 0}, {"id": "Q189", "area": "Android Forensics", "text": "Per FBE si intende", "options": ["una cifratura basata su file", "una cifratura dell'intero disco", "una cifratura dei metadati dei file", "una cifratura di solo i dati dei file"], "correctIndex": 0}, {"id": "Q190", "area": "Android Forensics", "text": "Le differenze pratiche da FBE e FDE sono", "options": ["l'impossibilità di utilizzare una chiave per diversi livelli di sicurezza (e.g. multi utenti) nel caso di FDE", "l'impossibilità di utilizzare una chiave per diversi livelli di sicurezza (e.g. multi utenti) nel caso di FBE", "la possibilità di cifrare file singolarmente nel caso di FDE", "la possibilità di usare lo smartphone nel caso venga spento nel caso di FDE"], "correctIndex": 0}, {"id": "Q191", "area": "iOS Forensics", "text": "Il kernel di iOS è basato su", "options": ["XNU", "Linux", "Android", "BSD"], "correctIndex": 0}, {"id": "Q192", "area": "iOS Forensics", "text": "Il sandboxing di iOS viene effettuato tramite", "options": ["MAC", "DAC", "RBAC", "macOS"], "correctIndex": 0}, {"id": "Q193", "area": "iOS Forensics", "text": "Il codice eseguito su un sistema iOS è", "options": ["firmato", "cifrato", "hashato", "insicuro"], "correctIndex": 0}, {"id": "Q194", "area": "iOS Forensics", "text": "Il sistema hardware di iOS risulta avere", "options": ["un chip dedicato per la cifratura dei dati 'at-rest'", "un chip dedicato per l'anti hacking tramite tecniche di AI", "un chip dedicato per l'analisi degli attacchi in atto", "un sistema operativo alternativo in grado di creare un honeypot quando il sistema risulta sotto attacco"], "correctIndex": 0}, {"id": "Q195", "area": "iOS Forensics", "text": "Il filesystem usato dalle moderne versioni di iOS è", "options": ["APFS", "HFS+", "ext4", "NTFS"], "correctIndex": 0}, {"id": "Q196", "area": "iOS Forensics", "text": "La cifratura su dispositivi come iPhone e iPad", "options": ["è sempre attiva a livello di file system", "è sempre disabilitata e controllabile con un'opzione", "è sempre disabilitata ed è impossibile abilitarla", "è sempre attiva a livello utente"], "correctIndex": 0}, {"id": "Q197", "area": "iOS Forensics", "text": "Il keychain di iOS è", "options": ["un archivio che mantiene in memoria in modo sicuro le informazioni crittografiche", "un archivio che mantiene in memoria le applicazioni installate e le loro configurazioni", "un archivio che mantiene in memoria i dati personali dell'utente come foto e video", "un archivio che mantiene in memoria i numeri della rubrica"], "correctIndex": 0}, {"id": "Q198", "area": "iOS Forensics", "text": "Per estrarre il file system di iOS è possibile", "options": ["operare tramite attacchi informatici", "operare sui dati cifrati", "operare sui dati anche senza conoscere la password di sblocco", "operare solo tramite chip-off"], "correctIndex": 0}, {"id": "Q199", "area": "iOS Forensics", "text": "Alcune informazioni di iOS possono essere recuperate tramite", "options": ["iCloud", "il backup sul chip dedicato dei sistemi iOS", "il backup operato dal sistema sul sistema stesso", "l'account di super utente, sempre disponibile sui sistemi Apple"], "correctIndex": 0}, {"id": "Q200", "area": "iOS Forensics", "text": "iOS risulta essere", "options": ["un sistema estremamente vincolato dal punto di vista della digital forensics", "un sistema vulnerabile", "un sistema estremamente semplice da operare nel caso della digital forensics", "un sistema impossibile da analizzare per la digital forensics"], "correctIndex": 0}, {"id": "Q201", "area": "MM-Forensics – Intro", "text": "Il Digital Forensics è", "options": ["Una branca della scienza forense che estrae prove digitali dall'analisi del traffico di rete", "Una branca della scienza forense che analizza immagini digitali", "Una branca della scienza forense che analizza computer e dispositivi digitali", "Una branca della scienza forense che analizza prove digitali recuperate da sorgenti digitali"], "correctIndex": 3}, {"id": "Q202", "area": "MM-Forensics – Intro", "text": "La Mobile Device Forensics si occupa di", "options": ["Recuperare prove digitali da un hard disk", "Recuperare prove digitali da dispositivi mobili", "Intercettare conversazioni telefoniche", "Intercettare un dispositivo mobile"], "correctIndex": 1}, {"id": "Q203", "area": "MM-Forensics – Intro", "text": "La Network Forensics si occupa di", "options": ["Monitorare e analizzare il traffico di rete fra computer", "Impedire l'accesso a un sistema", "Impedire la diffusione di malware in rete", "Monitorare e analizzare il traffico fra due computer"], "correctIndex": 0}, {"id": "Q204", "area": "MM-Forensics – Intro", "text": "Il Multimedia Forensics è un settore specifico del", "options": ["Forensics", "Digital Forensics", "Computer Forensics", "Image Forensics"], "correctIndex": 1}, {"id": "Q205", "area": "MM-Forensics – Intro", "text": "Il Multimedia Forensics analizza", "options": ["Hard disk", "Documenti audio, immagini e video", "Smartphone", "Chiavi USB e tablet"], "correctIndex": 1}, {"id": "Q206", "area": "MM-Forensics – Intro", "text": "Il principio che sta alla base del MMForensics è", "options": ["Tutti i documenti multimediali portano con sé delle tracce", "La creazione di un contenuto multimediale contiene una traccia", "Ogni elaborazione effettuata su un documento multimediale ne altera i metadati", "Ogni elaborazione effettuata su un documento multimediale lascia una traccia"], "correctIndex": 3}, {"id": "Q207", "area": "MM-Forensics – Intro", "text": "Nell'analisi di un contenuto multimediale, le tecniche di MM Forensics di solito dispongono di", "options": ["Un contenuto di riferimento", "Nessun contenuto di riferimento", "Del contenuto originale", "Della fotocamera"], "correctIndex": 1}, {"id": "Q208", "area": "MM-Forensics – Intro", "text": "Nel MM-Forensics quando si parla di \"identificazione della sorgente\" si intende", "options": ["identificare il possessore del dispositivo fisico che ha generato un contenuto", "identificare il dispositivo fisico che ha generato un contenuto oppure il generatore AI o il social network di provenienza", "identificare il dispositivo fisico che ha generato un contenuto", "identificare il processo di elaborazione che ha generato un contenuto"], "correctIndex": 1}, {"id": "Q209", "area": "MM-Forensics – Intro", "text": "Esistono tecniche di MM Forensics che permettono di", "options": ["Determinare la sorgente di acquisizione che ha generato un determinato documento multimediale", "Determinare la sorgente di acquisizione di un determinato documento multimediale ma non se in formato compresso", "Determinare l'utente che ha acquisito un determinato contenuto multimediale", "Determinare informazioni sugli utenti che sono in possesso di un determinato contenuto multimediale"], "correctIndex": 0}, {"id": "Q210", "area": "MM-Forensics – Intro", "text": "Esistono tecniche di MM Forensics che consentono di determinare se un'immagine digitale è", "options": ["Contraffatta e di localizzare l'eventuale alterazione", "Contraffatta ma solo in presenza dell'originale", "Contraffatta ma solo se di alta qualità", "Autentica ma solo tramite un'operazione di confronto"], "correctIndex": 0}, {"id": "Q211", "area": "MM-Forensics – PRNU", "text": "Esistono tecniche di MM Forensics che permettono di stabilire se", "options": ["Un'immagine proviene da una fotocamera o da uno scanner", "Un'immagine proviene da una fotocamera o da una chiave USB", "Un'immagine proviene da una fotocamera ma non è vero per i video", "un video proviene da una fotocamera ma non è vero per le immagini statiche"], "correctIndex": 0}, {"id": "Q212", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, il principio di base per poter risalire al dispositivo di acquisizione si fonda sul fatto che", "options": ["l'operazione di acquisizione/generazione lascia delle tracce all'interno del contenuto multimediale", "i contenuti multimediali sono compressi JPEG", "il sensore lascia delle tracce all'interno del contenuto multimediale", "il sensore non lascia delle tracce all'interno del contenuto multimediale"], "correctIndex": 0}, {"id": "Q213", "area": "MM-Forensics – PRNU", "text": "Quali di questi processi o sistemi lascia una traccia sull'immagine durante la fase di acquisizione", "options": ["il sensore ma non il sistema ottico", "il sensore e il processing interno alla fotocamera", "il sensore ma solo a certe risoluzioni", "il sensore ma dipende dal tipo di immagine"], "correctIndex": 1}, {"id": "Q214", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, il CFA serve a", "options": ["ad unire le tre componenti di colore", "a interpolare le tre componenti di colore", "far passare le tre componenti di colore", "filtrare le componenti di colore"], "correctIndex": 3}, {"id": "Q215", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, cosa si intende con il termine \"demosaicking\"", "options": ["un'operazione di esaltazione di valori di colore", "un'operazione di eliminazione di valori di colore", "un'operazione di generazione di valori di colore", "un'operazione di combinazione di differenti colori"], "correctIndex": 2}, {"id": "Q216", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, cosa significa PRNU", "options": ["Photo Response Noise-Uniformity", "Photo Response Non-Uniformity", "Pattern Response Non-Uniformity", "Pattern Response Noise-Uniformity"], "correctIndex": 1}, {"id": "Q217", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, il rumore PRNU è generato da", "options": ["il rumore di acquisizione", "una risposta differente dei CCD all'intensità di luce", "dal malfunzionamento dei CCD rispetto all'intensità di luce", "dal deterioramento nel tempo dei CCD"], "correctIndex": 1}, {"id": "Q218", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, il rumore PRNU presenta le seguenti caratteristiche", "options": ["moltiplicativo e sistematico", "moltiplicativo e dipendente dalla temperatura", "moltiplicativo e dipendente dal tempo", "sistematico e additivo"], "correctIndex": 0}, {"id": "Q219", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, il fingerprint di una fotocamera si ottiene", "options": ["attraverso un'operazione di stima estraendo il PRNU da un'immagine scattata dalla fotocamera stessa", "attraverso un'operazione di filtraggio del PRNU", "attraverso un'operazione di stima estraendo i PRNU da alcune immagini scattate dalla fotocamera stessa", "attraverso un'operazione di stima estraendo il PRNU da alcune immagini"], "correctIndex": 2}, {"id": "Q220", "area": "MM-Forensics – PRNU", "text": "In MM-Forensics, per associare un'immagine ad un certo dispositivo si procede", "options": ["calcolando la correlazione tra il residuo di rumore dell'immagine e il PRNU del dispositivo", "calcolando il residuo di rumore tra l'immagine e il PRNU del dispositivo", "calcolando il PRNU dell'immagine", "confrontando i PRNU dei dispositivi a disposizione"], "correctIndex": 0}, {"id": "Q221", "area": "MM-Forensics – Deepfake", "text": "In MM Forensics cosa si intende con il termine \"disinformazione\"", "options": ["un'informazione fuorviante, imprecisa oppure falsa che viene diffusa senza l'esplicita intenzione di ingannare.", "un'informazione falsa che viene diffusa con l'intenzione di ingannare le persone", "un'informazione diffusa tramite deepfake", "un'informazione falsa"], "correctIndex": 1}, {"id": "Q222", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, quale manipolazione si intende con il termine \"copy-move/cloning\"", "options": ["la composizione di due immagini", "la duplicazione di una parte di un'immagine all'interno della stessa immagine", "la cancellazione di una parte di un'immagine", "la duplicazione di una parte di un'immagine all'interno di un'altra immagine"], "correctIndex": 1}, {"id": "Q223", "area": "MM-Forensics – Deepfake", "text": "Quale delle seguenti affermazioni non è vera relativamente al termine \"deepfake\"", "options": ["un'immagine completamente generata tramite AI", "un'immagine reale parzialmente modificata tramite metodi di AI", "un video reale parzialmente modificato tramite metodi di AI", "un'immagine o un video fake"], "correctIndex": 3}, {"id": "Q224", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, cosa si intende con il termine \"reenactment\"", "options": ["elaborazione effettuata su un video per alterare le espressioni facciali senza modificare l'identità della persona rappresentata", "elaborazione effettuata su un video per alterare le espressioni facciali al fine di modificare l'identità della persona rappresentata", "elaborazione effettuata su un video per modificare l'identità della persona rappresentata", "elaborazione effettuata su un video per modificare la faccia della persona rappresentata"], "correctIndex": 0}, {"id": "Q225", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, cosa si intende con il termine \"lips syncing\"", "options": ["elaborazione effettuata su un video per alterare i movimenti labiali al fine di sincronizzarli con un parlato", "elaborazione effettuata su un video per alterare i movimenti labiali al fine di sincronizzarli con un diverso parlato", "elaborazione effettuata su un video per alterare i movimenti labiali", "elaborazione effettuata su un video per generare i movimenti labiali"], "correctIndex": 1}, {"id": "Q226", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, cosa si intende con il termine \"face swapping\"", "options": ["elaborazione effettuata su un'immagine o un video per scambiare la faccia e quindi l'identità della persona rappresentata", "elaborazione effettuata su un'immagine per scambiare la faccia e quindi l'identità della persona rappresentata", "elaborazione effettuata su un video per scambiare la faccia e quindi l'identità della persona rappresentata", "elaborazione di un contenuto uguale al reenactment ma applicata su un'immagine"], "correctIndex": 0}, {"id": "Q227", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, cosa si intende per generazione T2I", "options": ["la generazione di immagini tramite immagini di input", "la generazione di video tramite immagini di input", "la generazione di video tramite prompt testuali", "la generazione di immagini tramite prompt testuali"], "correctIndex": 3}, {"id": "Q228", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, cosa si intende per generazione I2I", "options": ["la generazione di immagini tramite prompt testuali", "la generazione di immagini tramite immagini di input", "la generazione di immagini", "la generazione di video tramite prompt testuali"], "correctIndex": 1}, {"id": "Q229", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, quale delle seguenti affermazioni su diffusion model per la generazione di immagini è errata", "options": ["il modello usa la fase reverse per la generazione da rumore ad immagine", "il modello ha imparato ad aggiungere rumore nella fase forward", "il modello nella fase di generazione può essere guidato da un prompt di testo", "il modello nella fase reverse non effettua un denoising"], "correctIndex": 3}, {"id": "Q230", "area": "MM-Forensics – Deepfake", "text": "In MM-Forensics, quale delle seguenti affermazioni su GAN per la generazione di immagini è errata", "options": ["il generatore ha imparato a generare un'immagine per ingannare il discirminatore", "il discriminatore ha imparato a distinguere un'immagine generata dal generatore", "l'input del discriminatore è l'immagine generata dal generatore", "generatore e discriminatore si addestrano in maniera avversariale"], "correctIndex": 2}, {"id": "Q231", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, negli attacchi a training time, l'attaccante può intervenire", "options": ["durante la fase di addestramento del modello", "durante la fase di test", "durante la fase di training e di test", "in nessuna delle fasi di training e test"], "correctIndex": 2}, {"id": "Q232", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nell'attacco di poisoning, l'inserimento nel training set di campioni \"poisoned\" determina", "options": ["una variazione dei campioni di test", "una variazione delle regioni di decisione del modello", "una variazione delle classi", "lo stesso effetto dell'evasion attack"], "correctIndex": 1}, {"id": "Q233", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nell'attacco di poisoning \"targeted\" si ha", "options": ["l'attacco è ristretto ad un piccolo numero di campioni del test", "l'attacco è ristretto ad un piccolo numero di campioni del training set  NO", "l'attacco è esteso a tutto il training set", "l'attacco è facile da individuare"], "correctIndex": 0}, {"id": "Q234", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, in cosa consiste l'attacco backdoor", "options": ["inserire, durante il training, una porzione di dati con un certo pattern", "inserire, durante il test, una porzione di dati con un certo pattern", "inserire una porzione di dati con un certo pattern", "modificare una porzione di dati con un certo pattern"], "correctIndex": 0}, {"id": "Q235", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nell'attacco backdoor a cosa serve il trigger", "options": ["ad attivare un comportamento erroneo del modello", "ad attivare un comportamento erroneo del modello in presenza di campioni di test che presentano tale trigger", "ad attivare un comportamento erroneo del modello in presenza di campioni di una certa classe", "ad attivare un comportamento erroneo del modello in presenza di campioni di alcune classi"], "correctIndex": 1}, {"id": "Q236", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, in un attacco backdoor", "options": ["l'attaccante può solo alterare i dati di test", "l'attaccante può solo alterare i dati di training", "l'attaccante può alterare i dati di training e di test", "l'attaccante non ha accesso ai dati di test"], "correctIndex": 2}, {"id": "Q237", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nel caso di attacco backdoor con label modificate, qual è il principale rischio per l'attaccante", "options": ["controllando le etichette del test set l'attacco può essere individuato", "che l'attacco non sia efficace", "controllando le etichette di una sola classe del training set l'attacco può essere individuato", "controllando le etichette del training set l'attacco può essere individuato"], "correctIndex": 3}, {"id": "Q238", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nel caso di attacco backdoor con clean label, quale delle seguenti affermazioni è errata", "options": ["il modello impara che i dati con il trigger appartengono ad una certa classe", "le etichette non sono modificate", "il sistema funziona normalmente su campioni non malevoli", "il trigger funziona a training time"], "correctIndex": 3}, {"id": "Q239", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nel caso di attacco backdoor, quale dei seguenti non è un requisito", "options": ["invisibilità del trigger a test", "funzionamento normale su campioni non malevoli", "il trigger non deve essere robusto", "funzionamento erroneo su campioni malevoli"], "correctIndex": 2}, {"id": "Q240", "area": "Sicurezza IA – Attacchi", "text": "In ambito di sicurezza dell'IA, nel caso di attacco backdoor, quale delle seguenti non è una tipologia di trigger", "options": ["trigger visibile", "trigger invisibile", "trigger a tempo", "trigger localizzato"], "correctIndex": 2}, {"id": "Q241", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, quali delle seguenti problematiche possono essere considerate malfunzionamenti indotti da attacchi alla sicurezza", "options": ["malfunzionamenti in casi operativi particolari", "bias algoritmici", "allucinazioni", "errata classificazione di un campione adversarial"], "correctIndex": 3}, {"id": "Q242", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, quali delle seguenti vulnerabilità è specifica dei sistemi basati su IA", "options": ["vulnerabilità durante l'utilizzo del sistema", "vulnerabilità durante l'addestramento del sistema", "vulnerabilità durante l'accesso alle funzioni esposte dal sistema", "vulnerabilità durante l'aggiornamento del sistema"], "correctIndex": 1}, {"id": "Q243", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, quali delle seguenti definizioni meglio identifica il termine adversarial machine learning", "options": ["insieme dei metodi di difesa volti ad impedire il non corretto funzionamento di un sistema basato su ML", "insieme dei metodi di attacco volti a compromettere il corretto funzionamento di un sistema basato su ML", "disciplina che studia l'insieme delle tecniche volte a compromettere il corretto funzionamento di un sistema informatico basato su ML e dei metodi di difesa da tali attacchi", "disciplina che studia i cyber-attacchi all'IA"], "correctIndex": 2}, {"id": "Q244", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, quali delle seguenti opzioni consente di indurre una errata classificazione da parte del modello addestrato", "options": ["attacco di poisoning", "clonazione del modello", "training set exfiltration", "federated learning"], "correctIndex": 0}, {"id": "Q245", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, in un'applicazione orientata al federated learning, un nodo federato può effettuare", "options": ["un attacco di poisoning tramite un training malevolo", "un attacco di exfiltration", "un attacco di ricostruzione dei dati di training", "un attacco di ricostruzione dei dati di training usati dagli altri nodi federati"], "correctIndex": 0}, {"id": "Q246", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, cosa si intende per attacchi a test time", "options": ["l'attaccante può solo alterare i dati di test", "l'attaccante può solo alterare i dati di training", "l'attaccante attacca il modello con i dati di test", "l'attaccante non ha accesso ai dati di test"], "correctIndex": 0}, {"id": "Q247", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, negli attacchi evasion a test time a quale vincolo deve sottostare l'attaccante", "options": ["deve solo garantire che il campione perturbato esca dalla propria classe", "deve garantire che il campione perturbato non esca dalla propria classe", "la minima distorsione applicabile", "la massima distorsione applicabile in relazione all'applicazione"], "correctIndex": 3}, {"id": "Q248", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, cosa significa fare un attacco evasion di tipo targeted", "options": ["indurre un errore verso una determinata classe", "indurre un errore verso la classe più vicina", "indurre un errore", "indurre un errore verso un determinato elemento di una classe"], "correctIndex": 0}, {"id": "Q249", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, cosa significa fare un attacco in condizioni black box", "options": ["l'attaccante ha a disposizione solo gli output del modello", "l'attaccante ha a disposizione solo gli input del modello", "l'attaccante ha a disposizione il gradiente del modello", "l'attaccante conosce le caratteristiche del modello"], "correctIndex": 0}, {"id": "Q250", "area": "Sicurezza IA – Backdoor", "text": "In ambito di sicurezza dell'IA, quale distorsione effettua l'attacco FGSM", "options": ["aggiunge una distorsione pari ad un fattore moltiplicativo ε con segno determinato dal gradiente della funzione di loss", "aggiunge una distorsione pari ad un fattore moltiplicativo ε con segno determinato dal gradiente del campione di input", "aggiunge una distorsione pari ad un fattore ε", "sottrae un rumore di distorsione pari ad un fattore ε"], "correctIndex": 0}];
+
+// Build area list
+const AREAS = ['ALL', ...new Set(QUESTIONS.map(q => q.area))];
+const pillsContainer = document.getElementById('area-pills');
+AREAS.forEach(a => {
+  if (a === 'ALL') return;
+  const btn = document.createElement('button');
+  btn.className = 'area-pill';
+  btn.dataset.area = a;
+  btn.textContent = a;
+  pillsContainer.appendChild(btn);
+});
+
+// ── State ──
+let totalAns = 0, totalOk = 0, totalErr = 0;
+let mode = 'full';
+let areaFilter = 'ALL';
+let pool = [], sessionIdx = 0;
+
+// ── DOM refs ──
+const bsStatus = document.getElementById('bs-status');
+const bsErr = document.getElementById('bs-err');
+const bsArea = document.getElementById('bs-area');
+const progFill = document.getElementById('prog-fill');
+const progText = document.getElementById('prog-text');
+const qNum = document.getElementById('q-num');
+const qArea = document.getElementById('q-area');
+const qText = document.getElementById('q-text');
+const optionsEl = document.getElementById('options');
+const fbEl = document.getElementById('fb');
+const fbIcon = document.getElementById('fb-icon');
+const fbText = document.getElementById('fb-text');
+const btnNext = document.getElementById('btn-next');
+const btnReshuffle = document.getElementById('btn-reshuffle');
+const btnReset = document.getElementById('btn-reset');
+const qPanel = document.getElementById('q-panel');
+const endScreen = document.getElementById('end-screen');
+const endSub = document.getElementById('end-sub');
+const endScore = document.getElementById('end-score');
+const kpiAns = document.getElementById('kpi-ans');
+const kpiOk = document.getElementById('kpi-ok');
+const kpiErr = document.getElementById('kpi-err');
+const kpiPct = document.getElementById('kpi-pct');
+const gaugeLabel = document.getElementById('gauge-label');
+const gaugeFill = document.getElementById('gauge-fill');
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function buildPool() {
+  let src = areaFilter === 'ALL' ? [...QUESTIONS] : QUESTIONS.filter(q => q.area === areaFilter);
+  shuffle(src);
+  let n = src.length;
+  if (mode === '50') n = Math.min(50, n);
+  else if (mode === '30') n = Math.min(30, n);
+  else if (mode === '20') n = Math.min(20, n);
+  pool = src.slice(0, n);
+  sessionIdx = 0;
+}
+
+function updateStats() {
+  const errPct = totalAns ? Math.round(totalErr / totalAns * 1000) / 10 : 0;
+  const okPct = totalAns ? Math.round(totalOk / totalAns * 1000) / 10 : 0;
+  bsErr.textContent = 'Errori: ' + errPct + '%';
+  kpiAns.textContent = totalAns;
+  kpiOk.textContent = totalOk;
+  kpiErr.textContent = totalErr;
+  kpiPct.textContent = okPct + '%';
+  gaugeLabel.textContent = errPct + '%';
+  gaugeFill.style.width = errPct + '%';
+  const c = errPct < 20 ? 'var(--green)' : errPct < 50 ? 'var(--yellow)' : 'var(--red)';
+  gaugeFill.style.background = c;
+}
+
+function updateProgress() {
+  const total = pool.length;
+  const cur = Math.min(sessionIdx, total);
+  progText.textContent = cur + ' / ' + total;
+  progFill.style.width = (total ? cur / total * 100 : 0).toFixed(1) + '%';
+}
+
+function showEndScreen() {
+  qPanel.style.display = 'none';
+  endScreen.style.display = 'block';
+  const pct = totalAns ? Math.round(totalOk / totalAns * 1000) / 10 : 0;
+  endSub.textContent = 'Hai completato ' + pool.length + ' domande su ' + QUESTIONS.length + ' totali.';
+  endScore.textContent = pct + '%';
+  endScore.className = 'score-big ' + (pct >= 80 ? 'score-green' : pct >= 50 ? 'score-yellow' : 'score-red');
+}
+
+function renderQuestion() {
+  qPanel.style.display = 'block';
+  endScreen.style.display = 'none';
+
+  if (pool.length === 0 || sessionIdx >= pool.length) {
+    showEndScreen();
+    updateProgress();
+    return;
+  }
+
+  const q = pool[sessionIdx];
+  qNum.textContent = 'Domanda ' + (sessionIdx + 1) + ' di ' + pool.length;
+  qArea.textContent = q.area;
+  qText.textContent = q.text;
+  qText.className = 'q-text q-anim';
+
+  fbEl.className = 'fb';
+  fbText.textContent = '';
+  fbIcon.textContent = '';
+
+  const indices = [0, 1, 2, 3];
+  shuffle(indices);
+  optionsEl.innerHTML = '';
+  indices.forEach((optPos, viewIdx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.type = 'button';
+    const label = String.fromCharCode(65 + viewIdx);
+    const isCorrect = optPos === q.correctIndex;
+    btn.innerHTML = '<span class="ol">' + label + '</span><span class="opt-text">' + q.options[optPos] + '</span>';
+    btn.addEventListener('click', () => handleAnswer(btn, isCorrect, q.options[q.correctIndex]));
+    optionsEl.appendChild(btn);
+  });
+
+  btnNext.disabled = true;
+  updateProgress();
+}
+
+function handleAnswer(btn, isCorrect, correctText) {
+  document.querySelectorAll('.opt').forEach(b => {
+    b.classList.add('disabled');
+    b.disabled = true;
+    if (b.querySelector('.opt-text')?.textContent === correctText && !isCorrect) {
+      b.classList.add('correct');
+    }
+  });
+
+  totalAns++;
+  if (isCorrect) {
+    btn.classList.add('correct');
+    fbEl.className = 'fb correct show';
+    fbIcon.textContent = '✓';
+    fbText.textContent = 'Risposta corretta!';
+    totalOk++;
+  } else {
+    btn.classList.add('wrong');
+    fbEl.className = 'fb wrong show';
+    fbIcon.textContent = '✗';
+    fbText.textContent = 'Risposta errata.';
+    totalErr++;
+  }
+
+  updateStats();
+  btnNext.disabled = false;
+}
+
+btnNext.addEventListener('click', () => { sessionIdx++; renderQuestion(); });
+btnReshuffle.addEventListener('click', () => { buildPool(); renderQuestion(); bsStatus.textContent = 'Nuovo campione'; });
+btnReset.addEventListener('click', () => {
+  totalAns = 0; totalOk = 0; totalErr = 0;
+  updateStats(); buildPool(); renderQuestion();
+  bsStatus.textContent = 'Statistiche azzerate';
+});
+document.getElementById('end-new').addEventListener('click', () => { buildPool(); renderQuestion(); });
+document.getElementById('end-reset').addEventListener('click', () => {
+  totalAns = 0; totalOk = 0; totalErr = 0;
+  updateStats(); buildPool(); renderQuestion();
+});
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    mode = btn.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+    buildPool(); renderQuestion();
+  });
+});
+
+// Area filter
+document.querySelectorAll('.area-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    areaFilter = btn.dataset.area;
+    document.querySelectorAll('.area-pill').forEach(b => b.classList.toggle('active', b === btn));
+    bsArea.textContent = areaFilter === 'ALL' ? 'Tutte le aree' : areaFilter;
+    buildPool(); renderQuestion();
+  });
+});
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !btnNext.disabled) btnNext.click();
+});
+
+// Init
+buildPool();
+renderQuestion();
+updateStats();
+</script>
+</body>
+</html>
