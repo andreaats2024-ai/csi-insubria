@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC Secure Shield - Demo</title>
+    <style>
+        :root {
+            --color-bg-primary: #0f172a;
+            --color-bg-secondary: #1e293b;
+            --color-bg-tertiary: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-accent: #38bdf8;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-border: rgba(148, 163, 184, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: var(--color-bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .status-card {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .status-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--color-success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.inactive {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--color-text-muted);
+            border: 1px solid var(--color-border);
+        }
+
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--color-warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-badge.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--color-danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .status-icon {
+            font-size: 2rem;
+        }
+
+        .status-details h3 {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .status-details p {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: #0ea5e9;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .security-checks {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .check-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .check-item.safe {
+            border-left-color: var(--color-success);
+        }
+
+        .check-item.warning {
+            border-left-color: var(--color-warning);
+        }
+
+        .check-item.danger {
+            border-left-color: var(--color-danger);
+        }
+
+        .check-label {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        .check-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+        }
+
+        .check-status.safe {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--color-success);
+        }
+
+        .check-status.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--color-warning);
+        }
+
+        .check-status.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--color-danger);
+        }
+
+        .app-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .app-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--color-border);
+        }
+
+        .app-item:hover {
+            background: #475569;
+            border-color: var(--color-accent);
+        }
+
+        .app-icon {
+            font-size: 2rem;
+        }
+
+        .app-info {
+            flex: 1;
+        }
+
+        .app-info h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .app-info p {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-top: 0.125rem;
+        }
+
+        .timer-display {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .timer-display .time {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-display .label {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-accent), #0ea5e9);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-time {
+            color: var(--color-text-muted);
+            margin-right: 0.5rem;
+        }
+
+        .log-message {
+            color: var(--color-text-secondary);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .alert.info {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.8125rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--color-bg-secondary);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            flex: 1;
+        }
+
+        .nav-item:hover {
+            color: var(--color-text-primary);
+        }
+
+        .nav-item.active {
+            color: var(--color-accent);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--color-border);
+            margin: 1.5rem 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ NFC Secure Shield</h1>
+        <p>Proof-of-Concept Demo - Academic Project</p>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Screen -->
+        <div id="dashboard" class="screen active">
+            <div class="alert info">
+                <div class="alert-icon">ℹ️</div>
+                <div class="alert-content">
+                    <div class="alert-title">Modalità Demo</div>
+                    <div class="alert-message">Questa è una simulazione web delle funzionalità principali. L'app Android nativa includerà API NFC reali, Android Keystore e VPN Service.</div>
+                </div>
+            </div>
+
+            <!-- NFC Status -->
+            <div class="status-card">
+                <div class="status-header">
+                    <h2>📡 Stato NFC</h2>
+                    <span id="nfcBadge" class="status-badge inactive">Disattivo</span>
+                </div>
+                <div class="status-info">
+                    <div class="status-icon">📱</div>
+                    <div class="status-details">
+                        <h3>Hardware NFC</h3>
+                        <p id="nfcStatus">Disponibile</p>
+                    </div>
+                </div>
+                <button id="toggleNfc" class="btn btn-primary" style="margin-top: 1rem;">
+                    🔓 Attiva NFC
+                </button>
+            </div>
+
+            <!-- Secure Mode -->
+            <div class="status-card">
+                <div class="status-header">
+                    <h2>🔒 Secure Mode</h2>
+                    <span id="secureModeBadge" class="status-badge inactive">Inattivo</span>
+                </div>
+                <div class="timer-display">
+                    <div class="time" id="sessionTimer">00:00</div>
+                    <div class="label">Tempo sessione corrente</div>
+                    <div class="progress-bar">
+                        <div id="sessionProgress" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <button id="toggleSecureMode" class="btn btn-primary" disabled>
+                    🔒 Avvia Secure Mode
+                </button>
+            </div>
+
+            <!-- VPN Status -->
+            <div class="status-card">
+                <div class="status-header">
+                    <h2>🌐 VPN Connection</h2>
+                    <span id="vpnBadge" class="status-badge inactive">Disconnesso</span>
+                </div>
+                <div class="status-info">
+                    <div class="status-icon">🔐</div>
+                    <div class="status-details">
+                        <h3>Tunnel Crittografato</h3>
+                        <p id="vpnStatus">Non attivo</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Usage -->
+            <div class="status-card">
+                <div class="status-header">
+                    <h2>⏱️ Utilizzo Giornaliero</h2>
+                    <span class="status-badge warning">Free</span>
+                </div>
+                <div class="grid-2">
+                    <div class="stat-card">
+                        <div class="stat-value" id="usedTime">0</div>
+                        <div class="stat-label">Minuti usati</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="remainingTime">60</div>
+                        <div class="stat-label">Minuti rimanenti</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Screen -->
+        <div id="security" class="screen">
+            <div class="status-card">
+                <h2 style="margin-bottom: 1rem;">🔍 Monitoraggio Sicurezza</h2>
+                <div class="security-checks">
+                    <div class="check-item safe">
+                        <span class="check-label">🎥 Registrazione Schermo</span>
+                        <span class="check-status safe">Sicuro</span>
+                    </div>
+                    <div class="check-item safe">
+                        <span class="check-label">📱 App Overlay</span>
+                        <span class="check-status safe">Nessuna rilevata</span>
+                    </div>
+                    <div class="check-item warning">
+                        <span class="check-label">⚙️ Opzioni Sviluppatore</span>
+                        <span class="check-status warning">Attive</span>
+                    </div>
+                    <div class="check-item danger">
+                        <span class="check-label">🔌 USB Debugging</span>
+                        <span class="check-status danger">Attivo</span>
+                    </div>
+                    <div class="check-item safe">
+                        <span class="check-label">🔐 Crittografia Dispositivo</span>
+                        <span class="check-status safe">Attiva</span>
+                    </div>
+                    <div class="check-item safe">
+                        <span class="check-label">🛡️ Google Play Protect</span>
+                        <span class="check-status safe">Attivo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert warning">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <div class="alert-title">Avvisi di Sicurezza</div>
+                    <div class="alert-message">USB Debugging e Opzioni Sviluppatore sono attivi. Si consiglia di disattivarli per aumentare la sicurezza durante l'utilizzo di app bancarie.</div>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h2 style="margin-bottom: 1rem;">📊 Statistiche Sicurezza</h2>
+                <div class="grid-2">
+                    <div class="stat-card">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">Controlli effettuati</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Avvisi attivi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Apps Screen -->
+        <div id="apps" class="screen">
+            <div class="status-card">
+                <h2 style="margin-bottom: 0.5rem;">🏦 App Sensibili Protette</h2>
+                <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+                    Seleziona un'app per aprirla in modalità sicura
+                </p>
+
+                <div class="app-list">
+                    <div class="app-item" onclick="launchApp('BancoPosta')">
+                        <div class="app-icon">🏦</div>
+                        <div class="app-info">
+                            <h3>BancoPosta</h3>
+                            <p>Ultima apertura: 2 ore fa</p>
+                        </div>
+                    </div>
+                    <div class="app-item" onclick="launchApp('Intesa Sanpaolo')">
+                        <div class="app-icon">💳</div>
+                        <div class="app-info">
+                            <h3>Intesa Sanpaolo</h3>
+                            <p>Ultima apertura: 1 giorno fa</p>
+                        </div>
+                    </div>
+                    <div class="app-item" onclick="launchApp('PayPal')">
+                        <div class="app-icon">💰</div>
+                        <div class="app-info">
+                            <h3>PayPal</h3>
+                            <p>Ultima apertura: 3 giorni fa</p>
+                        </div>
+                    </div>
+                    <div class="app-item" onclick="launchApp('Satispay')">
+                        <div class="app-icon">📱</div>
+                        <div class="app-info">
+                            <h3>Satispay</h3>
+                            <p>Ultima apertura: 5 ore fa</p>
+                        </div>
+                    </div>
+                    <div class="app-item" onclick="launchApp('Google Pay')">
+                        <div class="app-icon">🛒</div>
+                        <div class="app-info">
+                            <h3>Google Pay</h3>
+                            <p>Mai aperta</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert info">
+                <div class="alert-icon">ℹ️</div>
+                <div class="alert-content">
+                    <div class="alert-title">Lancio Protetto</div>
+                    <div class="alert-message">Le app vengono lanciate con Android Intent standard. Il monitoraggio traccia il tempo di utilizzo durante la Secure Mode.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Screen -->
+        <div id="logs" class="screen">
+            <div class="status-card">
+                <h2 style="margin-bottom: 1rem;">📋 Activity Logs (Crittografati)</h2>
+                <div id="logContainer">
+                    <div class="log-entry">
+                        <span class="log-time">[14:45:32]</span>
+                        <span class="log-message">Sistema inizializzato - AES-256 Keystore attivo</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">[14:45:35]</span>
+                        <span class="log-message">NFC hardware rilevato - Stato: Disponibile</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">[14:45:38]</span>
+                        <span class="log-message">Controlli sicurezza completati - 2 avvisi rilevati</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-card">
+                <h2 style="margin-bottom: 1rem;">🔐 Crittografia Sessione</h2>
+                <div class="security-checks">
+                    <div class="check-item safe">
+                        <span class="check-label">Chiavi Android Keystore</span>
+                        <span class="check-status safe">Attivo</span>
+                    </div>
+                    <div class="check-item safe">
+                        <span class="check-label">AES-256 Encryption</span>
+                        <span class="check-status safe">Attivo</span>
+                    </div>
+                    <div class="check-item safe">
+                        <span class="check-label">Metadati Sessione</span>
+                        <span class="check-status safe">Crittografati</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchScreen('dashboard')">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Dashboard</div>
+        </button>
+        <button class="nav-item" onclick="switchScreen('security')">
+            <div class="nav-icon">🔍</div>
+            <div class="nav-label">Sicurezza</div>
+        </button>
+        <button class="nav-item" onclick="switchScreen('apps')">
+            <div class="nav-icon">🏦</div>
+            <div class="nav-label">App</div>
+        </button>
+        <button class="nav-item" onclick="switchScreen('logs')">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">Logs</div>
+        </button>
+    </div>
+
+    <script>
+        let nfcEnabled = false;
+        let secureModeActive = false;
+        let vpnConnected = false;
+        let sessionStartTime = null;
+        let sessionInterval = null;
+        let usedMinutes = 0;
+        const maxFreeMinutes = 60;
+
+        // NFC Toggle
+        document.getElementById('toggleNfc').addEventListener('click', function() {
+            nfcEnabled = !nfcEnabled;
+            updateNfcStatus();
+            
+            if (nfcEnabled) {
+                addLog('NFC attivato - Trigger automatico Secure Mode disponibile');
+                document.getElementById('toggleSecureMode').disabled = false;
+            } else {
+                addLog('NFC disattivato');
+                if (secureModeActive) {
+                    toggleSecureMode();
+                }
+                document.getElementById('toggleSecureMode').disabled = true;
+            }
+        });
+
+        // Secure Mode Toggle
+        document.getElementById('toggleSecureMode').addEventListener('click', function() {
+            toggleSecureMode();
+        });
+
+        function updateNfcStatus() {
+            const badge = document.getElementById('nfcBadge');
+            const button = document.getElementById('toggleNfc');
+            const status = document.getElementById('nfcStatus');
+            
+            if (nfcEnabled) {
+                badge.className = 'status-badge active';
+                badge.textContent = 'Attivo';
+                button.innerHTML = '🔒 Disattiva NFC';
+                button.className = 'btn btn-danger';
+                status.textContent = 'Attivo e in ascolto';
+            } else {
+                badge.className = 'status-badge inactive';
+                badge.textContent = 'Disattivo';
+                button.innerHTML = '🔓 Attiva NFC';
+                button.className = 'btn btn-primary';
+                status.textContent = 'Disponibile';
+            }
+        }
+
+        function toggleSecureMode() {
+            if (secureModeActive) {
+                // Stop Secure Mode
+                secureModeActive = false;
+                vpnConnected = false;
+                clearInterval(sessionInterval);
+                
+                const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
+                usedMinutes += sessionTime;
+                
+                updateSecureModeStatus();
+                updateVpnStatus();
+                updateUsageStats();
+                addLog(`Secure Mode terminata - Sessione durata: ${sessionTime} minuti`);
+                addLog('Connessione VPN chiusa');
+                
+                document.getElementById('toggleSecureMode').textContent = '🔒 Avvia Secure Mode';
+                document.getElementById('toggleSecureMode').className = 'btn btn-primary';
+            } else {
+                // Start Secure Mode
+                if (usedMinutes >= maxFreeMinutes) {
+                    alert('⏱️ Limite giornaliero raggiunto!\n\nHai utilizzato tutti i 60 minuti gratuiti di oggi. Aggiorna a Premium per utilizzo illimitato.');
+                    return;
+                }
+                
+                secureModeActive = true;
+                vpnConnected = true;
+                sessionStartTime = Date.now();
+                
+                updateSecureModeStatus();
+                updateVpnStatus();
+                startSessionTimer();
+                addLog('Secure Mode attivata - Sessione protetta iniziata');
+                addLog('Connessione VPN stabilita - Tunnel crittografato attivo');
+                addLog('Tutte le comunicazioni sono protette tramite VpnService API');
+                
+                document.getElementById('toggleSecureMode').textContent = '🔓 Termina Secure Mode';
+                document.getElementById('toggleSecureMode').className = 'btn btn-danger';
+            }
+        }
+
+        function updateSecureModeStatus() {
+            const badge = document.getElementById('secureModeBadge');
+            if (secureModeActive) {
+                badge.className = 'status-badge active';
+                badge.textContent = 'Attivo';
+            } else {
+                badge.className = 'status-badge inactive';
+                badge.textContent = 'Inattivo';
+            }
+        }
+
+        function updateVpnStatus() {
+            const badge = document.getElementById('vpnBadge');
+            const status = document.getElementById('vpnStatus');
+            
+            if (vpnConnected) {
+                badge.className = 'status-badge active';
+                badge.textContent = 'Connesso';
+                status.textContent = 'Tunnel attivo (AES-256)';
+            } else {
+                badge.className = 'status-badge inactive';
+                badge.textContent = 'Disconnesso';
+                status.textContent = 'Non attivo';
+            }
+        }
+
+        function startSessionTimer() {
+            let seconds = 0;
+            sessionInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                
+                const minsUsed = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
+                const totalUsed = usedMinutes + minsUsed;
+                
+                if (totalUsed >= maxFreeMinutes) {
+                    toggleSecureMode();
+                    alert('⏱️ Tempo scaduto!\n\nHai raggiunto il limite di 60 minuti giornalieri. La Secure Mode è stata terminata.');
+                    return;
+                }
+                
+                document.getElementById('sessionTimer').textContent = 
+                    `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                
+                const progress = (totalUsed / maxFreeMinutes) * 100;
+                document.getElementById('sessionProgress').style.width = progress + '%';
+                
+                updateUsageStats();
+            }, 1000);
+        }
+
+        function updateUsageStats() {
+            let currentSessionMinutes = 0;
+            if (secureModeActive && sessionStartTime) {
+                currentSessionMinutes = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
+            }
+            
+            const totalUsed = usedMinutes + currentSessionMinutes;
+            const remaining = Math.max(0, maxFreeMinutes - totalUsed);
+            
+            document.getElementById('usedTime').textContent = totalUsed;
+            document.getElementById('remainingTime').textContent = remaining;
+        }
+
+        function addLog(message) {
+            const now = new Date();
+            const time = now.toLocaleTimeString('it-IT');
+            const logContainer = document.getElementById('logContainer');
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+            
+            // Keep only last 20 logs
+            while (logContainer.children.length > 20) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        function launchApp(appName) {
+            if (!secureModeActive) {
+                alert('⚠️ Secure Mode non attiva!\n\nPer aprire app sensibili è necessario attivare prima la Secure Mode dalla dashboard.');
+                return;
+            }
+            
+            addLog(`App "${appName}" lanciata in modalità protetta`);
+            addLog(`Monitoraggio tempo di utilizzo: ATTIVO`);
+            alert(`🚀 Lancio di ${appName}\n\nIn un'app Android nativa, questa funzione userebbe:\n\n• Intent.ACTION_MAIN\n• PackageManager.getLaunchIntentForPackage()\n• Tracking tempo in Secure Mode\n\nModalità DEMO: Simulazione completata.`);
+        }
+
+        function switchScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show selected screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // Initialize
+        updateUsageStats();
+        addLog('App inizializzata - Modalità demo attiva');
+    </script>
+</body>
+</html>
+
