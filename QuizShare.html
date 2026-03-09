@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz Corso SharePoint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #0078d4; /* colore stile Microsoft 365 */
+      color: #fff;
+      padding: 16px 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 16px;
+      background-color: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      border-radius: 6px;
+    }
+
+    .intro {
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .question {
+      border-bottom: 1px solid #e1e4e8;
+      padding: 16px 0;
+    }
+
+    .question:last-child {
+      border-bottom: none;
+    }
+
+    .question h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .answers label {
+      display: block;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .answers input[type="radio"] {
+      margin-right: 6px;
+    }
+
+    .controls {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      background-color: #0078d4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #005ea6;
+    }
+
+    button.secondary {
+      background-color: #e1e4e8;
+      color: #333;
+    }
+
+    button.secondary:hover {
+      background-color: #cfd4da;
+    }
+
+    #result {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    #result.ok {
+      background-color: #e6f4ea;
+      color: #256029;
+    }
+
+    #result.ko {
+      background-color: #fdecea;
+      color: #a1260d;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        margin: 12px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quiz Corso SharePoint</h1>
+    <p>Verifica di apprendimento – Introduzione a SharePoint Online</p>
+  </header>
+
+  <main>
+    <div class="intro">
+      Rispondi alle domande selezionando una risposta per ciascun quesito, 
+      quindi premi <strong>Calcola punteggio</strong> per vedere il risultato.
+    </div>
+
+    <!-- QUIZ -->
+    <form id="quizForm">
+      <!-- Domanda 1 -->
+      <div class="question">
+        <h3>1. In termini semplici, che cos'è SharePoint?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q1" value="a" />
+            Un programma desktop per scrivere documenti Word.
+          </label>
+          <label>
+            <input type="radio" name="q1" value="b" />
+            Una piattaforma Microsoft per collaborazione, gestione documenti e intranet aziendali.
+          </label>
+          <label>
+            <input type="radio" name="q1" value="c" />
+            Un servizio per inviare email massivamente.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 2 -->
+      <div class="question">
+        <h3>2. Qual è lo scopo principale di un Sito del Team in SharePoint?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q2" value="a" />
+            Pubblicare notizie a tutta l'azienda senza interazione.
+          </label>
+          <label>
+            <input type="radio" name="q2" value="b" />
+            Offrire uno spazio collaborativo per un gruppo di lavoro.
+          </label>
+          <label>
+            <input type="radio" name="q2" value="c" />
+            Salvare copie di backup dei PC personali.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 3 -->
+      <div class="question">
+        <h3>3. Cosa sono le raccolte documenti in SharePoint?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q3" value="a" />
+            Cartelle locali su ogni PC.
+          </label>
+          <label>
+            <input type="radio" name="q3" value="b" />
+            Spazi strutturati online per archiviare e gestire file con funzionalità avanzate.
+          </label>
+          <label>
+            <input type="radio" name="q3" value="c" />
+            Un tipo di grafico in Excel.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 4 -->
+      <div class="question">
+        <h3>4. Quale tra questi è un vantaggio chiave dell'uso di SharePoint in ATS Insubria?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q4" value="a" />
+            Archiviare i dati clinici dei pazienti al posto del gestionale sanitario.
+          </label>
+          <label>
+            <input type="radio" name="q4" value="b" />
+            Gestire centralmente protocolli, procedure operative e documenti organizzativi.
+          </label>
+          <label>
+            <input type="radio" name="q4" value="c" />
+            Sostituire completamente il sistema di posta elettronica.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 5 -->
+      <div class="question">
+        <h3>5. Le liste di SharePoint possono essere descritte come:</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q5" value="a" />
+            File PDF raggruppati.
+          </label>
+          <label>
+            <input type="radio" name="q5" value="b" />
+            Tabelle simili a fogli Excel condivisi, per dati strutturati.
+          </label>
+          <label>
+            <input type="radio" name="q5" value="c" />
+            Soltanto raccolte di immagini.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 6 -->
+      <div class="question">
+        <h3>6. Cosa permette il versioning dei documenti in SharePoint?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q6" value="a" />
+            Criptare automaticamente tutti i file.
+          </label>
+          <label>
+            <input type="radio" name="q6" value="b" />
+            Conservare più versioni di uno stesso documento e ripristinare quelle precedenti.
+          </label>
+          <label>
+            <input type="radio" name="q6" value="c" />
+            Limitare l’accesso solo all’amministratore IT.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 7 -->
+      <div class="question">
+        <h3>7. Che cosa indica il check-out di un documento?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q7" value="a" />
+            Che il documento è stato eliminato definitivamente.
+          </label>
+          <label>
+            <input type="radio" name="q7" value="b" />
+            Che un utente lo sta modificando e gli altri non dovrebbero cambiarlo nello stesso momento.
+          </label>
+          <label>
+            <input type="radio" name="q7" value="c" />
+            Che il documento è visibile solo come anteprima.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 8 -->
+      <div class="question">
+        <h3>8. Qual è il vantaggio principale dell’uso dei metadati per i documenti?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q8" value="a" />
+            Consentono di cambiare automaticamente il formato dei file.
+          </label>
+          <label>
+            <input type="radio" name="q8" value="b" />
+            Permettono di classificare e filtrare i documenti in modo flessibile, oltre le cartelle.
+          </label>
+          <label>
+            <input type="radio" name="q8" value="c" />
+            Disattivano il controllo delle versioni.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 9 -->
+      <div class="question">
+        <h3>9. Quale tra questi è un livello di permessi predefinito di SharePoint a livello sito?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q9" value="a" />
+            Amministratore di rete.
+          </label>
+          <label>
+            <input type="radio" name="q9" value="b" />
+            Proprietari (controllo completo).
+          </label>
+          <label>
+            <input type="radio" name="q9" value="c" />
+            Ospiti anonimi con modifica totale.
+          </label>
+        </div>
+      </div>
+
+      <!-- Domanda 10 -->
+      <div class="question">
+        <h3>10. Come si accede a SharePoint dalla dashboard di Microsoft 365?</h3>
+        <div class="answers">
+          <label>
+            <input type="radio" name="q10" value="a" />
+            Tramite l'icona di SharePoint, con i puntini blu, nel launcher delle app.
+          </label>
+          <label>
+            <input type="radio" name="q10" value="b" />
+            Solo tramite Powershell.
+          </label>
+          <label>
+            <input type="radio" name="q10" value="c" />
+            Non è possibile accedervi dal portale.
+          </label>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button type="button" onclick="calcolaPunteggio()">Calcola punteggio</button>
+        <button type="button" class="secondary" onclick="resetQuiz()">Azzera risposte</button>
+      </div>
+
+      <div id="result"></div>
+    </form>
+
+    <div class="footer-note">
+      Quiz di autovalutazione sul corso "Introduzione a SharePoint – ATS Insubria".
+    </div>
+  </main>
+
+  <script>
+    // Chiavi di risposta (aggiorna qui se cambi le domande)
+    const correctAnswers = {
+      q1: "b",
+      q2: "b",
+      q3: "b",
+      q4: "b",
+      q5: "b",
+      q6: "b",
+      q7: "b",
+      q8: "b",
+      q9: "b",
+      q10: "a"
+    };
+
+    function calcolaPunteggio() {
+      const form = document.getElementById("quizForm");
+      let total = 0;
+      let correct = 0;
+
+      for (const key in correctAnswers) {
+        total++;
+        const chosen = form.querySelector('input[name="' + key + '"]:checked');
+        if (chosen && chosen.value === correctAnswers[key]) {
+          correct++;
+        }
+      }
+
+      const percent = Math.round((correct / total) * 100);
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+
+      if (percent >= 70) {
+        resultDiv.className = "ok";
+        resultDiv.textContent =
+          "Hai risposto correttamente a " +
+          correct +
+          " domande su " +
+          total +
+          " (" +
+          percent +
+          "%). Ottimo lavoro!";
+      } else {
+        resultDiv.className = "ko";
+        resultDiv.textContent =
+          "Hai risposto correttamente a " +
+          correct +
+          " domande su " +
+          total +
+          " (" +
+          percent +
+          "%). Prova a rivedere alcuni concetti di SharePoint e ripeti il quiz.";
+      }
+    }
+
+    function resetQuiz() {
+      const form = document.getElementById("quizForm");
+      form.reset();
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "none";
+      resultDiv.textContent = "";
+      resultDiv.className = "";
+    }
+  </script>
+</body>
+</html>
