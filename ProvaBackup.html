@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup Cartelle PC con OneDrive</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #333; }
+        .header { text-align: center; background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        .section { background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .folder-toggle { display: flex; align-items: center; margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .folder-toggle:hover { background: #e3f2fd; }
+        .folder-toggle input[type="checkbox"] { width: 20px; height: 20px; margin-right: 15px; accent-color: #0078d4; }
+        .folder-icon { font-size: 24px; margin-right: 15px; }
+        button { background: #0078d4; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #106ebe; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .progress-container { width: 100%; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden; margin: 20px 0; display: none; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #0078d4, #00c6ff); width: 0%; transition: width 0.3s; }
+        .log { max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px; }
+        .status { padding: 10px; border-radius: 6px; margin: 10px 0; font-weight: bold; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗂️ Backup Cartelle PC con OneDrive</h1>
+        <p>Proteggi Desktop, Documenti e Immagini nel cloud Microsoft OneDrive</p>
+    </div>
+
+    <div class="section">
+        <h2>Seleziona Cartelle da Fare il Backup</h2>
+        <div class="folder-toggle" onclick="toggleFolder('desktop')">
+            <input type="checkbox" id="desktop" checked>
+            <span class="folder-icon">🖥️</span>
+            <label for="desktop">Desktop (2.5 GB)</label>
+        </div>
+        <div class="folder-toggle" onclick="toggleFolder('documents')">
+            <input type="checkbox" id="documents">
+            <span class="folder-icon">📁</span>
+            <label for="documents">Documenti (1.8 GB)</label>
+        </div>
+        <div class="folder-toggle" onclick="toggleFolder('pictures')">
+            <input type="checkbox" id="pictures">
+            <span class="folder-icon">🖼️</span>
+            <label for="pictures">Immagini (4.2 GB)</label>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Avvia Backup</h2>
+        <button id="startBackup" onclick="startBackup()">Inizia Backup su OneDrive</button>
+        <div class="progress-container" id="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div id="status"></div>
+    </div>
+
+    <div class="section">
+        <h2>Log Attività</h2>
+        <div id="log" class="log">Pronto per il backup...</div>
+    </div>
+
+    <script>
+        function toggleFolder(folder) {
+            const checkbox = document.getElementById(folder);
+            checkbox.checked = !checkbox.checked;
+        }
+
+        function addLog(message, type = '') {
+            const log = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString('it-IT');
+            log.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function startBackup() {
+            const startBtn = document.getElementById('startBackup');
+            const progress = document.getElementById('progress');
+            const progressBar = document.getElementById('progressBar');
+            const status = document.getElementById('status');
+
+            startBtn.disabled = true;
+            startBtn.textContent = 'Backup in corso...';
+            progress.style.display = 'block';
+            status.innerHTML = '';
+
+            addLog('Avvio backup cartelle PC su OneDrive...');
+
+            let progressValue = 0;
+            const interval = setInterval(() => {
+                progressValue += Math.random() * 15;
+                if (progressValue > 100) progressValue = 100;
+                progressBar.style.width = progressValue + '%';
+
+                addLog(`Sincronizzazione in corso: ${Math.round(progressValue)}%`);
+
+                if (progressValue >= 100) {
+                    clearInterval(interval);
+                    addLog('✅ Backup completato! File protetti su OneDrive.');
+                    status.innerHTML = '<div class="status success">Backup completato con successo!</div>';
+                    startBtn.disabled = false;
+                    startBtn.textContent = 'Ripeti Backup';
+                }
+            }, 300);
+        }
+    </script>
+</body>
+</html>
