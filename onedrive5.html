@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>OneDrive vs SharePoint vs Teams</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    color: #1f1f1f;
+    padding: 32px;
+    max-width: 780px;
+  }
+  .page-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0078d4;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #0078d4;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead tr th {
+    padding: 12px 14px;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-align: center;
+  }
+  .th-feature { text-align: left; background: #f3f2f1; color: #323130; }
+  .th-od  { background: #0078d4; color: white; }
+  .th-sp  { background: #038387; color: white; }
+  .th-teams { background: #6264a7; color: white; }
+  tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #edebe9;
+    font-size: 13px;
+    color: #323130;
+    vertical-align: middle;
+    text-align: center;
+  }
+  tbody td:first-child { text-align: left; font-weight: 600; background: #faf9f8; }
+  tbody tr:hover { background: #f3f9fe; }
+  .yes   { color: #107c10; font-size: 16px; }
+  .no    { color: #a4262c; font-size: 16px; }
+  .part  { color: #7d6300; font-size: 13px; }
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #605e5c;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .leg-item { display: flex; align-items: center; gap: 6px; }
+  .usage-box {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+  }
+  .usage-card {
+    flex: 1;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: white;
+  }
+  .uc-od    { background: #0078d4; }
+  .uc-sp    { background: #038387; }
+  .uc-teams { background: #6264a7; }
+  .usage-card strong { display: block; font-size: 13.5px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+  <p class="page-title">🆚 Quando usare OneDrive, SharePoint o Teams?</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="th-feature">Funzionalità / Scenario</th>
+        <th class="th-od">📘 OneDrive</th>
+        <th class="th-sp">📗 SharePoint</th>
+        <th class="th-teams">📙 Teams</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>File personali e bozze</td>
+        <td class="yes">✔</td>
+        <td class="no">✖</td>
+        <td class="no">✖</td>
+      </tr>
+      <tr>
+        <td>Documenti di reparto condivisi</td>
+        <td class="part">Parziale</td>
+        <td class="yes">✔</td>
+        <td class="yes">✔</td>
+      </tr>
+      <tr>
+        <td>Collaborazione in tempo reale</td>
+        <td class="yes">✔</td>
+        <td class="yes">✔</td>
+        <td class="yes">✔</td>
+      </tr>
+      <tr>
+        <td>Protocolli e linee guida ufficiali</td>
+        <td class="no">✖</td>
+        <td class="yes">✔</td>
+        <td class="part">Parziale</td>
+      </tr>
+      <tr>
+        <td>Riunioni e chat di gruppo</td>
+        <td class="no">✖</td>
+        <td class="no">✖</td>
+        <td class="yes">✔</td>
+      </tr>
+      <tr>
+        <td>Backup automatico cartelle PC</td>
+        <td class="yes">✔</td>
+        <td class="no">✖</td>
+        <td class="no">✖</td>
+      </tr>
+      <tr>
+        <td>Gestione permessi avanzata</td>
+        <td class="part">Base</td>
+        <td class="yes">✔ Avanzata</td>
+        <td class="part">Base</td>
+      </tr>
+      <tr>
+        <td>Flussi di approvazione (Power Automate)</td>
+        <td class="no">✖</td>
+        <td class="yes">✔</td>
+        <td class="part">Parziale</td>
+      </tr>
+      <tr>
+        <td>Accesso da mobile / tablet</td>
+        <td class="yes">✔</td>
+        <td class="yes">✔</td>
+        <td class="yes">✔</td>
+      </tr>
+      <tr>
+        <td>Spazio di archiviazione incluso</td>
+        <td>1 TB / utente</td>
+        <td>1 TB + 10 GB/utente</td>
+        <td>Usa SharePoint</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="legend">
+    <div class="leg-item"><span class="yes">✔</span> Funzionalità completa</div>
+    <div class="leg-item"><span class="no">✖</span> Non supportato</div>
+    <div class="leg-item"><span class="part" style="font-size:14px">◑</span> Supporto parziale</div>
+  </div>
+
+  <div class="usage-box">
+    <div class="usage-card uc-od">
+      <strong>📘 Usa OneDrive quando...</strong>
+      Lavori su documenti tuoi, bozze personali, o vuoi condividere rapidamente con 1–2 colleghi senza struttura formale.
+    </div>
+    <div class="usage-card uc-sp">
+      <strong>📗 Usa SharePoint quando...</strong>
+      Gestisci documenti ufficiali di reparto, protocolli sanitari, o hai bisogno di flussi di approvazione.
+    </div>
+    <div class="usage-card uc-teams">
+      <strong>📙 Usa Teams quando...</strong>
+      Devi comunicare, organizzare riunioni, o lavorare in modo collaborativo con un gruppo di lavoro definito.
+    </div>
+  </div>
+
+</body>
+</html>
+

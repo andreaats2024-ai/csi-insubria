@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>OneDrive - Modalità di Condivisione</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    color: #1f1f1f;
+    padding: 32px;
+    max-width: 780px;
+  }
+  .page-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0078d4;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #0078d4;
+    margin-bottom: 20px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #605e5c;
+    margin-bottom: 24px;
+  }
+  .cards {
+    display: flex;
+    gap: 16px;
+  }
+  .card {
+    flex: 1;
+    border: 1.5px solid #edebe9;
+    border-radius: 8px;
+    padding: 20px 16px;
+    background: #faf9f8;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-icon {
+    font-size: 32px;
+    text-align: center;
+  }
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0078d4;
+    text-align: center;
+  }
+  .card-desc {
+    font-size: 12.5px;
+    color: #323130;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .card-badge {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin-top: 6px;
+  }
+  .badge-red   { background: #fde7e9; color: #a4262c; }
+  .badge-yellow{ background: #fff4ce; color: #7d6300; }
+  .badge-green { background: #dff6dd; color: #107c10; }
+  .divider {
+    border: none;
+    border-top: 1px solid #edebe9;
+    margin: 24px 0;
+  }
+  .note-box {
+    background: #eff6fc;
+    border-left: 4px solid #0078d4;
+    padding: 14px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #323130;
+    line-height: 1.6;
+  }
+  .note-title {
+    font-weight: 700;
+    color: #0078d4;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .steps {
+    margin-top: 20px;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .step-num {
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #0078d4;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text {
+    font-size: 13px;
+    color: #323130;
+    line-height: 1.6;
+    padding-top: 3px;
+  }
+</style>
+</head>
+<body>
+
+  <p class="page-title">📤 Modalità di Condivisione in OneDrive</p>
+  <p class="subtitle">Scegli il tipo di accesso corretto prima di condividere qualsiasi file o cartella.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">👤</div>
+      <div class="card-title">Persone Specifiche</div>
+      <div class="card-desc">
+        Solo le persone indicate per nome o email potranno accedere al file. Massimo controllo sulla riservatezza.
+      </div>
+      <div class="card-badge badge-green">✔ Consigliato per dati sensibili</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏢</div>
+      <div class="card-title">Tutta l'Organizzazione</div>
+      <div class="card-desc">
+        Chiunque abbia un account ATS Insubria può visualizzare o modificare il file tramite il link.
+      </div>
+      <div class="card-badge badge-yellow">⚠ Usare con cautela</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Chiunque abbia il Link</div>
+      <div class="card-desc">
+        Accesso aperto a chiunque riceva il link, anche senza account Microsoft. Nessun controllo identità.
+      </div>
+      <div class="card-badge badge-red">✖ Non usare per documenti riservati</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="note-box">
+    <div class="note-title">💡 Buona prassi per ATS Insubria</div>
+    Impostare sempre una <strong>data di scadenza</strong> sul link condiviso e scegliere i permessi 
+    <strong>"Solo visualizzazione"</strong> se il destinatario non deve modificare il documento.
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Cliccare con il tasto destro sul file → <strong>Condividi</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Scegliere la modalità di accesso appropriata</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Impostare i permessi: <strong>Modifica</strong> oppure <strong>Solo visualizzazione</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">Aggiungere una <strong>data di scadenza</strong> e una <strong>password</strong> (facoltativa)</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-text">Cliccare su <strong>Invia</strong> o copiare il link</div>
+    </div>
+  </div>
+
+</body>
+</html>
+
+

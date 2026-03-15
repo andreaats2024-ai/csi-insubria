@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>OneDrive - Backup e Versioni</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    color: #1f1f1f;
+    padding: 32px;
+    max-width: 780px;
+  }
+  .page-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0078d4;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #0078d4;
+    margin-bottom: 20px;
+  }
+  .two-col {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .section-box {
+    flex: 1;
+    border: 1.5px solid #edebe9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: #0078d4;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+  .section-body {
+    padding: 16px;
+    background: #faf9f8;
+  }
+  .folder-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #edebe9;
+    font-size: 13px;
+    color: #323130;
+  }
+  .folder-item:last-child { border-bottom: none; }
+  .folder-icon { font-size: 18px; }
+  .toggle {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+  .on  { background: #dff6dd; color: #107c10; }
+  .off { background: #fde7e9; color: #a4262c; }
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: #c7e0f4;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #323130;
+    line-height: 1.5;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0078d4;
+    border: 2px solid white;
+    outline: 1px solid #0078d4;
+  }
+  .tl-date {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0078d4;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .tl-author {
+    font-size: 11px;
+    color: #605e5c;
+  }
+  .restore-btn {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #0078d4;
+    border: 1px solid #0078d4;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .note-box {
+    background: #eff6fc;
+    border-left: 4px solid #0078d4;
+    padding: 14px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #323130;
+    line-height: 1.7;
+  }
+  .note-title { font-weight: 700; color: #0078d4; margin-bottom: 6px; }
+  .steps-inline {
+    display: flex;
+    gap: 0;
+    margin: 20px 0;
+    align-items: stretch;
+  }
+  .step-block {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    background: #f3f2f1;
+    font-size: 12px;
+    color: #323130;
+    border: 1px solid #edebe9;
+    position: relative;
+    line-height: 1.5;
+  }
+  .step-block:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #0078d4;
+    z-index: 1;
+  }
+  .step-num-sm {
+    display: block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #0078d4;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 22px;
+    margin: 0 auto 6px;
+  }
+</style>
+</head>
+<body>
+
+  <p class="page-title">💾 Backup Automatico e Cronologia Versioni</p>
+
+  <div class="two-col">
+
+    <!-- Colonna sinistra: Backup cartelle -->
+    <div class="section-box">
+      <div class="section-header">📂 Cartelle in Backup Automatico</div>
+      <div class="section-body">
+        <div class="folder-item">
+          <span class="folder-icon">🖥️</span>
+          <span>Desktop</span>
+          <span class="toggle on">ATTIVO</span>
+        </div>
+        <div class="folder-item">
+          <span class="folder-icon">📄</span>
+          <span>Documenti</span>
+          <span class="toggle on">ATTIVO</span>
+        </div>
+        <div class="folder-item">
+          <span class="folder-icon">🖼️</span>
+          <span>Immagini</span>
+          <span class="toggle on">ATTIVO</span>
+        </div>
+        <div class="folder-item">
+          <span class="folder-icon">🎵</span>
+          <span>Musica</span>
+          <span class="toggle off">NON ATTIVO</span>
+        </div>
+        <div class="folder-item">
+          <span class="folder-icon">🎬</span>
+          <span>Video</span>
+          <span class="toggle off">NON ATTIVO</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonna destra: Cronologia versioni -->
+    <div class="section-box">
+      <div class="section-header">🕐 Cronologia Versioni — Protocollo_Igiene.docx</div>
+      <div class="section-body">
+        <div class="timeline">
+          <div class="tl-item">
+            <span class="tl-date">Oggi, 09:45</span>
+            <strong>Versione attuale</strong>
+            <span class="tl-author">Modificato da: M. Rossi</span>
+          </div>
+          <div class="tl-item">
+            <span class="tl-date">Ieri, 14:30</span>
+            Aggiunta sezione dispositivi
+            <span class="tl-author">Modificato da: L. Bianchi</span>
+            <span class="restore-btn">↩ Ripristina</span>
+          </div>
+          <div class="tl-item">
+            <span class="tl-date">12/03/2026, 10:12</span>
+            Bozza iniziale caricata
+            <span class="tl-author">Modificato da: M. Rossi</span>
+            <span class="restore-btn">↩ Ripristina</span>
+          </div>
+          <div class="tl-item">
+            <span class="tl-date">10/03/2026, 16:00</span>
+            Versione precedente approvata
+            <span class="tl-author">Modificato da: Responsabile UO</span>
+            <span class="restore-btn">↩ Ripristina</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Come accedere alla cronologia -->
+  <p style="font-size:13px; font-weight:600; color:#323130; margin-bottom:12px;">
+    Come accedere alla Cronologia Versioni:
+  </p>
+  <div class="steps-inline">
+    <div class="step-block">
+      <span class="step-num-sm">1</span>
+      Tasto destro sul file in Esplora File
+    </div>
+    <div class="step-block">
+      <span class="step-num-sm">2</span>
+      Selezionare <strong>Cronologia versioni</strong>
+    </div>
+    <div class="step-block">
+      <span class="step-num-sm">3</span>
+      Scegliere la versione desiderata
+    </div>
+    <div class="step-block">
+      <span class="step-num-sm">4</span>
+      Cliccare <strong>Ripristina</strong>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <div class="note-title">ℹ️ Quanto tempo vengono conservate le versioni?</div>
+    OneDrive conserva le versioni precedenti dei file per <strong>fino a 30 giorni</strong> (o 
+    500 versioni). Per OneDrive for Business di Microsoft 365, la conservazione può essere 
+    estesa dall'amministratore IT fino a <strong>93 giorni</strong>.
+  </div>
+
+</body>
+</html>
+

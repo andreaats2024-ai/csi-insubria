@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>OneDrive - Icone Sincronizzazione</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    color: #1f1f1f;
+    padding: 32px;
+    max-width: 780px;
+  }
+  .page-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0078d4;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #0078d4;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr {
+    background: #0078d4;
+    color: white;
+  }
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  tbody tr:nth-child(even) { background: #f3f2f1; }
+  tbody tr:nth-child(odd)  { background: #ffffff; }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #edebe9;
+    vertical-align: middle;
+    line-height: 1.5;
+    color: #323130;
+  }
+  .icon-cell {
+    font-size: 22px;
+    text-align: center;
+    width: 60px;
+  }
+  .status-name {
+    font-weight: 700;
+    color: #0078d4;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .status-ok    { color: #107c10; }
+  .status-warn  { color: #7d6300; }
+  .status-error { color: #a4262c; }
+  .status-sync  { color: #0078d4; }
+  .footer-note {
+    margin-top: 20px;
+    background: #fff4ce;
+    border-left: 4px solid #f7b922;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #323130;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+  <p class="page-title">🔄 Icone di Sincronizzazione OneDrive — Guida Rapida</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60px;">Icona</th>
+        <th style="width:200px;">Stato</th>
+        <th>Significato e Azione Consigliata</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="icon-cell">☁️</td>
+        <td><span class="status-name status-sync">Solo Online</span></td>
+        <td>Il file esiste nel cloud ma non è scaricato localmente. Aprirlo richiede connessione Internet.</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">✅</td>
+        <td><span class="status-name status-ok">Disponibile Localmente</span></td>
+        <td>File scaricato e sincronizzato. Accessibile anche offline. Può tornare solo online con "Libera spazio".</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">💚</td>
+        <td><span class="status-name status-ok">Sempre Disponibile</span></td>
+        <td>File contrassegnato per restare sempre sul dispositivo. Occupa spazio ma è sempre accessibile.</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">🔄</td>
+        <td><span class="status-name status-sync">Sincronizzazione in Corso</span></td>
+        <td>OneDrive sta caricando o scaricando il file. Attendere il completamento prima di chiudere il PC.</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">⚠️</td>
+        <td><span class="status-name status-warn">Avviso</span></td>
+        <td>Problema non bloccante. Solitamente spazio quasi esaurito o conflitto di versione. Controllare le notifiche.</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">❌</td>
+        <td><span class="status-name status-error">Errore di Sincronizzazione</span></td>
+        <td>Il file non si sincronizza. Verificare connessione Internet o se il file è bloccato da un'altra app.</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">🔒</td>
+        <td><span class="status-name status-warn">File Bloccato</span></td>
+        <td>Il file è aperto in modalità esclusiva da un altro utente. Attendere che venga chiuso.</td>
+      </tr>
+      <tr>
+        <td class="icon-cell">🔁</td>
+        <td><span class="status-name status-warn">Conflitto di Versione</span></td>
+        <td>Due versioni dello stesso file in conflitto. OneDrive crea una copia con suffisso del nome utente.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer-note">
+    <strong>💡 Suggerimento:</strong> Se la sincronizzazione rimane bloccata, cliccare con il tasto destro 
+    sull'icona OneDrive nella barra delle notifiche → <strong>Impostazioni</strong> → 
+    <strong>Chiudi OneDrive</strong>, poi riavviare l'app.
+  </div>
+
+</body>
+</html>
