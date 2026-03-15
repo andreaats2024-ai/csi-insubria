@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz OneDrive – ATS Insubria</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+      color: white;
+      padding: 28px 20px 22px;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    }
+    header img {
+      height: 48px;
+      margin-bottom: 10px;
+    }
+    header h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    header p {
+      font-size: 0.92rem;
+      margin-top: 5px;
+      opacity: 0.88;
+    }
+
+    .intro-box {
+      max-width: 780px;
+      margin: 28px auto 0;
+      background: #fff;
+      border-left: 5px solid #0078d4;
+      border-radius: 8px;
+      padding: 16px 22px;
+      font-size: 0.95rem;
+      color: #444;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    }
+
+    main {
+      max-width: 780px;
+      margin: 24px auto 40px;
+      padding: 0 16px;
+    }
+
+    .question-card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 22px 26px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,120,212,0.09);
+      border-top: 4px solid #0078d4;
+      transition: box-shadow 0.2s;
+    }
+    .question-card:hover {
+      box-shadow: 0 4px 16px rgba(0,120,212,0.15);
+    }
+
+    .question-number {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #0078d4;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .options label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.94rem;
+      color: #333;
+      margin-bottom: 8px;
+      border: 2px solid transparent;
+      background: #f7f9fc;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .options label:hover {
+      background: #e3f0fb;
+      border-color: #0078d4;
+    }
+    .options input[type="radio"] {
+      margin-top: 2px;
+      accent-color: #0078d4;
+      flex-shrink: 0;
+      width: 17px;
+      height: 17px;
+    }
+    .options input[type="radio"]:checked + span {
+      color: #0052a3;
+      font-weight: 600;
+    }
+    .options label:has(input:checked) {
+      background: #dceefb;
+      border-color: #0078d4;
+    }
+
+    /* Risultato dopo calcolo */
+    .options label.corretta {
+      background: #d4edda !important;
+      border-color: #28a745 !important;
+    }
+    .options label.errata {
+      background: #f8d7da !important;
+      border-color: #dc3545 !important;
+    }
+
+    .btn-row {
+      text-align: center;
+      margin-top: 10px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-calcola {
+      background: linear-gradient(135deg, #0078d4, #005a9e);
+      color: white;
+      border: none;
+      padding: 14px 38px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 14px rgba(0,120,212,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-calcola:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,120,212,0.45);
+    }
+
+    .btn-azzera {
+      background: #fff;
+      color: #0078d4;
+      border: 2px solid #0078d4;
+      padding: 13px 34px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-azzera:hover {
+      background: #0078d4;
+      color: #fff;
+    }
+
+    #risultato {
+      display: none;
+      max-width: 780px;
+      margin: 22px auto 10px;
+      padding: 22px 28px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    #risultato.ottimo   { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+    #risultato.buono    { background: #fff3cd; color: #856404; border: 2px solid #ffc107; }
+    #risultato.rivedere { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+    #risultato .punteggio-num {
+      font-size: 2.4rem;
+      display: block;
+      margin: 6px 0 4px;
+    }
+    #risultato .emoji { font-size: 1.8rem; }
+
+    footer {
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 0.82rem;
+      color: #888;
+      border-top: 1px solid #dde3ea;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>☁️ Quiz di Autovalutazione – OneDrive</h1>
+  <p>Corso di Formazione Digitale &nbsp;|&nbsp; ATS Insubria</p>
+</header>
+
+<div class="intro-box" style="max-width:780px;margin:28px auto 0;">
+  Rispondi alle domande selezionando una risposta per ciascun quesito, quindi premi
+  <strong>Calcola punteggio</strong> per vedere il risultato.
+</div>
+
+<main id="quiz-form">
+
+  <!-- DOMANDA 1 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 1 di 10</div>
+    <div class="question-text">In termini semplici, che cos'è Microsoft OneDrive?</div>
+    <div class="options">
+      <label><input type="radio" name="q1" value="a"><span>Un programma per la gestione delle email aziendali di Microsoft.</span></label>
+      <label><input type="radio" name="q1" value="b"><span>Un servizio di cloud storage integrato con Microsoft 365 che sincronizza i file tra dispositivo locale e infrastruttura Azure.</span></label>
+      <label><input type="radio" name="q1" value="c"><span>Un antivirus sviluppato da Microsoft per la protezione dei PC aziendali.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 2 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 2 di 10</div>
+    <div class="question-text">Quali sono i tre strati dell'architettura fondamentale di OneDrive?</div>
+    <div class="options">
+      <label><input type="radio" name="q2" value="a"><span>Server locale, VPN aziendale e firewall perimetrale.</span></label>
+      <label><input type="radio" name="q2" value="b"><span>Client di sincronizzazione sul PC, infrastruttura cloud Azure e interfaccia web accessibile da browser.</span></label>
+      <label><input type="radio" name="q2" value="c"><span>Database SQL, applicazione desktop e portale SharePoint.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 3 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 3 di 10</div>
+    <div class="question-text">Cosa fa la funzionalità "Files On-Demand" di OneDrive?</div>
+    <div class="options">
+      <label><input type="radio" name="q3" value="a"><span>Scarica automaticamente tutti i file sul disco rigido locale al primo avvio.</span></label>
+      <label><input type="radio" name="q3" value="b"><span>Mostra i file in Esplora file come se fossero locali, scaricandoli fisicamente solo quando vengono aperti, per risparmiare spazio disco.</span></label>
+      <label><input type="radio" name="q3" value="c"><span>Crea una copia offline cifrata di tutti i file, inaccessibile senza password.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 4 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 4 di 10</div>
+    <div class="question-text">Con quale algoritmo di crittografia OneDrive protegge i file "a riposo" nei data center Azure?</div>
+    <div class="options">
+      <label><input type="radio" name="q4" value="a"><span>MD5 a 128 bit.</span></label>
+      <label><input type="radio" name="q4" value="b"><span>RSA a 1024 bit.</span></label>
+      <label><input type="radio" name="q4" value="c"><span>AES-256 (Advanced Encryption Standard con chiave a 256 bit).</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 5 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 5 di 10</div>
+    <div class="question-text">Cos'è il "Known Folder Move" (KFM) di OneDrive?</div>
+    <div class="options">
+      <label><input type="radio" name="q5" value="a"><span>Una funzione che sposta automaticamente i file eliminati nel Cestino di Windows.</span></label>
+      <label><input type="radio" name="q5" value="b"><span>Una funzionalità che sincronizza su OneDrive le cartelle di sistema di Windows (Desktop, Documenti, Immagini), garantendo backup automatico nel cloud.</span></label>
+      <label><input type="radio" name="q5" value="c"><span>Un comando per spostare file tra cartelle condivise di SharePoint.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 6 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 6 di 10</div>
+    <div class="question-text">Cosa accade quando OneDrive rileva un conflitto tra due versioni dello stesso file?</div>
+    <div class="options">
+      <label><input type="radio" name="q6" value="a"><span>Elimina automaticamente la versione più vecchia senza avvisare l'utente.</span></label>
+      <label><input type="radio" name="q6" value="b"><span>Conserva entrambe le versioni: il file originale rimane nel percorso e viene creata una copia con suffisso del nome del computer.</span></label>
+      <label><input type="radio" name="q6" value="c"><span>Blocca la sincronizzazione e richiede l'intervento obbligatorio dell'amministratore IT.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 7 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 7 di 10</div>
+    <div class="question-text">Cos'è il "Personal Vault" di OneDrive e a cosa serve?</div>
+    <div class="options">
+      <label><input type="radio" name="q7" value="a"><span>Una cartella pubblica per condividere documenti con tutti i colleghi dell'organizzazione.</span></label>
+      <label><input type="radio" name="q7" value="b"><span>Una sottocartella con crittografia aggiuntiva e accesso protetto da secondo fattore biometrico o PIN, pensata per dati estremamente sensibili.</span></label>
+      <label><input type="radio" name="q7" value="c"><span>Un archivio offline che non si sincronizza con il cloud.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 8 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 8 di 10</div>
+    <div class="question-text">Quale protocollo protegge i dati OneDrive durante il trasferimento tra PC e server Azure?</div>
+    <div class="options">
+      <label><input type="radio" name="q8" value="a"><span>FTP (File Transfer Protocol) con autenticazione base.</span></label>
+      <label><input type="radio" name="q8" value="b"><span>HTTP senza cifratura per massimizzare la velocità di trasferimento.</span></label>
+      <label><input type="radio" name="q8" value="c"><span>TLS 1.2 o superiore (Transport Layer Security), che cifra i dati in transito su HTTPS.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 9 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 9 di 10</div>
+    <div class="question-text">Quale vantaggio offre la funzione "Cronologia versioni" di OneDrive?</div>
+    <div class="options">
+      <label><input type="radio" name="q9" value="a"><span>Permette di vedere chi ha letto un file e per quanto tempo.</span></label>
+      <label><input type="radio" name="q9" value="b"><span>Consente di visualizzare, scaricare o ripristinare versioni precedenti di un file, proteggendo anche da attacchi ransomware o cancellazioni accidentali.</span></label>
+      <label><input type="radio" name="q9" value="c"><span>Genera automaticamente una versione PDF di ogni documento Office salvato.</span></label>
+    </div>
+  </div>
+
+  <!-- DOMANDA 10 -->
+  <div class="question-card">
+    <div class="question-number">Domanda 10 di 10</div>
+    <div class="question-text">Quale tra questi è un utilizzo corretto di OneDrive in un contesto sanitario come ATS Insubria?</div>
+    <div class="options">
+      <label><input type="radio" name="q10" value="a"><span>Archiviare cartelle cliniche complete dei pazienti come sostituto del gestionale sanitario aziendale.</span></label>
+      <label><input type="radio" name="q10" value="b"><span>Conservare documentazione amministrativa, linee guida cliniche anonimizzate, procedure operative e report generici, rispettando le policy aziendali sulla classificazione dei dati.</span></label>
+      <label><input type="radio" name="q10" value="c"><span>Condividere liberamente dati sensibili tramite link anonimi senza data di scadenza con soggetti esterni.</span></label>
+    </div>
+  </div>
+
+  <!-- RISULTATO -->
+  <div id="risultato"></div>
+
+  <div class="btn-row">
+    <button class="btn-calcola" onclick="calcolaPunteggio()">✅ Calcola punteggio</button>
+    <button class="btn-azzera" onclick="azzeraRisposte()">🔄 Azzera risposte</button>
+  </div>
+
+</main>
+
+<footer>
+  Quiz di autovalutazione sul corso "OneDrive – Storage Cloud, Sincronizzazione e Sicurezza – ATS Insubria" &nbsp;|&nbsp; 2026
+</footer>
+
+<script>
+  const risposteCorrette = {
+    q1: 'b',
+    q2: 'b',
+    q3: 'b',
+    q4: 'c',
+    q5: 'b',
+    q6: 'b',
+    q7: 'b',
+    q8: 'c',
+    q9: 'b',
+    q10: 'b'
+  };
+
+  function calcolaPunteggio() {
+    let punteggio = 0;
+    const totale = Object.keys(risposteCorrette).length;
+
+    // Rimuovi classi precedenti
+    document.querySelectorAll('.options label').forEach(lbl => {
+      lbl.classList.remove('corretta', 'errata');
+    });
+
+    for (const [nome, corretta] of Object.entries(risposteCorrette)) {
+      const selezionata = document.querySelector('input[name="' + nome + '"]:checked');
+      const allLabels = document.querySelectorAll('input[name="' + nome + '"]');
+
+      allLabels.forEach(input => {
+        const label = input.parentElement;
+        if (input.value === corretta) {
+          label.classList.add('corretta');
+        } else if (selezionata && input.value === selezionata.value) {
+          label.classList.add('errata');
+        }
+      });
+
+      if (selezionata && selezionata.value === corretta) {
+        punteggio++;
+      }
+    }
+
+    const box = document.getElementById('risultato');
+    box.style.display = 'block';
+
+    let classe, emoji, messaggio;
+    if (punteggio >= 8) {
+      classe = 'ottimo';
+      emoji = '🏆';
+      messaggio = 'Ottimo! Hai dimostrato una solida conoscenza di OneDrive.';
+    } else if (punteggio >= 6) {
+      classe = 'buono';
+      emoji = '👍';
+      messaggio = 'Buono! Rivedi i punti dove hai sbagliato per completare la tua preparazione.';
+    } else {
+      classe = 'rivedere';
+      emoji = '📖';
+      messaggio = 'Ti consigliamo di rivedere i materiali del corso prima di ripetere il quiz.';
+    }
+
+    box.className = classe;
+    box.innerHTML =
+      '<span class="emoji">' + emoji + '</span>' +
+      '<span class="punteggio-num">' + punteggio + ' / ' + totale + '</span>' +
+      messaggio;
+
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function azzeraRisposte() {
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.options label').forEach(lbl => {
+      lbl.classList.remove('corretta', 'errata');
+    });
+    const box = document.getElementById('risultato');
+    box.style.display = 'none';
+    box.className = '';
+    box.innerHTML = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
