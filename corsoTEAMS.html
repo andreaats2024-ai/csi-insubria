@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corso Microsoft Teams — ATS Insubria</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --blue-deep: #1b3a6b;
+    --blue-mid: #2563a8;
+    --blue-teams: #464eb8;
+    --accent: #e8b84b;
+    --accent-light: #f5d98b;
+    --cream: #f9f6f0;
+    --text: #1a1a2e;
+    --text-muted: #4a5568;
+    --border: #d1d9e6;
+    --white: #ffffff;
+    --gradient-hero: linear-gradient(135deg, #0a1628 0%, #1b3a6b 50%, #464eb8 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 17px;
+  }
+
+  /* ─── COVER ─── */
+  .cover {
+    background: var(--gradient-hero);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .cover-logo {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 50px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50px;
+    padding: 14px 32px;
+    backdrop-filter: blur(10px);
+  }
+  .cover-logo-icon {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+  }
+  .cover-logo-text {
+    color: white; font-family: 'Source Serif 4', serif;
+    font-size: 15px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 6vw, 4.5rem);
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .cover h1 span { color: var(--accent); }
+  .cover-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.75);
+    max-width: 680px;
+    font-style: italic;
+    margin-bottom: 50px;
+    font-weight: 300;
+  }
+  .cover-meta {
+    display: flex; gap: 40px; flex-wrap: wrap; justify-content: center;
+  }
+  .cover-meta-item {
+    text-align: center;
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+  }
+  .cover-meta-item label {
+    display: block; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.15em; color: rgba(255,255,255,0.5);
+    margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;
+  }
+  .cover-meta-item span {
+    color: white; font-size: 1rem; font-weight: 600;
+  }
+  .scroll-cue {
+    position: absolute; bottom: 36px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
+  }
+  .scroll-cue::after {
+    content: '↓';
+    font-size: 20px;
+    animation: bounce 1.8s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+  /* ─── LAYOUT ─── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ─── INDICE ─── */
+  .toc {
+    background: white;
+    border-top: 6px solid var(--blue-teams);
+    padding: 60px 0;
+  }
+  .toc-inner { max-width: 900px; margin: 0 auto; padding: 0 40px; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--blue-teams);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .toc h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--navy);
+    margin-bottom: 40px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .toc-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+    background: var(--cream);
+  }
+  .toc-item:hover {
+    border-color: var(--blue-teams);
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(70,78,184,0.12);
+  }
+  .toc-num {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--blue-teams);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .toc-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+
+  /* ─── MODULES ─── */
+  .module {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .module:nth-child(even) { background: white; }
+
+  .module-header {
+    display: flex; align-items: flex-start; gap: 24px;
+    margin-bottom: 40px;
+  }
+  .module-num {
+    width: 60px; height: 60px; border-radius: 16px;
+    background: var(--gradient-hero);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 900;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .module-title-group {}
+  .module-title-group h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .module-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  p { margin-bottom: 1.2em; }
+  p:last-child { margin-bottom: 0; }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: var(--blue-deep);
+    margin: 36px 0 14px;
+    border-left: 4px solid var(--accent);
+    padding-left: 16px;
+  }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    border-left: 4px solid var(--blue-teams);
+    background: rgba(70,78,184,0.06);
+    border-radius: 0 10px 10px 0;
+    padding: 20px 24px;
+    margin: 28px 0;
+    font-size: 0.97rem;
+  }
+  .callout.gold {
+    border-color: var(--accent);
+    background: rgba(232,184,75,0.08);
+  }
+  .callout.green {
+    border-color: #2d7a5c;
+    background: rgba(45,122,92,0.07);
+  }
+  .callout strong { color: var(--blue-deep); }
+
+  /* ─── FEATURE CARDS ─── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    margin: 32px 0;
+  }
+  .feature-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: all 0.2s;
+  }
+  .feature-card:hover {
+    border-color: var(--blue-teams);
+    box-shadow: 0 8px 24px rgba(70,78,184,0.1);
+  }
+  .feature-card .icon {
+    font-size: 2rem; margin-bottom: 12px;
+  }
+  .feature-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .feature-card p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ─── SCREENSHOT BLOCK ─── */
+  .screenshot-block {
+    margin: 36px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: 0 12px 40px rgba(10,22,40,0.12);
+  }
+  .screenshot-bar {
+    background: var(--navy);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sb-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .sb-dot.r { background: #ff5f57; }
+  .sb-dot.y { background: #febc2e; }
+  .sb-dot.g { background: #28c840; }
+  .sb-title {
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+  .screenshot-block img {
+    width: 100%;
+    display: block;
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+  .screenshot-caption {
+    background: var(--navy);
+    color: rgba(255,255,255,0.65);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px 20px;
+    text-align: center;
+  }
+
+  /* ─── STEP LIST ─── */
+  .steps {
+    counter-reset: step-counter;
+    list-style: none;
+    margin: 24px 0;
+  }
+  .steps li {
+    counter-increment: step-counter;
+    display: flex;
+    gap: 18px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step-counter);
+    width: 34px; height: 34px;
+    background: var(--blue-teams);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .steps li p { margin: 0; font-size: 0.97rem; }
+
+  /* ─── HIGHLIGHT BOX ─── */
+  .highlight-box {
+    background: var(--gradient-hero);
+    border-radius: 16px;
+    padding: 36px 40px;
+    color: white;
+    margin: 40px 0;
+  }
+  .highlight-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin-bottom: 16px;
+    border: none; padding: 0;
+  }
+  .highlight-box p { color: rgba(255,255,255,0.85); font-size: 0.97rem; }
+
+  /* ─── TABLE ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 0.92rem;
+  }
+  .data-table th {
+    background: var(--navy);
+    color: white;
+    padding: 14px 20px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .data-table td {
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table tr:nth-child(even) td { background: rgba(70,78,184,0.04); }
+  .data-table tr:hover td { background: rgba(70,78,184,0.08); }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+  .badge.blue { background: rgba(70,78,184,0.12); color: var(--blue-teams); }
+  .badge.green { background: rgba(45,122,92,0.12); color: #2d7a5c; }
+  .badge.gold { background: rgba(232,184,75,0.2); color: #9a7320; }
+
+  /* ─── QUIZ ─── */
+  .quiz-section {
+    background: white;
+    border: 2px solid var(--blue-teams);
+    border-radius: 16px;
+    padding: 36px;
+    margin: 40px 0;
+  }
+  .quiz-section h3 {
+    border: none; padding: 0;
+    margin-top: 0; margin-bottom: 24px;
+    color: var(--navy);
+  }
+  .quiz-q {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .quiz-opts { list-style: none; margin-bottom: 24px; }
+  .quiz-opts li {
+    padding: 10px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.93rem;
+  }
+  .quiz-opts li:hover { border-color: var(--blue-teams); background: rgba(70,78,184,0.05); }
+  .quiz-opts li.correct { border-color: #2d7a5c; background: rgba(45,122,92,0.1); color: #1a5c3d; }
+  .quiz-opts li.wrong { border-color: #c0392b; background: rgba(192,57,43,0.08); color: #7b1c14; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.6);
+    padding: 50px 40px;
+    text-align: center;
+  }
+  footer h3 {
+    font-family: 'Playfair Display', serif;
+    color: white;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    border: none; padding: 0;
+  }
+  footer p { font-size: 0.88rem; margin-bottom: 4px; }
+  .footer-line {
+    width: 60px; height: 2px;
+    background: var(--accent);
+    margin: 24px auto;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .container, .toc-inner { padding: 0 20px; }
+    .cover { padding: 40px 20px; }
+    .cover-meta { gap: 20px; }
+    .module-header { flex-direction: column; }
+    .highlight-box { padding: 24px 20px; }
+  }
+
+  /* ─── PRINT / TOC NAV ─── */
+  html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ COVER ════════════════ -->
+<section class="cover">
+  <div class="cover-logo">
+    <div class="cover-logo-icon">A</div>
+    <div class="cover-logo-text">ATS Insubria — Formazione Aziendale</div>
+  </div>
+  <h1>Corso di<br><span>Microsoft Teams</span></h1>
+  <p class="cover-subtitle">Guida operativa alla piattaforma di comunicazione e collaborazione integrata: dall'interfaccia alle funzionalità avanzate di registrazione e trascrizione.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <label>Edizione</label>
+      <span>2025 — Versione 3.0</span>
+    </div>
+    <div class="cover-meta-item">
+      <label>Ente Erogatore</label>
+      <span>ATS Insubria</span>
+    </div>
+    <div class="cover-meta-item">
+      <label>Livello</label>
+      <span>Base → Avanzato</span>
+    </div>
+    <div class="cover-meta-item">
+      <label>Durata stimata</label>
+      <span>4 ore formative</span>
+    </div>
+  </div>
+  <div class="scroll-cue">Scorri per iniziare</div>
+</section>
+
+<!-- ════════════════ INDICE ════════════════ -->
+<section class="toc">
+  <div class="toc-inner">
+    <span class="section-label">Struttura del corso</span>
+    <h2>Indice dei Moduli</h2>
+    <div class="toc-grid">
+      <a href="#mod1" class="toc-item">
+        <div class="toc-num">01</div>
+        <div class="toc-title">Introduzione a Microsoft Teams</div>
+      </a>
+      <a href="#mod2" class="toc-item">
+        <div class="toc-num">02</div>
+        <div class="toc-title">Interfaccia e Navigazione</div>
+      </a>
+      <a href="#mod3" class="toc-item">
+        <div class="toc-num">03</div>
+        <div class="toc-title">Chat e Canali</div>
+      </a>
+      <a href="#mod4" class="toc-item">
+        <div class="toc-num">04</div>
+        <div class="toc-title">Riunioni Video e Audio</div>
+      </a>
+      <a href="#mod5" class="toc-item">
+        <div class="toc-num">05</div>
+        <div class="toc-title">Registrazione delle Riunioni</div>
+      </a>
+      <a href="#mod6" class="toc-item">
+        <div class="toc-num">06</div>
+        <div class="toc-title">Trascrizione Automatica</div>
+      </a>
+      <a href="#mod7" class="toc-item">
+        <div class="toc-num">07</div>
+        <div class="toc-title">Condivisione File e Collaborazione</div>
+      </a>
+      <a href="#mod8" class="toc-item">
+        <div class="toc-num">08</div>
+        <div class="toc-title">Sicurezza e Conformità GDPR</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 1 ════════════════ -->
+<section class="module" id="mod1">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">1</div>
+      <div class="module-title-group">
+        <h2>Introduzione a Microsoft Teams</h2>
+        <p class="module-desc">Fondamenti concettuali, architettura e posizionamento nell'ecosistema Microsoft 365</p>
+      </div>
+    </div>
+
+    <p>Microsoft Teams rappresenta, nell'attuale panorama delle tecnologie dell'informazione e della comunicazione, una delle piattaforme di collaborazione integrata di maggiore rilevanza strategica per le organizzazioni sanitarie e pubbliche. Sviluppata da Microsoft Corporation e rilasciata ufficialmente nel marzo 2017, la piattaforma ha subito una trasformazione funzionale considerevole, configurandosi oggi come un ecosistema digitale che consolida in un'unica interfaccia le funzionalità di messaggistica istantanea, videoconferenza, gestione documentale e orchestrazione del lavoro collaborativo.</p>
+
+    <p>La sua architettura si fonda su tre pilastri tecnologici fondamentali: il <strong>cloud computing</strong> offerto dalla piattaforma Azure di Microsoft, l'integrazione nativa con la suite produttiva <strong>Microsoft 365</strong> (già Office 365), e un sistema di <strong>API aperte</strong> che consente l'estensione delle funzionalità mediante connettori di terze parti. Questa configurazione architetturale consente ad ATS Insubria di operare in un ambiente digitale coerente, scalabile e conforme alle normative europee sulla protezione dei dati personali.</p>
+
+    <div class="callout gold">
+      <strong>📌 Nota per ATS Insubria:</strong> L'adozione di Microsoft Teams da parte dell'azienda rientra nel più ampio processo di digitalizzazione dei processi interni, in linea con le direttive del Piano Nazionale di Ripresa e Resilienza (PNRR) e con i requisiti di interoperabilità del Sistema Sanitario Nazionale.
+    </div>
+
+    <h3>Contesto di Adozione nelle Strutture Sanitarie</h3>
+    <p>Le strutture sanitarie pubbliche come ATS Insubria hanno progressivamente riconosciuto il valore di Teams come strumento di governance della comunicazione istituzionale. La pandemia da COVID-19 ha accelerato in modo esponenziale questo processo di adozione, rendendo la piattaforma non più un'opzione discrezionale ma un'infrastruttura operativa irrinunciabile per garantire la continuità dei processi organizzativi, formativi e decisionali anche in condizioni di impossibilità all'accesso fisico delle sedi lavorative.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">💬</div>
+        <h4>Comunicazione Sincrona</h4>
+        <p>Messaggistica istantanea, videochiamate e audioconferenze in tempo reale con qualità enterprise.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📁</div>
+        <h4>Gestione Documentale</h4>
+        <p>Archiviazione, condivisione e co-authoring di documenti integrati con SharePoint e OneDrive.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔗</div>
+        <h4>Integrazione Applicativa</h4>
+        <p>Connessione con oltre 700 applicazioni di terze parti tramite il marketplace di Teams.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔒</div>
+        <h4>Sicurezza Enterprise</h4>
+        <p>Crittografia end-to-end, conformità GDPR e strumenti avanzati di gestione delle identità.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Microsoft Teams — Vista panoramica dell'interfaccia principale</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1600267185393-1b633b6e20a2?w=900&q=80" alt="Interfaccia Microsoft Teams" style="max-height:380px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 1 — Dashboard principale di Microsoft Teams con navigazione laterale, canali e area di lavoro centrale</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 2 ════════════════ -->
+<section class="module" id="mod2">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">2</div>
+      <div class="module-title-group">
+        <h2>Interfaccia e Navigazione</h2>
+        <p class="module-desc">Anatomia dell'interfaccia utente e principi di navigazione della piattaforma</p>
+      </div>
+    </div>
+
+    <p>L'interfaccia utente di Microsoft Teams adotta un paradigma di progettazione denominato <em>Fluent Design System</em>, un framework estetico e funzionale sviluppato da Microsoft che privilegia la leggibilità, la coerenza visiva e l'accessibilità universale. La comprensione approfondita della struttura interfacciale costituisce il presupposto metodologico imprescindibile per un utilizzo efficiente della piattaforma nelle attività quotidiane di ATS Insubria.</p>
+
+    <h3>Struttura della Barra di Navigazione Laterale</h3>
+    <p>L'elemento strutturale primario dell'interfaccia è la <strong>barra di navigazione verticale</strong>, posizionata sul lato sinistro della finestra applicativa. Essa raggruppa in modo gerarchico le macro-funzionalità della piattaforma, consentendo una transizione rapida tra i differenti contesti operativi:</p>
+
+    <ul class="steps">
+      <li><p><strong>Attività</strong> — Notifiche aggregate relative a menzioni, risposte e aggiornamenti pertinenti all'utente; rappresenta il punto di accesso privilegiato per il monitoraggio dei flussi comunicativi.</p></li>
+      <li><p><strong>Chat</strong> — Gestione delle conversazioni private (1:1) e di gruppo al di fuori dei canali strutturati; supporta messaggi di testo, emoji, allegati, GIF e messaggi vocali.</p></li>
+      <li><p><strong>Teams</strong> — Accesso ai team e ai canali tematici di appartenenza; nucleo organizzativo dell'esperienza collaborativa.</p></li>
+      <li><p><strong>Calendario</strong> — Sincronizzazione con Microsoft Outlook per la visualizzazione e la pianificazione di riunioni ed eventi.</p></li>
+      <li><p><strong>Chiamate</strong> — Gestione delle chiamate audio e video dirette, con storico delle comunicazioni.</p></li>
+      <li><p><strong>File</strong> — Accesso centralizzato ai file recenti e a quelli condivisi nei canali di appartenenza.</p></li>
+    </ul>
+
+    <div class="callout">
+      <strong>💡 Suggerimento operativo:</strong> La barra di navigazione è personalizzabile. È possibile aggiungere app specifiche come <em>Planner</em>, <em>Forms</em> o applicativi aziendali direttamente nella barra, riducendo i tempi di accesso agli strumenti utilizzati con maggiore frequenza.
+    </div>
+
+    <h3>Area di Lavoro Centrale</h3>
+    <p>L'area centrale dell'interfaccia è contestuale alla sezione selezionata nella barra di navigazione. Nell'ambito della visualizzazione di un canale, essa si articola in tre componenti principali: il <strong>pannello dei canali</strong> (a sinistra), l'<strong>area di conversazione</strong> (al centro) e il <strong>pannello delle schede</strong> (in alto), che consente di integrare applicazioni, documenti e siti web direttamente nel contesto del canale.
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Teams — Struttura dell'interfaccia per la navigazione</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=900&q=80" alt="Navigazione Teams" style="max-height:360px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 2 — Struttura tripartita dell'area di lavoro: barra laterale, pannello canali e area conversazione</div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Elemento Interfacciale</th>
+          <th>Funzione Principale</th>
+          <th>Scorciatoia da Tastiera</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Barra di ricerca globale</td>
+          <td>Ricerca full-text su messaggi, file e persone</td>
+          <td><span class="badge blue">Ctrl + E</span></td>
+        </tr>
+        <tr>
+          <td>Casella di composizione</td>
+          <td>Redazione di messaggi con testo ricco, allegati e menzioni</td>
+          <td><span class="badge blue">Ctrl + N</span></td>
+        </tr>
+        <tr>
+          <td>Impostazioni profilo</td>
+          <td>Gestione avatar, stato presenza e preferenze</td>
+          <td><span class="badge blue">Ctrl + ,</span></td>
+        </tr>
+        <tr>
+          <td>Visualizzazione pop-out</td>
+          <td>Estrae chat o canali in finestre separate</td>
+          <td><span class="badge blue">Alt + Click</span></td>
+        </tr>
+        <tr>
+          <td>Modalità non disturbare</td>
+          <td>Soppressione temporanea delle notifiche</td>
+          <td><span class="badge gold">Stato presenza</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 3 ════════════════ -->
+<section class="module" id="mod3">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">3</div>
+      <div class="module-title-group">
+        <h2>Chat e Canali</h2>
+        <p class="module-desc">Paradigmi comunicativi strutturati: dalla messaggistica puntuale alla collaborazione tematica</p>
+      </div>
+    </div>
+
+    <p>La distinzione concettuale tra <strong>chat</strong> e <strong>canali</strong> rappresenta uno dei fondamenti epistemologici dell'architettura comunicativa di Microsoft Teams. Comprendere la differenza funzionale tra questi due strumenti è indispensabile per adottare un modello comunicativo organizzativo coerente ed efficiente all'interno di ATS Insubria.</p>
+
+    <h3>Le Chat: Comunicazione Diretta e Contestuale</h3>
+    <p>Le chat in Teams corrispondono a conversazioni private tra due o più utenti, non associate ad alcun team o canale specifico. La loro natura è prevalentemente informale e adatta a comunicazioni rapide, scambi di file puntuali e coordinamento operativo immediato. Le chat supportano la formattazione avanzata del testo (grassetto, corsivo, codice, elenchi puntati), la condivisione di allegati, le reazioni emoji, la funzione <em>like</em> e l'invio di messaggi audio.</p>
+
+    <div class="callout green">
+      <strong>✅ Buona pratica:</strong> Nelle chat di gruppo è fortemente consigliato attribuire un <strong>nome descrittivo</strong> alla conversazione al fine di consentirne una rapida identificazione nello storico. La denominazione dovrebbe riflettere il progetto, il team o l'obiettivo specifico oggetto della comunicazione.
+    </div>
+
+    <h3>I Canali: Collaborazione Organizzata per Argomenti</h3>
+    <p>I canali rappresentano l'unità organizzativa fondamentale all'interno di un team. Ciascun canale è dedicato a un tema, progetto o area funzionale specifica e raggruppa al proprio interno messaggi, file, schede applicative e riunioni correlate. Questa strutturazione tematica consente di ridurre il rumore informativo e di ottimizzare la reperibilità delle comunicazioni nel tempo.</p>
+
+    <p>In Microsoft Teams coesistono tre tipologie di canale, ciascuna caratterizzata da un differente livello di accessibilità e visibilità:</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">📢</div>
+        <h4>Canale Standard</h4>
+        <p>Visibile e accessibile a tutti i membri del team. Ideale per comunicazioni di interesse generale e condivisione di risorse comuni.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔐</div>
+        <h4>Canale Privato</h4>
+        <p>Accessibile esclusivamente agli utenti esplicitamente invitati. Adatto a discussioni riservate o a sottogruppi di lavoro specifici.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🌐</div>
+        <h4>Canale Condiviso</h4>
+        <p>Permette la collaborazione con utenti esterni all'organizzazione mantenendo il controllo centralizzato degli accessi.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Teams — Vista canale con messaggi e file condivisi</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=900&q=80" alt="Canali Teams" style="max-height:360px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 3 — Esempio di canale tematico con thread di conversazione, schede file e integrazione applicativa</div>
+    </div>
+
+    <h3>Menzioni e Notifiche</h3>
+    <p>Il sistema di menzioni (@mention) di Teams consente di indirizzare messaggi specifici a singoli utenti (<code>@nome.cognome</code>), a interi canali (<code>@canale</code>) o all'intero team (<code>@team</code>). L'uso appropriato delle menzioni ottimizza il flusso notificatorio e garantisce che le informazioni rilevanti raggiungano tempestivamente i destinatari corretti, senza sovraccaricare di notifiche gli utenti non direttamente coinvolti.</p>
+
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 4 ════════════════ -->
+<section class="module" id="mod4">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">4</div>
+      <div class="module-title-group">
+        <h2>Riunioni Video e Audio</h2>
+        <p class="module-desc">Pianificazione, conduzione e gestione delle riunioni virtuali in Teams</p>
+      </div>
+    </div>
+
+    <p>Le riunioni virtuali in Microsoft Teams costituiscono il cuore della collaborazione sincrona nella piattaforma. L'infrastruttura tecnica sottostante, basata su codec audio/video di ultima generazione (Opus per l'audio, H.264/VP9 per il video) e su tecnologie di riduzione del rumore basate su intelligenza artificiale, garantisce un'esperienza comunicativa di qualità enterprise anche in condizioni di larghezza di banda limitata.</p>
+
+    <h3>Modalità di Avvio di una Riunione</h3>
+    <p>Microsoft Teams offre molteplici modalità di accesso a una riunione, adatte a differenti scenari operativi:</p>
+
+    <ul class="steps">
+      <li><p><strong>Riunione istantanea</strong> — Avvio immediato di una videoconferenza da una chat esistente o da un canale, mediante il pulsante "Incontra ora". Ideale per confronti urgenti non pianificati.</p></li>
+      <li><p><strong>Pianificazione da calendario</strong> — Creazione di una riunione programmata attraverso il calendario integrato, con possibilità di specificare partecipanti, data, orario, agenda e link di accesso.</p></li>
+      <li><p><strong>Riunione di canale</strong> — Riunione contestualizzata all'interno di un canale specifico, visibile e accessibile a tutti i membri del canale, con storico delle registrazioni archiviato nel canale stesso.</p></li>
+      <li><p><strong>Webinar</strong> — Formato strutturato per eventi con numerosi partecipanti, con gestione avanzata dei relatori, moduli di registrazione e funzionalità di moderazione.</p></li>
+    </ul>
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Teams — Interfaccia di una riunione video attiva</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=900&q=80" alt="Videoconferenza Teams" style="max-height:380px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 4 — Vista della sala riunioni virtuale con galleria video partecipanti, barra di controllo e opzioni di condivisione schermo</div>
+    </div>
+
+    <h3>Funzionalità Avanzate della Riunione</h3>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Funzionalità</th>
+          <th>Descrizione</th>
+          <th>Disponibilità</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sfondo virtuale / Sfocatura</td>
+          <td>Sostituzione o sfocatura dello sfondo tramite AI</td>
+          <td><span class="badge green">Tutti i piani</span></td>
+        </tr>
+        <tr>
+          <td>Modalità insieme</td>
+          <td>Visualizzazione immersiva con sfondo condiviso virtuale</td>
+          <td><span class="badge blue">M365 Business</span></td>
+        </tr>
+        <tr>
+          <td>Alzata di mano</td>
+          <td>Segnale visivo per richiedere la parola in modo ordinato</td>
+          <td><span class="badge green">Tutti i piani</span></td>
+        </tr>
+        <tr>
+          <td>Sala d'attesa</td>
+          <td>Ammissione controllata dei partecipanti prima dell'inizio</td>
+          <td><span class="badge green">Tutti i piani</span></td>
+        </tr>
+        <tr>
+          <td>Stanze per sottogruppi</td>
+          <td>Suddivisione dei partecipanti in sale secondarie indipendenti</td>
+          <td><span class="badge blue">M365 Business</span></td>
+        </tr>
+        <tr>
+          <td>Reazioni live</td>
+          <td>Emoji animati per feedback non verbale durante la riunione</td>
+          <td><span class="badge green">Tutti i piani</span></td>
+        </tr>
+        <tr>
+          <td>Soppressione del rumore</td>
+          <td>Filtraggio AI del rumore ambientale in tempo reale</td>
+          <td><span class="badge gold">Teams Premium</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>🎙️ Controlli audio durante la riunione:</strong> La scorciatoia <strong>Ctrl + Maiusc + M</strong> consente di attivare/disattivare rapidamente il microfono. Si raccomanda di tenere il microfono disattivato quando non si sta parlando, per ridurre le interferenze sonore e migliorare la qualità audio complessiva della riunione.
+    </div>
+
+    <h3>Condivisione dello Schermo e Contenuti</h3>
+    <p>La funzionalità di condivisione contenuti consente ai partecipanti di trasmettere alla riunione il proprio schermo intero, una finestra applicativa specifica, una presentazione PowerPoint (con la modalità Presenter Coach integrata) o una lavagna digitale interattiva (Microsoft Whiteboard). Quest'ultima funzionalità è di particolare rilevanza per i team di ATS Insubria impegnati in sessioni di brainstorming, pianificazione visiva o formazione interattiva, poiché consente la scrittura e il disegno collaborativo in tempo reale da qualsiasi dispositivo.</p>
+
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 5 ════════════════ -->
+<section class="module" id="mod5">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">5</div>
+      <div class="module-title-group">
+        <h2>Registrazione delle Riunioni</h2>
+        <p class="module-desc">Avvio, gestione e archiviazione delle registrazioni audio-video delle sessioni di lavoro</p>
+      </div>
+    </div>
+
+    <p>La funzionalità di registrazione delle riunioni di Microsoft Teams rappresenta uno strumento di capitale importanza per le organizzazioni sanitarie come ATS Insubria, in quanto consente di documentare in modo integrale le sessioni di lavoro, preservare la memoria istituzionale delle deliberazioni collegiali e rendere accessibili i contenuti formativi ai collaboratori impossibilitati a partecipare in tempo reale.</p>
+
+    <div class="highlight-box">
+      <h3>⚠️ Informativa sulla Registrazione</h3>
+      <p>In conformità al Regolamento Generale sulla Protezione dei Dati (GDPR — Reg. UE 2016/679) e alle Linee Guida del Garante per la Protezione dei Dati Personali, è obbligatorio informare preliminarmente tutti i partecipanti dell'avvio della registrazione. Teams notifica automaticamente all'inizio della registrazione tutti i presenti tramite un banner visibile nell'interfaccia, tuttavia si raccomanda una comunicazione esplicita e preventiva da parte dell'organizzatore.</p>
+    </div>
+
+    <h3>Procedura di Avvio della Registrazione</h3>
+
+    <ul class="steps">
+      <li><p>Accedere alla riunione in qualità di organizzatore o co-organizzatore con i privilegi necessari.</p></li>
+      <li><p>Nella barra di controllo inferiore della riunione, fare clic sui <strong>tre puntini</strong> (…) per aprire il menu "Altre azioni".</p></li>
+      <li><p>Selezionare la voce <strong>"Avvia registrazione"</strong>. Un banner di notifica comparirà per tutti i partecipanti indicando l'inizio della registrazione.</p></li>
+      <li><p>Per terminare la registrazione, ripetere l'accesso al menu e selezionare <strong>"Interrompi registrazione"</strong>. La registrazione verrà elaborata automaticamente.</p></li>
+      <li><p>Al termine della riunione, il file video viene reso disponibile nella scheda <strong>Registrazioni</strong> del canale (per riunioni di canale) oppure nell'area <strong>OneDrive</strong> dell'organizzatore (per riunioni private).</p></li>
+    </ul>
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Teams — Menu di controllo riunione con opzione di registrazione</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&q=80" alt="Registrazione riunione Teams" style="max-height:360px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 5 — Menu "Altre azioni" con le opzioni di avvio e interruzione della registrazione e della trascrizione</div>
+    </div>
+
+    <h3>Archiviazione e Gestione delle Registrazioni</h3>
+    <p>Le registrazioni prodotte da Microsoft Teams vengono archiviate automaticamente in formato MP4 (risoluzione standard 1080p) in due possibili destinazioni a seconda del tipo di riunione:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Tipo di Riunione</th>
+          <th>Destinazione Archiviazione</th>
+          <th>Accesso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Riunione di canale</td>
+          <td>SharePoint del canale (cartella Registrazioni)</td>
+          <td><span class="badge green">Tutti i membri del canale</span></td>
+        </tr>
+        <tr>
+          <td>Riunione privata / pianificata</td>
+          <td>OneDrive dell'organizzatore (cartella Registrazioni)</td>
+          <td><span class="badge blue">Organizzatore + invitati</span></td>
+        </tr>
+        <tr>
+          <td>Meet Now (istantanea)</td>
+          <td>OneDrive dell'utente avviante</td>
+          <td><span class="badge gold">Solo organizzatore iniziale</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>📅 Scadenza automatica:</strong> Per impostazione predefinita, le registrazioni hanno una scadenza di <strong>60 giorni</strong> (configurabile dall'amministratore). Trascorso questo periodo, i file vengono rimossi automaticamente. Per preservare registrazioni di particolare rilevanza, è indispensabile procedere al download o alla modifica della data di scadenza prima del termine.
+    </div>
+
+    <h3>Condivisione delle Registrazioni</h3>
+    <p>La condivisione delle registrazioni avviene tramite i medesimi meccanismi di condivisione di SharePoint e OneDrive: è possibile generare link di accesso con livelli di autorizzazione granulari (visualizzazione, download, modifica), limitare l'accesso a specifici utenti o gruppi dell'organizzazione, o rendere disponibile il contenuto anche a utenti esterni previa autenticazione.</p>
+
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 6 ════════════════ -->
+<section class="module" id="mod6">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">6</div>
+      <div class="module-title-group">
+        <h2>Trascrizione Automatica del Testo</h2>
+        <p class="module-desc">Tecnologia di speech-to-text integrata per la conversione automatica del parlato in testo strutturato</p>
+      </div>
+    </div>
+
+    <p>La funzionalità di trascrizione automatica delle riunioni di Microsoft Teams costituisce uno degli strumenti tecnologicamente più avanzati disponibili nella piattaforma. Basata su modelli di riconoscimento vocale sviluppati da Microsoft attraverso tecnologie di intelligenza artificiale e machine learning, la trascrizione è in grado di convertire in tempo reale il parlato dei partecipanti in testo scritto, attribuendo ciascun intervento al relativo autore grazie al riconoscimento del parlante (<em>speaker diarization</em>).</p>
+
+    <p>Per il personale di ATS Insubria, questa funzionalità assume un valore operativo di primo piano: consente di produrre verbali automatici delle riunioni, di cercare per parola chiave all'interno delle sessioni registrate, di rendere i contenuti accessibili ai colleghi con disabilità uditive e di migliorare complessivamente la trasmissibilità delle conoscenze organizzative.</p>
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Teams — Pannello di trascrizione in tempo reale durante una riunione</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1542626991-cbc4e32524cc?w=900&q=80" alt="Trascrizione Teams" style="max-height:380px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 6 — Pannello laterale della trascrizione con attribuzione degli interventi ai relatori e timestamp progressivo</div>
+    </div>
+
+    <h3>Avvio della Trascrizione</h3>
+
+    <ul class="steps">
+      <li><p>Durante una riunione attiva, accedere al menu <strong>"Altre azioni" (…)</strong> nella barra di controllo inferiore.</p></li>
+      <li><p>Selezionare <strong>"Avvia trascrizione"</strong>. Il sistema notificherà automaticamente tutti i partecipanti.</p></li>
+      <li><p>Il pannello della trascrizione apparirà sul lato destro dell'interfaccia, mostrando in tempo reale il testo trascritto con il nome del parlante e il timestamp.</p></li>
+      <li><p>Al termine della riunione, la trascrizione viene salvata come file <strong>.docx e .vtt</strong> nella stessa posizione della registrazione corrispondente.</p></li>
+    </ul>
+
+    <div class="callout gold">
+      <strong>🌐 Lingue Supportate:</strong> La funzionalità di trascrizione di Teams supporta oltre 30 lingue, tra cui l'italiano, l'inglese, il francese, il tedesco, lo spagnolo e il portoghese. La precisione della trascrizione dipende dalla qualità dell'audio, dall'accento dei parlanti e dalla presenza di terminologia specialistica. Per ATS Insubria si raccomanda di impostare <strong>Italiano</strong> come lingua predefinita della trascrizione nelle impostazioni della riunione.
+    </div>
+
+    <h3>Trascrizione Post-Riunione e Ricerca Intelligente</h3>
+    <p>Al termine di ogni sessione registrata con trascrizione attiva, Microsoft Teams genera automaticamente un documento strutturato contenente l'intera sequenza cronologica degli interventi. Questo documento è navigabile tramite funzionalità di ricerca full-text: è sufficiente inserire una parola chiave nella barra di ricerca della registrazione per essere indirizzati direttamente al punto temporale corrispondente nel video. Questa caratteristica trasforma la registrazione da un documento lineare a una risorsa conoscitiva indicizzata e consultabile.</p>
+
+    <p>Le trascrizioni sono inoltre integrabili con <strong>Microsoft Copilot</strong> (disponibile con licenza Microsoft 365 Copilot), che è in grado di generare automaticamente riepiloghi della riunione, elenchi di azioni assegnate ai partecipanti e punti salienti della discussione, riducendo significativamente il carico cognitivo legato all'elaborazione delle informazioni post-riunione.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">📝</div>
+        <h4>Trascrizione in Tempo Reale</h4>
+        <p>Conversione istantanea del parlato in testo con attribuzione del parlante durante la riunione.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔍</div>
+        <h4>Ricerca nel Contenuto</h4>
+        <p>Navigazione temporale della registrazione tramite ricerca per parola chiave nella trascrizione.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">♿</div>
+        <h4>Accessibilità</h4>
+        <p>Sottotitoli in tempo reale visibili nell'interfaccia della riunione per utenti con difficoltà uditive.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📤</div>
+        <h4>Esportazione</h4>
+        <p>Download della trascrizione nei formati .docx (Word) e .vtt (sottotitoli) per utilizzo esterno.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 7 ════════════════ -->
+<section class="module" id="mod7">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">7</div>
+      <div class="module-title-group">
+        <h2>Condivisione File e Collaborazione</h2>
+        <p class="module-desc">Gestione documentale integrata e lavoro collaborativo sincrono e asincrono</p>
+      </div>
+    </div>
+
+    <p>La dimensione collaborativa di Microsoft Teams si manifesta con particolare evidenza nella gestione documentale integrata. L'architettura della piattaforma prevede una stretta integrazione con <strong>Microsoft SharePoint</strong> (per i file di canale) e <strong>Microsoft OneDrive</strong> (per i file personali), consentendo non soltanto la condivisione di documenti ma anche la loro modifica collaborativa in tempo reale da parte di più utenti simultaneamente, attraverso le applicazioni web di Office 365.</p>
+
+    <h3>Condivisione di File nei Canali</h3>
+    <p>Ogni canale di Teams dispone di una scheda <strong>"File"</strong> dedicata, accessibile attraverso la barra delle schede nella parte superiore dell'area di lavoro. Questa scheda espone la libreria documenti di SharePoint corrispondente al canale e consente operazioni complete di gestione documentale: caricamento, download, rinomina, spostamento, condivisione esterna e versionamento automatico. Il versionamento è una caratteristica di particolare rilevanza per le organizzazioni che necessitano di tracciabilità delle modifiche documentali, come previsto dai sistemi di gestione qualità in ambito sanitario.</p>
+
+    <div class="screenshot-block">
+      <div class="screenshot-bar">
+        <div class="sb-dot r"></div><div class="sb-dot y"></div><div class="sb-dot g"></div>
+        <span class="sb-title">Teams — Scheda File con gestione documenti integrata</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80" alt="Condivisione file Teams" style="max-height:360px;object-fit:cover;">
+      <div class="screenshot-caption">Fig. 7 — Libreria documenti SharePoint integrata nella scheda File di un canale Teams</div>
+    </div>
+
+    <h3>Co-authoring in Tempo Reale</h3>
+    <p>La funzionalità di co-authoring permette a più collaboratori di lavorare contemporaneamente sullo stesso documento (Word, Excel, PowerPoint) aprendo il file direttamente all'interno di Teams o nel browser. Le modifiche di ciascun utente sono visibili in tempo reale, identificate da cursori colorati associati al nome del collaboratore. Questa modalità di lavoro elimina definitivamente la proliferazione di versioni multiple del documento e le problematiche di sincronizzazione tipiche dei flussi di lavoro basati su allegati e-mail.</p>
+
+    <div class="callout">
+      <strong>📂 Organizzazione Consigliata per ATS Insubria:</strong> Si raccomanda di strutturare i team e i canali seguendo l'organigramma funzionale dell'azienda (es. un team per Direzione Sanitaria, uno per il Dipartimento di Igiene, uno per la Comunicazione, ecc.) e di utilizzare le <strong>cartelle</strong> all'interno di ciascun canale per suddividere ulteriormente la documentazione per progetto o annualità.
+    </div>
+
+    <h3>La Lavagna Virtuale (Microsoft Whiteboard)</h3>
+    <p>Microsoft Whiteboard è uno strumento di collaborazione visiva integrato in Teams che consente la creazione di lavagne digitali condivise. Supporta l'inserimento di note adesive, testo, forme geometriche, immagini, connettori e disegno a mano libera. È accessibile sia durante le riunioni che in modo asincrono, e le lavagne create vengono archiviate e condivise con i partecipanti al termine della sessione.</p>
+
+  </div>
+</section>
+
+<!-- ════════════════ MODULO 8 ════════════════ -->
+<section class="module" id="mod8">
+  <div class="container">
+    <div class="module-header">
+      <div class="module-num">8</div>
+      <div class="module-title-group">
+        <h2>Sicurezza, Privacy e Conformità GDPR</h2>
+        <p class="module-desc">Framework normativo, architettura di sicurezza e responsabilità degli utenti nella tutela dei dati</p>
+      </div>
+    </div>
+
+    <p>L'utilizzo di una piattaforma di comunicazione digitale in ambito sanitario implica responsabilità specifiche e particolarmente stringenti in materia di protezione dei dati personali. Microsoft Teams è stata progettata in conformità con i più rigorosi standard internazionali di sicurezza informatica e con le normative europee di riferimento, in primo luogo il Regolamento Generale sulla Protezione dei Dati (GDPR — Regolamento UE 2016/679).</p>
+
+    <h3>Architettura di Sicurezza</h3>
+    <p>Teams implementa un modello di sicurezza a più livelli che comprende: <strong>crittografia dei dati in transito</strong> tramite TLS 1.2/1.3, <strong>crittografia dei dati a riposo</strong> attraverso i meccanismi di Azure Encryption, autenticazione a più fattori (MFA) tramite Azure Active Directory, e controlli di accesso basati su ruoli (RBAC) che consentono di definire in modo granulare i privilegi di ciascun utente o gruppo all'interno della piattaforma.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">🔐</div>
+        <h4>Crittografia End-to-End</h4>
+        <p>Per le chiamate 1:1, disponibile la crittografia E2E che impedisce qualsiasi intercettazione esterna.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🛡️</div>
+        <h4>Conformità ISO 27001</h4>
+        <p>Teams è certificata secondo le norme ISO/IEC 27001 e SOC 2 per la sicurezza delle informazioni.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🇪🇺</div>
+        <h4>Residenza Dati in UE</h4>
+        <p>I dati delle organizzazioni europee vengono archiviati in data center situati nell'Unione Europea.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">👁️</div>
+        <h4>Centro Conformità</h4>
+        <p>Il Centro Conformità Microsoft 365 permette audit, eDiscovery e retention policies avanzate.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3>📋 Responsabilità dell'Utente ATS Insubria</h3>
+      <p>Ciascun dipendente di ATS Insubria che utilizza Microsoft Teams assume la responsabilità di: non condividere credenziali di accesso con terzi; non trasmettere dati sensibili di pazienti tramite chat non crittografate; segnalare tempestivamente al responsabile IT qualsiasi comportamento anomalo; rispettare le policy aziendali in materia di classificazione e protezione delle informazioni; e ottenere il consenso esplicito dei partecipanti prima di avviare qualsiasi registrazione di una sessione di lavoro.</p>
+    </div>
+
+    <h3>Gestione del Consenso nelle Registrazioni</h3>
+    <p>Con specifico riferimento alla funzionalità di registrazione trattata nel Modulo 5, è indispensabile sottolineare che la registrazione di conversazioni in cui sono presenti dati personali — incluse informazioni sui collaboratori, deliberazioni organizzative o dati relativi all'utenza — costituisce un trattamento di dati personali ai sensi dell'art. 4 del GDPR. In quanto tale, esso deve essere fondato su una delle basi giuridiche previste dall'art. 6 del Regolamento e deve essere documentato nel Registro dei Trattamenti tenuto da ATS Insubria ai sensi dell'art. 30 GDPR.</p>
+
+    <div class="callout green">
+      <strong>✅ Protocollo consigliato per le registrazioni in ATS Insubria:</strong> Prima di avviare qualsiasi registrazione, l'organizzatore dovrebbe: (1) comunicare verbalmente l'intenzione di registrare; (2) attendere il consenso esplicito dei partecipanti; (3) indicare la finalità e la durata della conservazione della registrazione; (4) fornire le modalità per esercitare i diritti GDPR (accesso, rettifica, cancellazione). La notifica automatica di Teams non sostituisce questo obbligo informativo.
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-section">
+      <h3>🎓 Verifica di Apprendimento — Modulo 8</h3>
+      <div class="quiz-q">1. Quale standard internazionale certifica la sicurezza delle informazioni in Microsoft Teams?</div>
+      <ul class="quiz-opts" onclick="handleQuiz(event, 1)">
+        <li data-correct="false">PCI-DSS</li>
+        <li data-correct="true">ISO/IEC 27001</li>
+        <li data-correct="false">HIPAA-compliant only</li>
+        <li data-correct="false">NIST SP 800-53</li>
+      </ul>
+      <div class="quiz-q">2. Dove vengono archiviate le registrazioni di una riunione di canale?</div>
+      <ul class="quiz-opts" onclick="handleQuiz(event, 2)">
+        <li data-correct="false">Nel OneDrive dell'organizzatore</li>
+        <li data-correct="false">Sul server locale di ATS Insubria</li>
+        <li data-correct="true">Nella libreria SharePoint del canale</li>
+        <li data-correct="false">In Microsoft Stream come file privato</li>
+      </ul>
+      <div class="quiz-q">3. Quale articolo del GDPR obbliga le organizzazioni a tenere il Registro dei Trattamenti?</div>
+      <ul class="quiz-opts" onclick="handleQuiz(event, 3)">
+        <li data-correct="false">Art. 6</li>
+        <li data-correct="false">Art. 17</li>
+        <li data-correct="true">Art. 30</li>
+        <li data-correct="false">Art. 83</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer>
+  <h3>ATS Insubria — Formazione Aziendale</h3>
+  <div class="footer-line"></div>
+  <p>Corso di Formazione su Microsoft Teams | Edizione 2025</p>
+  <p>Materiale didattico riservato al personale di ATS Insubria</p>
+  <p style="margin-top:16px; font-size:0.8rem; opacity:0.5;">
+    Microsoft Teams® è un marchio registrato di Microsoft Corporation. Tutti i loghi e le denominazioni commerciali citati appartengono ai rispettivi proprietari. Questo documento ha finalità esclusivamente formative.
+  </p>
+</footer>
+
+<script>
+function handleQuiz(event, qnum) {
+  const li = event.target.closest('li');
+  if (!li) return;
+  const ul = li.parentElement;
+  if (ul.querySelector('.correct') || ul.querySelector('.wrong')) return; // already answered
+  const isCorrect = li.dataset.correct === 'true';
+  if (isCorrect) {
+    li.classList.add('correct');
+    li.textContent = '✅ ' + li.textContent + ' — Corretto!';
+  } else {
+    li.classList.add('wrong');
+    li.textContent = '❌ ' + li.textContent + ' — Risposta errata.';
+    ul.querySelectorAll('li').forEach(el => {
+      if (el.dataset.correct === 'true') el.classList.add('correct');
+    });
+  }
+}
+</script>
+
+</body>
+</html>
