@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – Microsoft 365 Copilot | ATS Insubria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:     #0D2B55;
+    --azure:    #1565C0;
+    --sky:      #2196F3;
+    --mint:     #00BFA5;
+    --gold:     #F9A825;
+    --danger:   #D32F2F;
+    --success:  #2E7D32;
+    --neutral:  #F5F7FA;
+    --card:     #FFFFFF;
+    --text:     #1A1A2E;
+    --muted:    #637087;
+    --border:   #DDE3EC;
+    --shadow:   0 4px 24px rgba(13,43,85,.10);
+    --radius:   16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--neutral);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a3a6e 60%, #1565C0 100%);
+    color: #fff;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 85% 50%, rgba(33,150,243,.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 80% at 10% 20%, rgba(0,191,165,.10) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .header-inner {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 32px 36px;
+  }
+  .org-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 40px;
+    padding: 6px 16px 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: rgba(255,255,255,.9);
+  }
+  .org-badge .dot {
+    width: 8px; height: 8px;
+    background: var(--mint);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    margin-bottom: 12px;
+  }
+  header h1 span { color: #90CAF9; }
+  header p.subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,.72);
+    max-width: 540px;
+    line-height: 1.6;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: rgba(255,255,255,.8);
+    font-weight: 500;
+  }
+  .meta-pill svg { opacity: .7; flex-shrink: 0; }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(13,43,85,.06);
+  }
+  .progress-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-label { font-size: 13px; font-weight: 600; color: var(--navy); white-space: nowrap; }
+  .progress-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), var(--mint));
+    border-radius: 3px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  .progress-pct { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 40px 20px 60px;
+  }
+
+  /* ── INTRO SCREEN ── */
+  #screen-intro { display: block; }
+  #screen-quiz  { display: none; }
+  #screen-result { display: none; }
+
+  .intro-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 48px 44px;
+    border: 1px solid var(--border);
+  }
+  .intro-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 16px;
+  }
+  .intro-card p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 28px 0 36px;
+  }
+  .module-chip {
+    background: var(--neutral);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .module-chip .num {
+    background: var(--azure);
+    color: #fff;
+    border-radius: 6px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--azure), var(--sky));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(21,101,192,.30);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(21,101,192,.38); }
+  .btn-secondary {
+    background: var(--neutral);
+    color: var(--navy);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--azure);
+    border: 2px solid var(--azure);
+  }
+  .btn-ghost:hover { background: rgba(33,150,243,.07); }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    animation: slideUp .35s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .qcard-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a3a6e 100%);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .qnumber {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+    color: #fff;
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .qmodule-tag {
+    background: rgba(0,191,165,.18);
+    color: #80DEEA;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+  .qcard-body { padding: 32px; }
+  .qtext {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: -.01em;
+  }
+  .options-list { display: flex; flex-direction: column; gap: 12px; }
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--neutral);
+    cursor: pointer;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.55;
+    transition: all .18s;
+    width: 100%;
+  }
+  .option-btn:not(.disabled):hover {
+    border-color: var(--sky);
+    background: rgba(33,150,243,.05);
+    transform: translateX(3px);
+  }
+  .option-key {
+    background: var(--border);
+    color: var(--navy);
+    border-radius: 7px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 0px;
+    transition: all .18s;
+  }
+  .option-btn:not(.disabled):hover .option-key { background: var(--sky); color: #fff; }
+
+  /* Feedback states */
+  .option-btn.correct {
+    border-color: var(--success);
+    background: rgba(46,125,50,.07);
+  }
+  .option-btn.correct .option-key { background: var(--success); color: #fff; }
+  .option-btn.wrong {
+    border-color: var(--danger);
+    background: rgba(211,47,47,.06);
+  }
+  .option-btn.wrong .option-key { background: var(--danger); color: #fff; }
+  .option-btn.disabled { cursor: default; }
+
+  /* Explanation box */
+  .explanation {
+    margin-top: 20px;
+    padding: 18px 22px;
+    border-radius: 12px;
+    border-left: 4px solid;
+    font-size: 14px;
+    line-height: 1.65;
+    display: none;
+  }
+  .explanation.correct-exp { background: rgba(46,125,50,.08); border-color: var(--success); color: #1B5E20; }
+  .explanation.wrong-exp   { background: rgba(211,47,47,.08); border-color: var(--danger); color: #7f1717; }
+  .explanation .exp-title { font-weight: 700; margin-bottom: 4px; display: block; }
+
+  .qcard-footer {
+    padding: 20px 32px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  .score-live { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .score-live strong { color: var(--navy); }
+
+  /* ── RESULTS ── */
+  .result-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    animation: slideUp .4s ease both;
+  }
+  .result-hero {
+    padding: 48px 44px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .result-hero.excellent::before { background: radial-gradient(ellipse at 50% 0%, rgba(0,191,165,.12), transparent 70%); }
+  .result-hero.good::before      { background: radial-gradient(ellipse at 50% 0%, rgba(33,150,243,.12), transparent 70%); }
+  .result-hero.fair::before      { background: radial-gradient(ellipse at 50% 0%, rgba(249,168,37,.12), transparent 70%); }
+  .result-hero.poor::before      { background: radial-gradient(ellipse at 50% 0%, rgba(211,47,47,.10), transparent 70%); }
+
+  .score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    position: relative;
+  }
+  .score-circle.excellent { background: linear-gradient(135deg, var(--mint), #00897B); box-shadow: 0 8px 32px rgba(0,191,165,.35); }
+  .score-circle.good      { background: linear-gradient(135deg, var(--sky), var(--azure)); box-shadow: 0 8px 32px rgba(33,150,243,.35); }
+  .score-circle.fair      { background: linear-gradient(135deg, var(--gold), #F57F17); box-shadow: 0 8px 32px rgba(249,168,37,.35); }
+  .score-circle.poor      { background: linear-gradient(135deg, var(--danger), #B71C1C); box-shadow: 0 8px 32px rgba(211,47,47,.30); }
+  .score-num { font-size: 38px; font-weight: 700; color: #fff; line-height: 1; }
+  .score-den { font-size: 14px; color: rgba(255,255,255,.75); font-weight: 500; margin-top: 2px; }
+
+  .result-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .result-msg { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto 32px; line-height: 1.65; }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .stat-box {
+    background: var(--neutral);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 28px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .stat-val { font-size: 28px; font-weight: 700; color: var(--navy); }
+  .stat-val.green { color: var(--success); }
+  .stat-val.red   { color: var(--danger); }
+  .stat-lab { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 4px; }
+
+  /* Review section */
+  .review-section { padding: 0 36px 36px; border-top: 1px solid var(--border); }
+  .review-section h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    padding: 28px 0 20px;
+  }
+  .review-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .review-item-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .ri-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .ri-icon.ok  { background: rgba(46,125,50,.12); color: var(--success); }
+  .ri-icon.bad { background: rgba(211,47,47,.12); color: var(--danger); }
+  .ri-qnum { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .ri-qtext { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; line-height: 1.4; }
+  .ri-chevron { color: var(--muted); font-size: 12px; margin-left: auto; flex-shrink: 0; transition: transform .2s; }
+  .review-item.open .ri-chevron { transform: rotate(180deg); }
+  .review-item-body { display: none; padding: 0 18px 16px; }
+  .review-item.open .review-item-body { display: block; }
+  .ri-answers { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+  .ri-answer {
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ri-answer.user-correct { background: rgba(46,125,50,.08); color: #1B5E20; }
+  .ri-answer.user-wrong   { background: rgba(211,47,47,.08); color: #7f1717; }
+  .ri-answer.correct-answer { background: rgba(46,125,50,.08); color: #1B5E20; border: 1px solid rgba(46,125,50,.25); }
+  .ri-answer.neutral { background: var(--neutral); color: var(--muted); }
+  .ri-exp-box { background: #F0F4FF; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #2c3e6b; line-height: 1.6; }
+
+  .result-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; padding-bottom: 12px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,.55);
+    text-align: center;
+    padding: 20px;
+    font-size: 12.5px;
+  }
+  footer strong { color: rgba(255,255,255,.8); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header-inner { padding: 28px 20px 24px; }
+    .intro-card, .qcard-body, .qcard-footer, .result-hero, .review-section { padding-left: 20px; padding-right: 20px; }
+    .intro-card { padding: 28px 20px; }
+    main { padding: 24px 12px 48px; }
+    .qcard-header { padding: 18px 20px; }
+    .progress-wrap { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="org-badge">
+      <span class="dot"></span>
+      ATS Insubria — Unità Formazione e Sviluppo delle Competenze
+    </div>
+    <h1>Quiz di Verifica<br><span>Microsoft 365 Copilot</span></h1>
+    <p class="subtitle">Verifica le competenze acquisite nel corso sull'integrazione di Copilot con SharePoint, OneDrive e Teams.</p>
+    <div class="header-meta">
+      <span class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Anno formativo 2025–2026
+      </span>
+      <span class="meta-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Tutti i profili professionali
+      </span>
+    </div>
+  </div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-inner">
+    <span class="progress-label" id="progressLabel">Domanda 1 di 22</span>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- INTRO -->
+  <div id="screen-intro">
+    <div class="intro-card">
+      <h2>Benvenuto al Quiz di Verifica</h2>
+      <p>Questo quiz è composto da <strong>22 domande a scelta multipla</strong> che coprono tutti gli 8 moduli del corso. Per ciascuna domanda è prevista una sola risposta corretta.</p>
+      <p>Al termine riceverai il tuo punteggio, una valutazione del livello di preparazione e la possibilità di rivedere ogni risposta con la spiegazione.</p>
+
+      <div class="module-grid">
+        <div class="module-chip"><span class="num">1</span> Cos'è M365 Copilot</div>
+        <div class="module-chip"><span class="num">2</span> Copilot in Teams</div>
+        <div class="module-chip"><span class="num">3</span> Copilot in SharePoint</div>
+        <div class="module-chip"><span class="num">4</span> Copilot in OneDrive</div>
+        <div class="module-chip"><span class="num">5</span> Prompt Engineering</div>
+        <div class="module-chip"><span class="num">6</span> Flussi Avanzati</div>
+        <div class="module-chip"><span class="num">7</span> Sicurezza e Governance</div>
+        <div class="module-chip"><span class="num">8</span> Adozione e Change Mgmt</div>
+      </div>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="startQuiz()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Inizia il Quiz
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz">
+    <div class="question-card" id="questionCard">
+      <div class="qcard-header">
+        <span class="qnumber" id="qNum">Domanda 1 / 22</span>
+        <span class="qmodule-tag" id="qModule">Modulo 1</span>
+      </div>
+      <div class="qcard-body">
+        <p class="qtext" id="qText"></p>
+        <div class="options-list" id="optionsList"></div>
+        <div class="explanation" id="explanation"></div>
+      </div>
+      <div class="qcard-footer">
+        <span class="score-live" id="scoreLive">Corrette: <strong>0</strong></span>
+        <button class="btn btn-primary" id="nextBtn" style="display:none;" onclick="nextQuestion()">
+          Continua
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-result">
+    <div class="result-card">
+      <div class="result-hero" id="resultHero">
+        <div class="score-circle" id="scoreCircle">
+          <span class="score-num" id="scoreNum">0</span>
+          <span class="score-den" id="scoreDen">/ 22</span>
+        </div>
+        <h2 class="result-title" id="resultTitle">Risultato</h2>
+        <p class="result-msg" id="resultMsg"></p>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val green" id="statCorrect">0</div>
+            <div class="stat-lab">Risposte corrette</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val red" id="statWrong">0</div>
+            <div class="stat-lab">Risposte errate</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="statPct">0%</div>
+            <div class="stat-lab">Percentuale</div>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="btn btn-secondary" onclick="retakeQuiz()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            Rifai il Quiz
+          </button>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <h3>Revisione delle Risposte</h3>
+        <div id="reviewList"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>ATS Insubria</strong> — Agenzia di Tutela della Salute dell'Insubria &nbsp;|&nbsp;
+  Corso Microsoft 365 Copilot · Anno formativo 2025–2026
+</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    module: "Modulo 1",
+    text: "Qual è la differenza principale tra Microsoft 365 Copilot e il Copilot gratuito accessibile via browser (Bing/web)?",
+    options: [
+      "Il Copilot gratuito è più veloce perché non ha limiti di utilizzo.",
+      "Microsoft 365 Copilot accede ai dati aziendali tramite Microsoft Graph; il Copilot gratuito utilizza solo informazioni pubbliche di Internet.",
+      "Il Copilot gratuito può leggere i documenti su SharePoint; Microsoft 365 Copilot no.",
+      "Non esiste alcuna differenza: entrambi utilizzano gli stessi dati e le stesse funzionalità."
+    ],
+    correct: 1,
+    explanation: "Microsoft 365 Copilot è collegato al Microsoft Graph e accede ai dati aziendali (e-mail, documenti, Teams, SharePoint) nel rispetto delle autorizzazioni dell'utente. Il Copilot gratuito opera esclusivamente su informazioni pubbliche disponibili online e non ha accesso all'ecosistema aziendale."
+  },
+  {
+    module: "Modulo 1",
+    text: "Quale affermazione sulla privacy dei dati con Microsoft 365 Copilot è corretta?",
+    options: [
+      "I dati aziendali vengono usati per migliorare i modelli AI di Microsoft.",
+      "Copilot può accedere a tutti i documenti dell'azienda, inclusi quelli riservati.",
+      "Copilot rispetta le stesse autorizzazioni di accesso dell'utente e non utilizza i dati per addestrare i modelli AI.",
+      "I dati vengono temporaneamente inviati a server OpenAI per l'elaborazione."
+    ],
+    correct: 2,
+    explanation: "Microsoft garantisce che i dati aziendali non vengono mai usati per addestrare i modelli LLM. Copilot accede solo ai dati per i quali l'utente possiede le autorizzazioni, rispettando tutte le policy di sicurezza dell'organizzazione (Microsoft 365 compliance boundary)."
+  },
+  {
+    module: "Modulo 1",
+    text: "Quali licenze sono necessarie per utilizzare Microsoft 365 Copilot in un'organizzazione aziendale?",
+    options: [
+      "Soltanto una licenza Microsoft 365 Business Basic.",
+      "Una licenza Microsoft 365 (E3, E5 o Business Premium) più la licenza aggiuntiva Microsoft 365 Copilot.",
+      "Soltanto la licenza Copilot Pro, senza altre sottoscrizioni.",
+      "Microsoft 365 Copilot è incluso gratuitamente in tutte le licenze Microsoft 365."
+    ],
+    correct: 1,
+    explanation: "Sono necessari due elementi: una licenza di base Microsoft 365 idonea (E3, E5, Business Premium o equivalenti per enti pubblici come G3/G5) e la licenza aggiuntiva Microsoft 365 Copilot, disponibile come componente separato a pagamento."
+  },
+  {
+    module: "Modulo 2",
+    text: "Quale condizione è necessaria affinché Copilot possa generare un riepilogo in tempo reale durante una riunione Teams?",
+    options: [
+      "La riunione deve avere almeno 10 partecipanti.",
+      "La trascrizione della riunione deve essere attiva.",
+      "La riunione deve essere stata pianificata con almeno 24 ore di anticipo.",
+      "Il creatore della riunione deve avere una licenza Copilot Pro."
+    ],
+    correct: 1,
+    explanation: "Copilot utilizza la trascrizione in tempo reale per analizzare e riassumere il contenuto della riunione. Senza la trascrizione attiva, le funzionalità di riepilogo durante la riunione non sono disponibili. La trascrizione si avvia dal menu '...' nella barra degli strumenti della riunione."
+  },
+  {
+    module: "Modulo 2",
+    text: "In quale contesto di Teams NON è disponibile il 'riepilogo in tempo reale' di Copilot?",
+    options: [
+      "Durante una riunione pianificata in Teams.",
+      "In una chat 1:1 con un collega.",
+      "Nel recap post-riunione disponibile nella scheda Recap.",
+      "Durante un meeting avviato al momento ('Riunione immediata')."
+    ],
+    correct: 1,
+    explanation: "Il riepilogo in tempo reale è disponibile esclusivamente durante le riunioni (pianificate o immediate), dove esiste una trascrizione in corso. Nelle chat 1:1, Copilot può riepilogare la cronologia dei messaggi, ma non esiste un flusso 'in tempo reale' paragonabile alla trascrizione di una riunione."
+  },
+  {
+    module: "Modulo 2",
+    text: "Cosa puoi fare con Copilot nella barra di composizione di una chat Teams?",
+    options: [
+      "Inviare messaggi automaticamente a tutti i canali del team.",
+      "Creare una nuova riunione nel calendario di Teams.",
+      "Riscrivere o cambiare il tono di un messaggio già digitato.",
+      "Tradurre automaticamente un documento caricato in allegato."
+    ],
+    correct: 2,
+    explanation: "Nella barra di composizione dei messaggi di Teams, Copilot offre la funzione di riscrittura e regolazione del tono (professionale, diretto, amichevole, ecc.). Questa funzione permette di migliorare la comunicazione scritta senza dover uscire dalla chat."
+  },
+  {
+    module: "Modulo 3",
+    text: "Cosa distingue principalmente SharePoint da OneDrive nell'ecosistema Microsoft 365?",
+    options: [
+      "SharePoint è gratuito, OneDrive è a pagamento.",
+      "SharePoint è lo spazio di archiviazione personale; OneDrive è quello condiviso del team.",
+      "SharePoint è pensato per la collaborazione e i contenuti condivisi dell'organizzazione; OneDrive per i file personali dell'utente.",
+      "SharePoint funziona solo offline; OneDrive solo online."
+    ],
+    correct: 2,
+    explanation: "SharePoint è la piattaforma collaborativa e documentale condivisa dell'organizzazione (la 'biblioteca dell'ufficio'), mentre OneDrive è lo spazio personale di ciascun utente (il 'cassetto personale'). Entrambi sono integrati in Microsoft 365 e accessibili da qualsiasi dispositivo."
+  },
+  {
+    module: "Modulo 3",
+    text: "Un agente Copilot creato su SharePoint: cosa può fare che un normale accesso a Copilot non permette?",
+    options: [
+      "Accedere a documenti di qualsiasi sito SharePoint dell'organizzazione, anche quelli riservati.",
+      "Rispondere a domande focalizzandosi su un sottoinsieme specifico di documenti o librerie definito in fase di configurazione.",
+      "Modificare automaticamente i documenti SharePoint in base alle risposte generate.",
+      "Funzionare senza connessione a Internet, usando una copia locale dei documenti."
+    ],
+    correct: 1,
+    explanation: "Un agente Copilot personalizzato su SharePoint viene configurato per utilizzare solo le fonti documentali selezionate (librerie, cartelle, siti specifici). Lo rende uno strumento specializzato e preciso, ideale per contesti dove si vuole limitare le risposte a un dominio di conoscenza ben definito."
+  },
+  {
+    module: "Modulo 3",
+    text: "Se un documento SharePoint è protetto da autorizzazioni che escludono un determinato utente, cosa succede se quell'utente chiede a Copilot informazioni su quel documento?",
+    options: [
+      "Copilot accede ugualmente al documento perché ha privilegi di sistema superiori.",
+      "Copilot chiede all'utente di fornire le credenziali del proprietario del documento.",
+      "Copilot non può accedere al documento e non fornirà informazioni basate su di esso.",
+      "Copilot fornisce un riepilogo parziale del documento, oscurando le parti riservate."
+    ],
+    correct: 2,
+    explanation: "Copilot rispetta rigorosamente le autorizzazioni di accesso di Microsoft 365. Se un utente non ha il permesso di vedere un documento SharePoint, Copilot non può accedervi per suo conto. Non esiste alcun meccanismo che consenta a Copilot di 'bypassare' i controlli di accesso."
+  },
+  {
+    module: "Modulo 4",
+    text: "Con la funzione 'Confronta file' di Copilot in OneDrive, quanti file è possibile selezionare contemporaneamente al massimo?",
+    options: [
+      "2 file",
+      "3 file",
+      "5 file",
+      "10 file"
+    ],
+    correct: 2,
+    explanation: "Copilot in OneDrive consente di selezionare e confrontare fino a 5 file contemporaneamente, generando una tabella comparativa che evidenzia differenze e somiglianze indipendentemente dal formato dei file."
+  },
+  {
+    module: "Modulo 4",
+    text: "Quando carichi un file in un canale di Microsoft Teams, dove viene effettivamente salvato quel file?",
+    options: [
+      "Esclusivamente sul server locale dell'azienda.",
+      "In OneDrive, nello spazio personale di chi lo ha caricato.",
+      "In una libreria di SharePoint collegata al team.",
+      "Su un server Microsoft separato, non accessibile da SharePoint né da OneDrive."
+    ],
+    correct: 2,
+    explanation: "I file caricati nei canali di Teams vengono automaticamente salvati in una libreria documenti di SharePoint collegata a quel team. I file nelle chat private di Teams, invece, vengono salvati in OneDrive."
+  },
+  {
+    module: "Modulo 4",
+    text: "Qual è la limitazione principale di Copilot in OneDrive rispetto a Copilot utilizzato da Teams?",
+    options: [
+      "In OneDrive, Copilot può leggere solo file in formato Word, non PDF.",
+      "Copilot in OneDrive accede solo ai file personali dell'utente, non automaticamente ai siti SharePoint del team.",
+      "Copilot in OneDrive non supporta il riepilogo dei documenti.",
+      "Copilot in OneDrive richiede l'attivazione manuale ad ogni sessione."
+    ],
+    correct: 1,
+    explanation: "Quando si usa Copilot nella home di OneDrive, il perimetro di accesso è limitato al proprio spazio personale. Non accede automaticamente ai documenti nei siti SharePoint del team. Per interrogare fonti multiple (OneDrive + SharePoint) in una sola sessione, è preferibile usare Copilot da Teams."
+  },
+  {
+    module: "Modulo 5",
+    text: "Quale dei seguenti elementi NON fa parte del framework RCCF per la scrittura di prompt efficaci?",
+    options: [
+      "Ruolo",
+      "Risultato atteso",
+      "Contesto",
+      "Formato"
+    ],
+    correct: 1,
+    explanation: "Il framework RCCF è composto da: Ruolo, Contesto, Compito, Formato. Il 'Risultato atteso' non è un elemento separato: è incorporato nel Compito e nel Formato. Usare tutti e quattro gli elementi garantisce risposte più precise e utili."
+  },
+  {
+    module: "Modulo 5",
+    text: "Qual è la versione ottimizzata del prompt 'Scrivimi un'email'?",
+    options: [
+      "'Scrivi subito un'email per me'",
+      "'Sei il responsabile commerciale. Scrivi un'email formale al cliente Bianchi SpA per confermare la riunione del 15 aprile alle 10:00 in videochiamata Teams. Includi: link riunione, OdG con 3 punti, richiesta conferma entro venerdì. Max 150 parole.'",
+      "'Scrivi un'email su Teams per il cliente'",
+      "'Dammi un'email professionale da mandare'"
+    ],
+    correct: 1,
+    explanation: "Il prompt ottimizzato include tutti e 4 gli elementi RCCF: Ruolo (responsabile commerciale), Contesto (cliente Bianchi SpA, data e ora), Compito (email di conferma con OdG), Formato (professionale, max 150 parole). Più elementi si includono, più la risposta sarà precisa e utilizzabile."
+  },
+  {
+    module: "Modulo 5",
+    text: "Qual è l'approccio corretto quando la prima risposta di Copilot non è quella desiderata?",
+    options: [
+      "Cancellare la conversazione e ricominciare da zero.",
+      "Accettare la risposta così com'è.",
+      "Fare un messaggio di follow-up nella stessa conversazione specificando cosa modificare.",
+      "Disinstallare e reinstallare Copilot per resettare il modello."
+    ],
+    correct: 2,
+    explanation: "Copilot mantiene il contesto della conversazione. Un semplice follow-up come 'Rendi la risposta più breve' o 'Aggiungi un esempio pratico' affina iterativamente la risposta. Non è necessario ricominciare da capo: la conversazione è cumulativa e progressiva."
+  },
+  {
+    module: "Modulo 6",
+    text: "Cosa significa la funzionalità 'Describe it to design it' in Power Automate con Copilot?",
+    options: [
+      "Copilot descrive all'utente come funziona Power Automate.",
+      "L'utente descrive in linguaggio naturale il flusso che vuole creare e Copilot lo genera automaticamente.",
+      "Power Automate genera automaticamente una documentazione testuale del flusso già esistente.",
+      "Copilot disegna un diagramma visivo del processo aziendale su richiesta."
+    ],
+    correct: 1,
+    explanation: "'Describe it to design it' è la funzionalità di Copilot in Power Automate che consente di descrivere in linguaggio naturale il flusso automatico desiderato (trigger, azioni, condizioni) e genera automaticamente la struttura del flusso da revisionare e attivare, abbassando drasticamente la barriera tecnica all'automazione."
+  },
+  {
+    module: "Modulo 6",
+    text: "Qual è la differenza principale tra il Copilot nativo nelle app Microsoft 365 e un agente creato con Copilot Studio?",
+    options: [
+      "Il Copilot nativo funziona solo offline; Copilot Studio solo online.",
+      "Il Copilot nativo è gratuito; Copilot Studio ha un costo mensile per risposta generata.",
+      "Il Copilot nativo accede a tutto il contenuto M365 dell'utente, mentre un agente Copilot Studio ha un perimetro di conoscenza definito e personalizzato, con possibili integrazioni a sistemi esterni.",
+      "Non c'è differenza: Copilot Studio è semplicemente il nome tecnico del Copilot nativo."
+    ],
+    correct: 2,
+    explanation: "Il Copilot nativo ha accesso generale al contenuto M365 dell'utente. Un agente Copilot Studio è un assistente AI specializzato, con perimetro di conoscenza definito (solo le fonti configurate), comportamento personalizzato e possibilità di integrarsi con sistemi esterni come CRM, ERP o database aziendali."
+  },
+  {
+    module: "Modulo 7",
+    text: "Cosa significa il principio del 'Least Privilege' applicato a Microsoft 365 Copilot?",
+    options: [
+      "Copilot deve usare il minor numero possibile di risorse computazionali.",
+      "Ogni utente deve avere accesso solo ai dati e alle risorse strettamente necessari al suo ruolo, né più né meno.",
+      "Copilot deve fornire risposte brevi per non consumare troppa banda.",
+      "Gli amministratori devono limitare il numero di domande giornaliere che ogni utente può fare a Copilot."
+    ],
+    correct: 1,
+    explanation: "Il Least Privilege è un principio cardine della sicurezza informatica: ogni utente (e ogni sistema) deve operare con il minimo livello di accesso necessario. Applicato a Copilot, significa che un utente può ottenere solo le informazioni a cui è già autorizzato ad accedere, poiché Copilot eredita esattamente i permessi dell'account che lo utilizza."
+  },
+  {
+    module: "Modulo 7",
+    text: "Qual è il principale strumento Microsoft per classificare i documenti in base al livello di riservatezza, controllare le policy DLP e configurare la retention delle interazioni Copilot?",
+    options: [
+      "Microsoft Defender for Endpoint",
+      "Microsoft Purview",
+      "Microsoft Intune",
+      "Microsoft Sentinel"
+    ],
+    correct: 1,
+    explanation: "Microsoft Purview è la suite di compliance e governance di Microsoft 365. Gestisce le Sensitivity Labels (classificazione dei documenti), le DLP Policy (prevenzione della perdita di dati) e le Retention Policy (conservazione dei log, incluse le interazioni con Copilot). È lo strumento centrale per la governance dei dati."
+  },
+  {
+    module: "Modulo 7",
+    text: "Un dipendente chiede a Copilot di riassumere un documento SharePoint con Sensitivity Label 'Altamente Riservato', ma non ha accesso a quella sezione. Cosa succede?",
+    options: [
+      "Copilot legge il documento ma oscura le parti più sensibili prima di rispondere.",
+      "Copilot chiede all'utente di inserire una password speciale per accedere al documento.",
+      "Copilot non accede al documento e non fornisce informazioni basate su di esso.",
+      "Copilot accede al documento ma invia una notifica all'amministratore."
+    ],
+    correct: 2,
+    explanation: "Copilot rispetta rigorosamente sia le autorizzazioni di accesso sia le Sensitivity Labels. Se l'utente non ha accesso al documento, Copilot non può leggerlo. Se il documento ha una Sensitivity Label configurata per bloccare l'elaborazione da parte di Copilot, nemmeno un utente autorizzato può ottenerne il contenuto tramite Copilot."
+  },
+  {
+    module: "Modulo 8",
+    text: "Qual è la percentuale media di utilizzo attivo che si ottiene introducendo Microsoft 365 senza un piano strutturato di change management?",
+    options: [
+      "70–85%",
+      "50–60%",
+      "30–40%",
+      "10–15%"
+    ],
+    correct: 2,
+    explanation: "Senza un piano strutturato di adozione (sponsorship esecutiva, AI Champion, formazione mirata, KPI), le organizzazioni ottengono in media solo il 30–40% di utilizzo attivo. Con un programma strutturato si raggiunge il 70–85% entro i primi 90 giorni. La differenza non dipende dalla tecnologia, ma dalle persone."
+  },
+  {
+    module: "Modulo 8",
+    text: "Nella roadmap di adozione Microsoft 365 Copilot, cosa avviene durante la fase 'SCALE' (settimane 7–12)?",
+    options: [
+      "Si assegnano le licenze agli utenti e si configura la sicurezza.",
+      "Si passa dal gruppo pilota al rollout completo per tutti gli utenti, con apertura di comunità di pratica e avvio di scenari avanzati.",
+      "Si misura il ROI e si aggiorna la governance.",
+      "Si selezionano gli AI Champion e si avvia la comunicazione interna."
+    ],
+    correct: 1,
+    explanation: "La fase Scale (settimane 7–12) è quella del rollout completo: Copilot viene attivato per tutti gli utenti con licenza, si aprono comunità di pratica (Teams o Viva Engage), si avviano scenari avanzati (agenti personalizzati, automazioni con Power Automate) e si attiva Microsoft Viva Insights per il monitoraggio dell'adozione."
+  }
+];
+
+let currentQ = 0;
+let score = 0;
+let userAnswers = [];
+
+function startQuiz() {
+  currentQ = 0;
+  score = 0;
+  userAnswers = [];
+  document.getElementById('screen-intro').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  document.getElementById('progressWrap').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const total = QUESTIONS.length;
+
+  // Progress
+  const pct = Math.round((currentQ / total) * 100);
+  document.getElementById('progressLabel').textContent = `Domanda ${currentQ + 1} di ${total}`;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  // Question card header
+  document.getElementById('qNum').textContent = `Domanda ${currentQ + 1} / ${total}`;
+  document.getElementById('qModule').textContent = q.module;
+  document.getElementById('qText').textContent = q.text;
+
+  // Options
+  const keys = ['A', 'B', 'C', 'D'];
+  const ol = document.getElementById('optionsList');
+  ol.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-key">${keys[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => handleAnswer(i);
+    ol.appendChild(btn);
+  });
+
+  // Reset explanation and next btn
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'none';
+  exp.className = 'explanation';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('scoreLive').innerHTML = `Corrette: <strong>${score}</strong>`;
+
+  // Animate card
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'slideUp .35s cubic-bezier(.4,0,.2,1) both';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleAnswer(selectedIdx) {
+  const q = QUESTIONS[currentQ];
+  const buttons = document.querySelectorAll('.option-btn');
+  const isCorrect = selectedIdx === q.correct;
+
+  if (isCorrect) score++;
+  userAnswers.push({ selected: selectedIdx, correct: q.correct, isCorrect });
+
+  // Disable all
+  buttons.forEach(b => b.classList.add('disabled'));
+  buttons.forEach(b => b.onclick = null);
+
+  // Style selected
+  buttons[selectedIdx].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) buttons[q.correct].classList.add('correct');
+
+  // Explanation
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'block';
+  exp.className = 'explanation ' + (isCorrect ? 'correct-exp' : 'wrong-exp');
+  exp.innerHTML = `<span class="exp-title">${isCorrect ? '✓ Risposta corretta!' : '✗ Risposta errata'}</span>${q.explanation}`;
+
+  document.getElementById('scoreLive').innerHTML = `Corrette: <strong>${score}</strong>`;
+
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.style.display = 'inline-flex';
+  nextBtn.textContent = currentQ + 1 < QUESTIONS.length ? 'Continua' : 'Vedi Risultati';
+  nextBtn.innerHTML += ` <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < QUESTIONS.length) {
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  document.getElementById('screen-quiz').style.display = 'none';
+  document.getElementById('screen-result').style.display = 'block';
+  document.getElementById('progressWrap').style.display = 'none';
+
+  const total = QUESTIONS.length;
+  const wrong = total - score;
+  const pct = Math.round((score / total) * 100);
+
+  // Score circle
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDen').textContent = '/ ' + total;
+  document.getElementById('statCorrect').textContent = score;
+  document.getElementById('statWrong').textContent = wrong;
+  document.getElementById('statPct').textContent = pct + '%';
+
+  let level, title, msg;
+  if (pct >= 90)      { level = 'excellent'; title = 'Ottimo! Preparazione eccellente'; msg = 'Hai dimostrato una padronanza completa dei contenuti del corso. Sei pronto ad utilizzare Microsoft 365 Copilot in modo efficace e sicuro nel tuo lavoro quotidiano.'; }
+  else if (pct >= 75) { level = 'good';      title = 'Buona preparazione'; msg = 'Hai acquisito una solida conoscenza degli argomenti principali. Ti consigliamo di rivedere le domande errate per consolidare gli ultimi dettagli.'; }
+  else if (pct >= 55) { level = 'fair';      title = 'Preparazione sufficiente'; msg = 'Hai compreso i concetti di base, ma alcuni argomenti necessitano di ulteriore approfondimento. Rivedi i moduli corrispondenti alle domande errate.'; }
+  else                { level = 'poor';      title = 'Ripasso necessario'; msg = 'Ti consigliamo di riprendere i materiali del corso e di concentrarti sui moduli dove hai incontrato maggiori difficoltà, prima di svolgere nuovamente il quiz.'; }
+
+  document.getElementById('scoreCircle').className = 'score-circle ' + level;
+  document.getElementById('resultHero').className = 'result-hero ' + level;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultMsg').textContent = msg;
+
+  // Review list
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '';
+  const keys = ['A', 'B', 'C', 'D'];
+  QUESTIONS.forEach((q, idx) => {
+    const ua = userAnswers[idx];
+    const item = document.createElement('div');
+    item.className = 'review-item';
+
+    let answersHtml = '';
+    q.options.forEach((opt, oi) => {
+      let cls = 'neutral';
+      let icon = '';
+      if (oi === q.correct && ua.selected === oi) { cls = 'user-correct'; icon = '✓ '; }
+      else if (oi === ua.selected && !ua.isCorrect) { cls = 'user-wrong'; icon = '✗ '; }
+      else if (oi === q.correct) { cls = 'correct-answer'; icon = '✓ '; }
+      if (cls !== 'neutral')
+        answersHtml += `<div class="ri-answer ${cls}"><strong>${keys[oi]}.</strong> ${icon}${opt}</div>`;
+    });
+
+    item.innerHTML = `
+      <div class="review-item-header" onclick="toggleReview(this)">
+        <div class="ri-icon ${ua.isCorrect ? 'ok' : 'bad'}">${ua.isCorrect ? '✓' : '✗'}</div>
+        <span class="ri-qnum">${q.module} · D${idx+1}</span>
+        <span class="ri-qtext">${q.text}</span>
+        <span class="ri-chevron">▼</span>
+      </div>
+      <div class="review-item-body">
+        <div class="ri-answers">${answersHtml}</div>
+        <div class="ri-exp-box"><strong>Spiegazione:</strong> ${q.explanation}</div>
+      </div>`;
+    reviewList.appendChild(item);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleReview(header) {
+  const item = header.parentElement;
+  item.classList.toggle('open');
+}
+
+function retakeQuiz() {
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-intro').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
