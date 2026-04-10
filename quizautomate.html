@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Power Automate - Verifica le tue Conoscenze</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 0;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            margin-bottom: 8px;
+            opacity: 0.95;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4ade80;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 40px 30px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quiz-screen {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(4px);
+        }
+
+        .option input {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 12px;
+            margin-top: 2px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .option input:checked {
+            border-color: #667eea;
+            background: #667eea;
+            box-shadow: inset 0 0 0 3px white;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 15px;
+            color: #374151;
+        }
+
+        .option.correct {
+            border-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        .option.correct input {
+            border-color: #4ade80;
+            background: #4ade80;
+        }
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .option.incorrect input {
+            border-color: #ef4444;
+            background: #ef4444;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #4ade80;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            color: #7f1d1d;
+            border-left: 4px solid #ef4444;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+            padding-top: 30px;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-prev {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-prev:hover {
+            background: #d1d5db;
+        }
+
+        .result-screen {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin: 20px auto;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: 700;
+        }
+
+        .score-total {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 20px 0 10px 0;
+        }
+
+        .result-message {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .result-details {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: left;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.8;
+        }
+
+        .result-details strong {
+            color: #667eea;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 40px;
+            font-size: 16px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .content {
+                padding: 25px 20px;
+                min-height: auto;
+            }
+
+            .question {
+                font-size: 16px;
+            }
+
+            .option {
+                padding: 14px;
+            }
+
+            .score-circle {
+                width: 110px;
+                height: 110px;
+            }
+
+            .score-number {
+                font-size: 40px;
+            }
+
+            .result-title {
+                font-size: 20px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 11px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Quiz Power Automate</h1>
+            <p>Verifica le tue conoscenze sull'automazione</p>
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Domanda 1 di 8</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content" id="content">
+            <!-- Quiz screen will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Cos'è Power Automate?",
+                options: [
+                    "Un programma per creare presentazioni",
+                    "Uno strumento per automatizzare attività ripetitive collegando app diverse",
+                    "Un antivirus per Microsoft 365",
+                    "Un'alternativa a Excel per i calcoli"
+                ],
+                correct: 1,
+                explanation: "Power Automate automatizza e collega app diverse senza codice"
+            },
+            {
+                question: "Cos'è un \"trigger\" in Power Automate?",
+                options: [
+                    "Il risultato finale del flusso",
+                    "Il nome del file creato automaticamente",
+                    "L'evento che fa partire l'automazione",
+                    "Un tipo di connessione WiFi"
+                ],
+                correct: 2,
+                explanation: "Il trigger è l'evento che avvia l'intero flusso"
+            },
+            {
+                question: "Cosa fa un \"connettore\"?",
+                options: [
+                    "Connette il computer alla stampante",
+                    "Permette a Power Automate di comunicare con app esterne",
+                    "Genera automaticamente report in PDF",
+                    "Invia notifiche solo su Teams"
+                ],
+                correct: 1,
+                explanation: "Il connettore è il \"ponte\" tra Power Automate e le app"
+            },
+            {
+                question: "Quale tipo di flusso useresti per automatizzare azioni su un software gestionale installato localmente sul PC?",
+                options: [
+                    "Flusso Cloud",
+                    "Flusso con IA",
+                    "Flusso Desktop",
+                    "Flusso Schedulato"
+                ],
+                correct: 2,
+                explanation: "I flussi Desktop agiscono direttamente sul computer locale"
+            },
+            {
+                question: "Quale di questi è un esempio corretto di automazione con Power Automate?",
+                options: [
+                    "Aprire automaticamente Word ogni mattina alle 8",
+                    "Quando ricevo un'email con allegato → salvare il file su SharePoint",
+                    "Stampare automaticamente tutti i documenti in bianco e nero",
+                    "Spegnere il computer a fine giornata"
+                ],
+                correct: 1,
+                explanation: "Email con allegato → SharePoint è un classico flusso cloud"
+            },
+            {
+                question: "Cosa dovresti fare SEMPRE dopo aver creato un flusso?",
+                options: [
+                    "Eliminarlo e rifarlo da capo per sicurezza",
+                    "Ignorarlo finché non serve davvero",
+                    "Testarlo per verificare che funzioni correttamente",
+                    "Stamparlo e archiviarlo fisicamente"
+                ],
+                correct: 2,
+                explanation: "Testare sempre è essenziale prima dell'uso reale"
+            },
+            {
+                question: "Dove puoi trovare i template di flussi già pronti in Power Automate?",
+                options: [
+                    "Solo su Google o siti di terze parti",
+                    "Direttamente in Power Automate, nella sezione \"Template\"",
+                    "Devono essere acquistati separatamente",
+                    "Sono disponibili solo per licenze Enterprise"
+                ],
+                correct: 1,
+                explanation: "I template sono già dentro Power Automate, inclusi e gratuiti"
+            },
+            {
+                question: "Qual è il consiglio più importante per chi inizia con Power Automate?",
+                options: [
+                    "Creare subito flussi molto complessi per imparare di più",
+                    "Non usare mai i connettori Microsoft ufficiali",
+                    "Partire da automazioni semplici e aumentare gradualmente la complessità",
+                    "Usarlo esclusivamente per le email"
+                ],
+                correct: 2,
+                explanation: "Semplicità prima, complessità dopo — sempre"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+        let answered = false;
+
+        function init() {
+            answers = new Array(quizData.length).fill(null);
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const quiz = quizData[currentQuestion];
+            const content = document.getElementById('content');
+            const answerLetters = ['A', 'B', 'C', 'D'];
+            
+            let optionsHTML = quiz.options.map((option, index) => `
+                <div class="option" onclick="selectOption(${index})">
+                    <input type="radio" id="option${index}" name="answer" value="${index}">
+                    <label for="option${index}"><strong>${answerLetters[index]})</strong> ${option}</label>
+                </div>
+            `).join('');
+
+            content.innerHTML = `
+                <div class="quiz-screen">
+                    <div class="question-number">Domanda ${currentQuestion + 1} di ${quizData.length}</div>
+                    <div class="question">${quiz.question}</div>
+                    <div class="options">${optionsHTML}</div>
+                    ${answered ? `
+                        <div class="feedback show ${answers[currentQuestion] === quiz.correct ? 'correct' : 'incorrect'}">
+                            <strong>${answers[currentQuestion] === quiz.correct ? '✓ Corretto!' : '✗ Sbagliato!'}</strong><br>
+                            ${quiz.explanation}
+                        </div>
+                    ` : ''}
+                    <div class="button-group">
+                        <button class="btn-prev" onclick="prevQuestion()" ${currentQuestion === 0 ? 'disabled' : ''}>← Indietro</button>
+                        ${!answered ? `
+                            <button class="btn-next" onclick="submitAnswer()" disabled id="submitBtn">Rispondi</button>
+                        ` : `
+                            <button class="btn-next" onclick="${currentQuestion === quizData.length - 1 ? 'showResults' : 'nextQuestion'}()">
+                                ${currentQuestion === quizData.length - 1 ? 'Vedi Risultati' : 'Prossima →'}
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            updateProgress();
+            
+            // Re-check if an answer was already selected
+            if (answers[currentQuestion] !== null) {
+                document.getElementById(`option${answers[currentQuestion]}`).checked = true;
+                document.getElementById('submitBtn')?.remove();
+                showFeedback();
+            }
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+            answers[currentQuestion] = index;
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').style.opacity = '1';
+        }
+
+        function submitAnswer() {
+            if (answers[currentQuestion] === null) return;
+            answered = true;
+            if (answers[currentQuestion] === quizData[currentQuestion].correct) {
+                score++;
+            }
+            showQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                answered = false;
+                showQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                answered = answers[currentQuestion] !== null;
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Domanda ${currentQuestion + 1} di ${quizData.length}`;
+        }
+
+        function getResultMessage() {
+            if (score === 8) {
+                return {
+                    title: "🎉 Sei pronto ad automatizzare il mondo!",
+                    message: "Hai totalizzato il massimo dei punti! Sei completamente pronto a usare Power Automate. Non rimane che iniziare!",
+                    color: "#4ade80"
+                };
+            } else if (score >= 6) {
+                return {
+                    title: "🌟 Ottime basi!",
+                    message: "Stai procedendo bene! Ti consigliamo di rileggerti i Moduli 3 e 4 per consolidare ulteriormente le tue conoscenze.",
+                    color: "#667eea"
+                };
+            } else if (score >= 4) {
+                return {
+                    title: "📚 Ci sei quasi!",
+                    message: "Buon inizio! Rivedi i Moduli 2, 5 e 6 per rafforzare gli argomenti ancora meno chiari.",
+                    color: "#f59e0b"
+                };
+            } else {
+                return {
+                    title: "🚀 Continua così!",
+                    message: "Non preoccuparti! Rileggi con calma le dispense - stai già facendo la cosa giusta. Ogni concetto diventerà più chiaro con la pratica.",
+                    color: "#667eea"
+                };
+            }
+        }
+
+        function showResults() {
+            const resultMsg = getResultMessage();
+            const content = document.getElementById('content');
+            
+            let correctAnswers = `
+                <strong>Risposte corrette:</strong> ${score} su ${quizData.length}<br>
+                <strong>Percentuale:</strong> ${Math.round((score / quizData.length) * 100)}%<br><br>
+                <strong>Prossimi passi:</strong><br>
+            `;
+
+            if (score === 8) {
+                correctAnswers += "✓ Accedi a make.powerautomate.com e inizia a creare il tuo primo flusso!";
+            } else if (score >= 6) {
+                correctAnswers += "✓ Rivedi Moduli 3 e 4<br>✓ Prova ad creare un flusso semplice";
+            } else if (score >= 4) {
+                correctAnswers += "✓ Rivedi Moduli 2, 5 e 6<br>✓ Ripeti il quiz dopo la lettura";
+            } else {
+                correctAnswers += "✓ Leggi con calma tutte le dispense<br>✓ Ripeti il quiz quando ti sentirai pronto";
+            }
+
+            content.innerHTML = `
+                <div class="result-screen">
+                    <div class="score-circle">
+                        <div class="score-number">${score}</div>
+                        <div class="score-total">su ${quizData.length}</div>
+                    </div>
+                    <h2 class="result-title">${resultMsg.title}</h2>
+                    <p class="result-message">${resultMsg.message}</p>
+                    <div class="result-details">${correctAnswers}</div>
+                    <button class="btn-restart" onclick="init()">🔄 Ripeti il Quiz</button>
+                </div>
+            `;
+
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        // Start the quiz
+        init();
+    </script>
+</body>
+</html>
