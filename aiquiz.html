@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz AI ATS Insubria - 50 domande</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 20px;
+      background: #f7f7fb;
+      color: #222;
+      line-height: 1.5;
+    }
+    h1, h2 {
+      color: #1d3557;
+    }
+    .intro {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      border: 1px solid #dde1f0;
+    }
+    .question {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      border: 1px solid #dde1f0;
+    }
+    .question h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .options label {
+      display: block;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+    .question-number {
+      font-weight: 600;
+      color: #457b9d;
+      margin-right: 4px;
+    }
+    .btn-container {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      border-radius: 6px;
+      border: none;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #submitBtn {
+      background: #1d3557;
+      color: #fff;
+    }
+    #resetBtn {
+      background: #e0e0e0;
+      color: #333;
+    }
+    #showAnswersBtn {
+      background: #457b9d;
+      color: #fff;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      display: none;
+      background: #ffffff;
+      border: 1px solid #dde1f0;
+    }
+    .correct {
+      background-color: #d9fdd3;
+    }
+    .incorrect {
+      background-color: #ffd6d6;
+    }
+    .answer-key {
+      margin-top: 16px;
+      font-size: 14px;
+      display: none;
+      white-space: pre-wrap;
+      background: #f1f3fb;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px dashed #b0b5d6;
+    }
+    .topic-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #f1f3fb;
+      color: #1d3557;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Quiz AI ATS Insubria - 50 domande</h1>
+
+<div class="intro">
+  <p>
+    Questo quiz a 50 domande a risposta multipla verifica le competenze su:
+  </p>
+  <ul>
+    <li>Fondamenti di GenAI e LLM</li>
+    <li>Prompt engineering e metodi avanzati</li>
+    <li>Strumenti Copilot, Perplexity, NotebookLM, ChatGPT, Claude, Gemini</li>
+    <li>Workflow ricerca–analisi–elaborazione in ATS</li>
+    <li>Privacy, sicurezza, AI Act, GDPR e Legge 132/2025</li>
+  </ul>
+  <p>Seleziona una risposta per ogni domanda, poi premi <strong>Calcola punteggio</strong>.</p>
+</div>
+
+<form id="quizForm">
+
+  <!-- 1–10: Fondamenti AI e GenAI -->
+  <div class="question">
+    <div class="topic-tag">Fondamenti AI</div>
+    <h3><span class="question-number">1.</span>Nel contesto del corso, un <strong>task</strong> in AI è definito come:</h3>
+    <div class="options">
+      <label><input type="radio" name="q1" value="a"> Il modello matematico utilizzato per il deep learning</label>
+      <label><input type="radio" name="q1" value="b"> Un problema specifico da risolvere, come ad esempio riassumere un documento</label>
+      <label><input type="radio" name="q1" value="c"> Il dataset usato per addestrare un modello</label>
+      <label><input type="radio" name="q1" value="d"> La fase di validazione di un algoritmo</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Fondamenti AI</div>
+    <h3><span class="question-number">2.</span>Qual è il compito principale di un Large Language Model (LLM) come quelli descritti nel corso?</h3>
+    <div class="options">
+      <label><input type="radio" name="q2" value="a"> Eseguire calcoli numerici ad alta precisione</label>
+      <label><input type="radio" name="q2" value="b"> Prevedere il token successivo in una sequenza di testo</label>
+      <label><input type="radio" name="q2" value="c"> Archiviare in modo permanente i documenti caricati</label>
+      <label><input type="radio" name="q2" value="d"> Generare automaticamente nuove basi di dati strutturati</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">GenAI</div>
+    <h3><span class="question-number">3.</span>L’AI generativa, secondo il corso, si concentra principalmente su:</h3>
+    <div class="options">
+      <label><input type="radio" name="q3" value="a"> Analizzare soltanto immagini mediche</label>
+      <label><input type="radio" name="q3" value="b"> Creare nuovi contenuti (testi, immagini, audio, video) a partire dai dati di addestramento</label>
+      <label><input type="radio" name="q3" value="c"> Sostituire completamente il giudizio clinico del medico</label>
+      <label><input type="radio" name="q3" value="d"> Eseguire solo traduzioni automatiche tra lingue</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Fondamenti AI</div>
+    <h3><span class="question-number">4.</span>Secondo il materiale del corso, un modello di AI può essere rappresentato come:</h3>
+    <div class="options">
+      <label><input type="radio" name="q4" value="a"> Un insieme di pagine web indicizzate</label>
+      <label><input type="radio" name="q4" value="b"> Una funzione matematica che trasforma input in output sulla base di parametri appresi</label>
+      <label><input type="radio" name="q4" value="c"> Un semplice archivio statico di testi</label>
+      <label><input type="radio" name="q4" value="d"> Un browser specializzato per la ricerca normativa</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Fondamenti AI</div>
+    <h3><span class="question-number">5.</span>Quale affermazione riflette meglio il concetto di “GIGO” (garbage in, garbage out) discusso nel corso?</h3>
+    <div class="options">
+      <label><input type="radio" name="q5" value="a"> L’AI corregge automaticamente prompt ambigui</label>
+      <label><input type="radio" name="q5" value="b"> Prompt vaghi producono output generici e poco utili</label>
+      <label><input type="radio" name="q5" value="c"> Modelli più grandi eliminano gli errori dei prompt</label>
+      <label><input type="radio" name="q5" value="d"> Gli errori dipendono solo dall’algoritmo, non dall’input</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">GenAI</div>
+    <h3><span class="question-number">6.</span>Nel corso si sottolinea che l’AI generativa:</h3>
+    <div class="options">
+      <label><input type="radio" name="q6" value="a"> Sostituisce le decisioni professionali dei dipendenti ATS</label>
+      <label><input type="radio" name="q6" value="b"> È un assistente che lavora sulla parola scritta, ma non prende decisioni al posto dell’utente</label>
+      <label><input type="radio" name="q6" value="c"> Non può essere usata in ambito sanitario</label>
+      <label><input type="radio" name="q6" value="d"> È sempre più affidabile di un esperto umano del dominio</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Fondamenti AI</div>
+    <h3><span class="question-number">7.</span>Nel materiale è evidenziato che i modelli di GenAI:</h3>
+    <div class="options">
+      <label><input type="radio" name="q7" value="a"> Possiedono intenzioni proprie e comprensione del contesto come un umano</label>
+      <label><input type="radio" name="q7" value="b"> Operano secondo principi matematici e probabilistici, senza intenzione o comprensione umana</label>
+      <label><input type="radio" name="q7" value="c"> Sono autorizzati a decidere in autonomia sulle gare d’appalto</label>
+      <label><input type="radio" name="q7" value="d"> Non possono mai generare errori</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">LLM</div>
+    <h3><span class="question-number">8.</span>Nel corso si afferma che il task di base dei LLM è:</h3>
+    <div class="options">
+      <label><input type="radio" name="q8" value="a"> Classificare le immagini in categorie</label>
+      <label><input type="radio" name="q8" value="b"> Predire il prossimo token, dato il contesto precedente</label>
+      <label><input type="radio" name="q8" value="c"> Memorizzare tutte le conversazioni degli utenti nel tempo</label>
+      <label><input type="radio" name="q8" value="d"> Riconoscere volti biometrici in tempo reale</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">GenAI</div>
+    <h3><span class="question-number">9.</span>Secondo i “take home messages”, la GenAI è particolarmente potente per:</h3>
+    <div class="options">
+      <label><input type="radio" name="q9" value="a"> Firmare digitalmente le delibere</label>
+      <label><input type="radio" name="q9" value="b"> Leggere, riassumere e riscrivere testi</label>
+      <label><input type="radio" name="q9" value="c"> Validare decisioni cliniche complesse senza supervisione</label>
+      <label><input type="radio" name="q9" value="d"> Gestire direttamente i database amministrativi</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">GenAI</div>
+    <h3><span class="question-number">10.</span>Per il corso, l’output dell’AI deve essere considerato:</h3>
+    <div class="options">
+      <label><input type="radio" name="q10" value="a"> Un verdetto definitivo e non modificabile</label>
+      <label><input type="radio" name="q10" value="b"> Un punto di partenza da verificare, non un oracolo infallibile</label>
+      <label><input type="radio" name="q10" value="c"> Un sostituto del parere legale</label>
+      <label><input type="radio" name="q10" value="d"> Una fonte automatica di verità normativa</label>
+    </div>
+  </div>
+
+  <!-- 11–20: Prompt engineering di base -->
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">11.</span>Quale dei seguenti NON è uno dei 4 blocchi fondamentali di un prompt efficace descritti nel corso?</h3>
+    <div class="options">
+      <label><input type="radio" name="q11" value="a"> Obiettivo</label>
+      <label><input type="radio" name="q11" value="b"> Contesto</label>
+      <label><input type="radio" name="q11" value="c"> Vincoli</label>
+      <label><input type="radio" name="q11" value="d"> Firma digitale</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">12.</span>Qual è l’effetto di specificare chiaramente l’<strong>obiettivo</strong> nel prompt?</h3>
+    <div class="options">
+      <label><input type="radio" name="q12" value="a"> Riduce la necessità di specificare il contesto</label>
+      <label><input type="radio" name="q12" value="b"> Chiarisce cosa deve fare l’AI, rendendo l’output più mirato e riutilizzabile</label>
+      <label><input type="radio" name="q12" value="c"> Impedisce all’AI di utilizzare il web</label>
+      <label><input type="radio" name="q12" value="d"> Serve solo per la formattazione grafica</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">13.</span>Nel corso, il <strong>contesto</strong> di un prompt serve principalmente a:</h3>
+    <div class="options">
+      <label><input type="radio" name="q13" value="a"> Indicare il tempo massimo di risposta</label>
+      <label><input type="radio" name="q13" value="b"> Far capire all’AI chi sei, dove lavori e per chi è destinato l’output</label>
+      <label><input type="radio" name="q13" value="c"> Disattivare la memoria del modello</label>
+      <label><input type="radio" name="q13" value="d"> Definire la dimensione del file di output</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">14.</span>I <strong>vincoli</strong> nel prompt, secondo le slide, servono soprattutto a:</h3>
+    <div class="options">
+      <label><input type="radio" name="q14" value="a"> Aumentare la creatività dell’AI senza limiti</label>
+      <label><input type="radio" name="q14" value="b"> Ridurre lo spazio di risposta e abbassare il rischio di allucinazioni</label>
+      <label><input type="radio" name="q14" value="c"> Attivare automaticamente la ricerca web</label>
+      <label><input type="radio" name="q14" value="d"> Cambiare il modello usato dal provider</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">15.</span>Specificare il <strong>formato di output</strong> (es. tabella, elenco, testo strutturato) aiuta l’AI a:</h3>
+    <div class="options">
+      <label><input type="radio" name="q15" value="a"> Ignorare i vincoli</label>
+      <label><input type="radio" name="q15" value="b"> Restituire un risultato più facilmente riutilizzabile nel contesto di lavoro</label>
+      <label><input type="radio" name="q15" value="c"> Cambiare automaticamente lingua</label>
+      <label><input type="radio" name="q15" value="d"> Disattivare la formattazione</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">16.</span>Quale esempio rappresenta meglio un prompt efficace per una campagna vaccinale, secondo la guida del corso?</h3>
+    <div class="options">
+      <label><input type="radio" name="q16" value="a"> Scrivi un testo sulla vaccinazione.</label>
+      <label><input type="radio" name="q16" value="b"> Scrivi un testo informativo per i cittadini, agendo come operatore ATS Lombardia, per promuovere la campagna antinfluenzale 2025, max 150 parole, tono rassicurante ma istituzionale, evitando gergo medico, con paragrafo introduttivo e 3 punti pratici numerati.</label>
+      <label><input type="radio" name="q16" value="c"> Dammi qualcosa sulla sanità.</label>
+      <label><input type="radio" name="q16" value="d"> Scrivi quello che vuoi sulla salute pubblica.</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">17.</span>Quale errore di prompting viene esplicitamente sconsigliato nel corso?</h3>
+    <div class="options">
+      <label><input type="radio" name="q17" value="a"> Suddividere un compito complesso in più prompt</label>
+      <label><input type="radio" name="q17" value="b"> Mescolare più obiettivi diversi nello stesso prompt (es. report tecnico e post LinkedIn spiritoso)</label>
+      <label><input type="radio" name="q17" value="c"> Specificare lingua e tono desiderati</label>
+      <label><input type="radio" name="q17" value="d"> Richiedere una tabella come output</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">18.</span>Il “metodo iterativo” di prompting suggerito nelle slide consiste in:</h3>
+    <div class="options">
+      <label><input type="radio" name="q18" value="a"> Scrivere un solo prompt e accettare sempre la prima risposta</label>
+      <label><input type="radio" name="q18" value="b"> Scrivere il primo prompt, valutare l’output, individuare cosa manca, aggiustare il prompt e ripetere finché soddisfatti</label>
+      <label><input type="radio" name="q18" value="c"> Cambiare continuamente modello senza modificare il prompt</label>
+      <label><input type="radio" name="q18" value="d"> Chiedere all’AI di generare da sola i prompt senza intervento umano</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">19.</span>Nel corso viene suggerito di usare il “pensiero passo-passo” (“chain of thought”) soprattutto per:</h3>
+    <div class="options">
+      <label><input type="radio" name="q19" value="a"> Brevi traduzioni tra lingue simili</label>
+      <label><input type="radio" name="q19" value="b"> Problemi matematici, logici o di programmazione complessi</label>
+      <label><input type="radio" name="q19" value="c"> Scrivere email di cortesia</label>
+      <label><input type="radio" name="q19" value="d"> Creare immagini artistiche</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Prompt engineering</div>
+    <h3><span class="question-number">20.</span>L’“Answer Scaling” descritto nella guida consiste nel:</h3>
+    <div class="options">
+      <label><input type="radio" name="q20" value="a"> Ridurre sempre la lunghezza della risposta</label>
+      <label><input type="radio" name="q20" value="b"> Assegnare un voto all’output e spiegare all’AI cosa migliorare per arrivare a un punteggio più alto</label>
+      <label><input type="radio" name="q20" value="c"> Cambiare automaticamente modello se la risposta non piace</label>
+      <label><input type="radio" name="q20" value="d"> Misurare la velocità di risposta del modello</label>
+    </div>
+  </div>
+
+  <!-- 21–30: Strumenti specifici -->
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">21.</span>Microsoft Copilot, nel contesto del corso, è descritto come:</h3>
+    <div class="options">
+      <label><input type="radio" name="q21" value="a"> Un motore di ricerca web indipendente</label>
+      <label><input type="radio" name="q21" value="b"> L’assistente AI integrato nell’ecosistema Microsoft (Windows, Edge, Microsoft 365)</label>
+      <label><input type="radio" name="q21" value="c"> Un gestionale ATS per turni del personale</label>
+      <label><input type="radio" name="q21" value="d"> Un software di firma digitale qualificata</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">22.</span>Perché usare Copilot in contesto lavorativo secondo gli appunti del corso?</h3>
+    <div class="options">
+      <label><input type="radio" name="q22" value="a"> È l’unico strumento che legge PDF</label>
+      <label><input type="radio" name="q22" value="b"> Per la sua integrazione nativa con Word, Excel, Outlook, Teams e le attività quotidiane di produttività</label>
+      <label><input type="radio" name="q22" value="c"> Perché sostituisce il gestionale contabile</label>
+      <label><input type="radio" name="q22" value="d"> Perché memorizza automaticamente tutti i dati sensibili</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">23.</span>Perplexity AI, come descritto nel corso, è principalmente:</h3>
+    <div class="options">
+      <label><input type="radio" name="q23" value="a"> Un editor di immagini mediche</label>
+      <label><input type="radio" name="q23" value="b"> Un motore di ricerca potenziato dall’AI che fornisce sintesi con fonti citate in tempo reale</label>
+      <label><input type="radio" name="q23" value="c"> Un sistema di gestione dei turni</label>
+      <label><input type="radio" name="q23" value="d"> Un sostituto di NotebookLM</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">24.</span>NotebookLM, secondo le slide del corso, è particolarmente adatto per:</h3>
+    <div class="options">
+      <label><input type="radio" name="q24" value="a"> Scrivere brevi SMS</label>
+      <label><input type="radio" name="q24" value="b"> Analizzare documenti molto lunghi, audio e video, costruendo una base di conoscenza personale con citazioni precise</label>
+      <label><input type="radio" name="q24" value="c"> Controllare gli accessi al data center</label>
+      <label><input type="radio" name="q24" value="d"> Automatizzare la firma dei verbali</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">25.</span>Qual è una differenza chiave tra Deep Research in Gemini e Deep Research in ChatGPT, secondo il riassunto dell’incontro del 31 marzo?</h3>
+    <div class="options">
+      <label><input type="radio" name="q25" value="a"> Gemini non mostra mai le fonti, ChatGPT sì</label>
+      <label><input type="radio" name="q25" value="b"> Gemini Deep Research mostra un piano di ricerca personalizzabile e fino a 49 fonti; ChatGPT Deep Research può limitare la ricerca a URL specifici</label>
+      <label><input type="radio" name="q25" value="c"> Solo Gemini può essere usato in ATS</label>
+      <label><input type="radio" name="q25" value="d"> Solo ChatGPT può gestire documenti PDF</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">26.</span>Secondo il corso, Claude si distingue da ChatGPT soprattutto perché:</h3>
+    <div class="options">
+      <label><input type="radio" name="q26" value="a"> Non può leggere file</label>
+      <label><input type="radio" name="q26" value="b"> È in grado di generare direttamente file HTML interattivi (es. checklist, dashboard) scaricabili</label>
+      <label><input type="radio" name="q26" value="c"> Non può essere utilizzato con dati sanitari</label>
+      <label><input type="radio" name="q26" value="d"> Non supporta il linguaggio italiano</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">27.</span>Nel workflow suggerito, Perplexity viene usato tipicamente per:</h3>
+    <div class="options">
+      <label><input type="radio" name="q27" value="a"> Analisi di grandi dataset Excel</label>
+      <label><input type="radio" name="q27" value="b"> Ricerche rapide e mirate su normative o informazioni specifiche</label>
+      <label><input type="radio" name="q27" value="c"> Trascrivere audio di riunioni</label>
+      <label><input type="radio" name="q27" value="d"> Generare dashboard HTML interattive</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">28.</span>NotebookLM viene indicato come soluzione ideale quando:</h3>
+    <div class="options">
+      <label><input type="radio" name="q28" value="a"> La finestra di contesto di ChatGPT o Copilot non è sufficiente per documenti >100 pagine</label>
+      <label><input type="radio" name="q28" value="b"> Si deve firmare digitalmente una delibera</label>
+      <label><input type="radio" name="q28" value="c"> È necessario inviare email PEC</label>
+      <label><input type="radio" name="q28" value="d"> Si vuole solo tradurre una frase breve</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">29.</span>Secondo il riepilogo operativo, per output interattivi come checklist e dashboard HTML è consigliato usare:</h3>
+    <div class="options">
+      <label><input type="radio" name="q29" value="a"> Solo Copilot</label>
+      <label><input type="radio" name="q29" value="b"> Claude</label>
+      <label><input type="radio" name="q29" value="c"> NotebookLM</label>
+      <label><input type="radio" name="q29" value="d"> Perplexity</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Strumenti</div>
+    <h3><span class="question-number">30.</span>Nel corso viene spiegato che Copilot ha una “finestra di contesto” limitata: cosa significa operativamente?</h3>
+    <div class="options">
+      <label><input type="radio" name="q30" value="a"> Che Copilot non può mai usare internet</label>
+      <label><input type="radio" name="q30" value="b"> Che dopo un certo numero di messaggi può “dimenticare” le istruzioni iniziali se la conversazione è troppo lunga</label>
+      <label><input type="radio" name="q30" value="c"> Che non può leggere PDF superiori a 2 pagine</label>
+      <label><input type="radio" name="q30" value="d"> Che non supporta le tabelle</label>
+    </div>
+  </div>
+
+  <!-- 31–40: Workflow, casi d’uso, ATS -->
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">31.</span>Nelle tre macro-categorie di attività supportate dall’AI, quale delle seguenti combina correttamente attività e strumenti consigliati?</h3>
+    <div class="options">
+      <label><input type="radio" name="q31" value="a"> Ricerca informazioni – NotebookLM</label>
+      <label><input type="radio" name="q31" value="b"> Analisi informazioni – Perplexity</label>
+      <label><input type="radio" name="q31" value="c"> Elaborazione informazioni – ChatGPT, Copilot, Claude</label>
+      <label><input type="radio" name="q31" value="d"> Ricerca informazioni – Excel</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">32.</span>Nel workflow raccomandato per la risposta a una mail su una normativa, il formatore suggerisce di:</h3>
+    <div class="options">
+      <label><input type="radio" name="q32" value="a"> Scrivere direttamente la risposta in ChatGPT senza fare ricerche</label>
+      <label><input type="radio" name="q32" value="b"> Prima fare ricerca normativa con Perplexity o Deep Research, poi elaborare la risposta con le informazioni trovate</label>
+      <label><input type="radio" name="q32" value="c"> Usare solo Google tradizionale</label>
+      <label><input type="radio" name="q32" value="d"> Inviare la mail all’assistenza informatica</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">33.</span>Nel workflow completo per la preparazione di verbali, qual è la sequenza corretta degli strumenti?</h3>
+    <div class="options">
+      <label><input type="radio" name="q33" value="a"> Registrazione audio → NotebookLM per trascrizione → ChatGPT/Copilot per verbale formale</label>
+      <label><input type="radio" name="q33" value="b"> Registrazione audio → Excel → PowerPoint</label>
+      <label><input type="radio" name="q33" value="c"> NotebookLM → Perplexity → Word</label>
+      <label><input type="radio" name="q33" value="d"> ChatGPT → NotebookLM → registrazione audio</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">34.</span>Per analizzare un dataset Excel di consumi farmaceutici e creare una dashboard filtrabile, il corso suggerisce di:</h3>
+    <div class="options">
+      <label><input type="radio" name="q34" value="a"> Usare esclusivamente Perplexity</label>
+      <label><input type="radio" name="q34" value="b"> Allegare il file a ChatGPT o Claude e, nel caso di Claude, generare una dashboard HTML interattiva</label>
+      <label><input type="radio" name="q34" value="c"> Stampare i dati e analizzarli a mano</label>
+      <label><input type="radio" name="q34" value="d"> Caricare il file solo su NotebookLM e non usare altri strumenti</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">35.</span>La regola pratica “separa sempre la ricerca dall’elaborazione” significa che:</h3>
+    <div class="options">
+      <label><input type="radio" name="q35" value="a"> Non bisogna mai usare più di uno strumento AI</label>
+      <label><input type="radio" name="q35" value="b"> Prima si cercano le informazioni (Perplexity/Deep Research), poi si elabora l’output (ChatGPT/Copilot/Claude)</label>
+      <label><input type="radio" name="q35" value="c"> La ricerca va fatta solo su carta</label>
+      <label><input type="radio" name="q35" value="d"> L’elaborazione va sempre fatta prima della ricerca</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">36.</span>Nel caso d’uso “verbale di sopralluogo su infrazione normativa” (servizio veterinario), quale combinazione di strumenti viene indicata?</h3>
+    <div class="options">
+      <label><input type="radio" name="q36" value="a"> Perplexity per tutto</label>
+      <label><input type="radio" name="q36" value="b"> NotebookLM con la normativa allegata come fonte, più AI per redigere il verbale formale usando solo quella normativa</label>
+      <label><input type="radio" name="q36" value="c"> Solo Excel</label>
+      <label><input type="radio" name="q36" value="d"> ChatGPT con web attivo senza vincoli</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">37.</span>Nel corso viene ribadito che cosa rimane sempre umano, anche con la GenAI?</h3>
+    <div class="options">
+      <label><input type="radio" name="q37" value="a"> Solo il caricamento dei file</label>
+      <label><input type="radio" name="q37" value="b"> Le decisioni finali, la definizione degli obiettivi e la responsabilità dei contenuti prodotti</label>
+      <label><input type="radio" name="q37" value="c"> La formattazione del testo</label>
+      <label><input type="radio" name="q37" value="d"> L’invio di email automatiche</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">38.</span>Nel “promptbook personale” suggerito negli appunti, è raccomandato:</h3>
+    <div class="options">
+      <label><input type="radio" name="q38" value="a"> Memorizzare solo prompt generici</label>
+      <label><input type="radio" name="q38" value="b"> Conservare prompt già contestualizzati per le attività ricorrenti, da riutilizzare e adattare</label>
+      <label><input type="radio" name="q38" value="c"> Salvare solo risposte, non i prompt</label>
+      <label><input type="radio" name="q38" value="d"> Usare esclusivamente prompt in lingua inglese</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">39.</span>Un esempio di attività di “ricerca di informazioni” mostrato nel corso è:</h3>
+    <div class="options">
+      <label><input type="radio" name="q39" value="a"> Redigere manualmente una delibera</label>
+      <label><input type="radio" name="q39" value="b"> Cercare il Piano Socio Sanitario della Regione Piemonte 2025–2030 con Perplexity/Deep Research</label>
+      <label><input type="radio" name="q39" value="c"> Compilare a mano una checklist</label>
+      <label><input type="radio" name="q39" value="d"> Pianificare i turni con Excel</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Workflow ATS</div>
+    <h3><span class="question-number">40.</span>Secondo il riepilogo operativo, il workflow completo consigliato è:</h3>
+    <div class="options">
+      <label><input type="radio" name="q40" value="a"> Analisi documenti → Elaborazione output → Ricerca</label>
+      <label><input type="radio" name="q40" value="b"> Ricerca (Perplexity/Deep Research) → Analisi fonti (NotebookLM) → Elaborazione output (ChatGPT/Copilot/Claude) → Verifica umana</label>
+      <label><input type="radio" name="q40" value="c"> Solo ricerca su Google</label>
+      <label><input type="radio" name="q40" value="d"> Solo utilizzo di Excel e Word</label>
+    </div>
+  </div>
+
+  <!-- 41–50: Privacy, sicurezza, rischi, tecniche avanzate -->
+  <div class="question">
+    <div class="topic-tag">Privacy & Norme</div>
+    <h3><span class="question-number">41.</span>Nel corso, quali tre riferimenti normativi vengono indicati come contesto di sicurezza per l’uso dell’AI in sanità pubblica?</h3>
+    <div class="options">
+      <label><input type="radio" name="q41" value="a"> GDPR, AI Act, Legge 132/2025</label>
+      <label><input type="radio" name="q41" value="b"> Solo GDPR</label>
+      <label><input type="radio" name="q41" value="c"> Solo AI Act</label>
+      <label><input type="radio" name="q41" value="d"> Solo Legge 132/2025</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Privacy & Norme</div>
+    <h3><span class="question-number">42.</span>Secondo le raccomandazioni, nei prompt da usare in ATS non devono essere inseriti:</h3>
+    <div class="options">
+      <label><input type="radio" name="q42" value="a"> Riferimenti alla regione di appartenenza</label>
+      <label><input type="radio" name="q42" value="b"> Dati personali o sanitari identificabili, né decisioni di gara</label>
+      <label><input type="radio" name="q42" value="c"> Indicazioni sul tono dell’output</label>
+      <label><input type="radio" name="q42" value="d"> Vincoli sulla lunghezza del testo</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Privacy & Norme</div>
+    <h3><span class="question-number">43.</span>Una buona pratica per gestire le “hallucinations” normative dell’AI è:</h3>
+    <div class="options">
+      <label><input type="radio" name="q43" value="a"> Copiare il testo generato senza controlli</label>
+      <label><input type="radio" name="q43" value="b"> Verificare sempre su siti ufficiali (es. Gazzetta Ufficiale, Normattiva, siti istituzionali) prima di utilizzare riferimenti in atti ufficiali</label>
+      <label><input type="radio" name="q43" value="c"> Affidarsi ai social network come fonte primaria</label>
+      <label><input type="radio" name="q43" value="d"> Usare solo traduttori automatici</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Privacy & Norme</div>
+    <h3><span class="question-number">44.</span>Il fenomeno di “Shadow AI” descritto nel corso indica:</h3>
+    <div class="options">
+      <label><input type="radio" name="q44" value="a"> L’uso regolamentato di AI certificata</label>
+      <label><input type="radio" name="q44" value="b"> L’uso non regolamentato e poco supervisionato di strumenti AI da parte dei dipendenti</label>
+      <label><input type="radio" name="q44" value="c"> L’uso di AI solo in ambito clinico</label>
+      <label><input type="radio" name="q44" value="d"> L’uso di AI senza connessione internet</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Tecniche avanzate</div>
+    <h3><span class="question-number">45.</span>Il <strong>role-based prompting</strong>, secondo le slide, consiste nel:</h3>
+    <div class="options">
+      <label><input type="radio" name="q45" value="a"> Usare solo prompt brevi</label>
+      <label><input type="radio" name="q45" value="b"> Assegnare un ruolo specifico all’AI (es. “agisci come esperto di…”) per guidare tono e competenze simulate</label>
+      <label><input type="radio" name="q45" value="c"> Disattivare la memoria dell’AI</label>
+      <label><input type="radio" name="q45" value="d"> Chiedere sempre risposte anonime</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Tecniche avanzate</div>
+    <h3><span class="question-number">46.</span>L’approccio <strong>socratico</strong> nel prompting viene usato per:</h3>
+    <div class="options">
+      <label><input type="radio" name="q46" value="a"> Limitare il numero di domande possibili</label>
+      <label><input type="radio" name="q46" value="b"> Far sì che l’AI ponga domande successive per chiarire l’obiettivo prima di produrre un report complesso</label>
+      <label><input type="radio" name="q46" value="c"> Bloccare la generazione di testo</label>
+      <label><input type="radio" name="q46" value="d"> Usare solo risposte a scelta multipla</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Tecniche avanzate</div>
+    <h3><span class="question-number">47.</span>La combinazione di memoria, istruzioni personalizzate e addestramento del modello, descritta nel corso per ChatGPT, serve a:</h3>
+    <div class="options">
+      <label><input type="radio" name="q47" value="a"> Rendere il modello più lento</label>
+      <label><input type="radio" name="q47" value="b"> Personalizzare le risposte sul profilo dell’utente mantenendo nel tempo preferenze e contesto</label>
+      <label><input type="radio" name="q47" value="c"> Disattivare tutte le funzionalità avanzate</label>
+      <label><input type="radio" name="q47" value="d"> Eliminare la necessità di fact-checking</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Rischio & competenza</div>
+    <h3><span class="question-number">48.</span>Il “funnel di rischio per il prompter” mostrato nel corso suggerisce che il rischio di errore diminuisce quando:</h3>
+    <div class="options">
+      <label><input type="radio" name="q48" value="a"> La conoscenza del soggetto è nulla e il prompting è generico</label>
+      <label><input type="radio" name="q48" value="b"> Aumentano la conoscenza pregressa dell’utente, la consapevolezza e il dettaglio del prompting</label>
+      <label><input type="radio" name="q48" value="c"> Si usa sempre lo stesso prompt per tutto</label>
+      <label><input type="radio" name="q48" value="d"> Si delega tutto all’AI senza controllo</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">RAG & memoria</div>
+    <h3><span class="question-number">49.</span>La tecnica <strong>RAG</strong> (Retrieval-Augmented Generation), citata nel corso, ha lo scopo di:</h3>
+    <div class="options">
+      <label><input type="radio" name="q49" value="a"> Ridurre la dimensione dei file PDF</label>
+      <label><input type="radio" name="q49" value="b"> Combinare recupero di informazioni da fonti esterne verificate con la generazione, per risposte più precise e aggiornate</label>
+      <label><input type="radio" name="q49" value="c"> Disattivare la ricerca web</label>
+      <label><input type="radio" name="q49" value="d"> Aumentare il numero di allucinazioni</label>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="topic-tag">Etica & responsabilità</div>
+    <h3><span class="question-number">50.</span>Secondo le “lezioni per il management” e i messaggi finali del corso, l’uso efficace della GenAI in ATS richiede:</h3>
+    <div class="options">
+      <label><input type="radio" name="q50" value="a"> Solo formazione tecnica sui modelli</label>
+      <label><input type="radio" name="q50" value="b"> Governance chiara, allineamento culturale, formazione mista (tecnica, etica, organizzativa) e sperimentazione su casi d’uso concreti</label>
+      <label><input type="radio" name="q50" value="c"> L’eliminazione di tutte le procedure interne</label>
+      <label><input type="radio" name="q50" value="d"> L’uso esclusivo di un unico modello AI per tutti i compiti</label>
+    </div>
+  </div>
+
+  <div class="btn-container">
+    <button type="button" id="submitBtn">Calcola punteggio</button>
+    <button type="button" id="resetBtn">Azzera risposte</button>
+    <button type="button" id="showAnswersBtn">Mostra/Nascondi soluzioni</button>
+  </div>
+
+</form>
+
+<div id="result"></div>
+
+<div id="answerKey" class="answer-key"></div>
+
+<script>
+  const correctAnswers = {
+    q1: "b",
+    q2: "b",
+    q3: "b",
+    q4: "b",
+    q5: "b",
+    q6: "b",
+    q7: "b",
+    q8: "b",
+    q9: "b",
+    q10: "b",
+    q11: "d",
+    q12: "b",
+    q13: "b",
+    q14: "b",
+    q15: "b",
+    q16: "b",
+    q17: "b",
+    q18: "b",
+    q19: "b",
+    q20: "b",
+    q21: "b",
+    q22: "b",
+    q23: "b",
+    q24: "b",
+    q25: "b",
+    q26: "b",
+    q27: "b",
+    q28: "a",
+    q29: "b",
+    q30: "b",
+    q31: "c",
+    q32: "b",
+    q33: "a",
+    q34: "b",
+    q35: "b",
+    q36: "b",
+    q37: "b",
+    q38: "b",
+    q39: "b",
+    q40: "b",
+    q41: "a",
+    q42: "b",
+    q43: "b",
+    q44: "b",
+    q45: "b",
+    q46: "b",
+    q47: "b",
+    q48: "b",
+    q49: "b",
+    q50: "b"
+  };
+
+  const quizForm = document.getElementById('quizForm');
+  const resultDiv = document.getElementById('result');
+  const answerKeyDiv = document.getElementById('answerKey');
+  const submitBtn = document.getElementById('submitBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const showAnswersBtn = document.getElementById('showAnswersBtn');
+
+  submitBtn.addEventListener('click', () => {
+    let score = 0;
+    let total = Object.keys(correctAnswers).length;
+
+    // reset styles
+    document.querySelectorAll('.question').forEach(q => {
+      q.classList.remove('correct', 'incorrect');
+    });
+
+    for (let q in correctAnswers) {
+      const questionDiv = document.querySelector('input[name="' + q + '"]').closest('.question');
+      const selected = quizForm.querySelector('input[name="' + q + '"]:checked');
+      if (selected) {
+        if (selected.value === correctAnswers[q]) {
+          score++;
+          questionDiv.classList.add('correct');
+        } else {
+          questionDiv.classList.add('incorrect');
+        }
+      } else {
+        questionDiv.classList.add('incorrect');
+      }
+    }
+
+    const percent = ((score / total) * 100).toFixed(1);
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+      <h2>Risultato</h2>
+      <p>Hai risposto correttamente a <strong>${score}</strong> domande su ${total}.</p>
+      <p>Punteggio: <strong>${percent}%</strong></p>
+    `;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    quizForm.reset();
+    resultDiv.style.display = 'none';
+    answerKeyDiv.style.display = 'none';
+    document.querySelectorAll('.question').forEach(q => {
+      q.classList.remove('correct', 'incorrect');
+    });
+  });
+
+  showAnswersBtn.addEventListener('click', () => {
+    if (answerKeyDiv.textContent.trim() === "") {
+      let text = "Soluzioni:\n";
+      let index = 1;
+      for (let q in correctAnswers) {
+        text += index + ". " + correctAnswers[q].toUpperCase() + "\n";
+        index++;
+      }
+      answerKeyDiv.textContent = text;
+    }
+    answerKeyDiv.style.display = (answerKeyDiv.style.display === 'none' || answerKeyDiv.style.display === '') ? 'block' : 'none';
+  });
+</script>
+
+</body>
+</html>
