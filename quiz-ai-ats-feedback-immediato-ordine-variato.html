@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz AI ATS Insubria - Feedback immediato</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #f8faff;
+      --text: #172033;
+      --muted: #5e6b85;
+      --border: rgba(17,24,39,0.08);
+      --primary: #1f6feb;
+      --accent: #8b5cf6;
+      --primary-soft: rgba(31,111,235,0.12);
+      --success: #18794e;
+      --success-soft: rgba(24,121,78,0.10);
+      --error: #c4314b;
+      --error-soft: rgba(196,49,75,0.10);
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #111827;
+      --surface-2: #172036;
+      --text: #f3f6fc;
+      --muted: #b8c2d9;
+      --border: rgba(255,255,255,0.08);
+      --primary: #7db1ff;
+      --accent: #b799ff;
+      --primary-soft: rgba(125,177,255,0.14);
+      --success: #4ecb86;
+      --success-soft: rgba(78,203,134,0.14);
+      --error: #ff7b8f;
+      --error-soft: rgba(255,123,143,0.14);
+      --shadow: 0 20px 48px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(circle at top left, rgba(31,111,235,0.08), transparent 25%), radial-gradient(circle at bottom right, rgba(139,92,246,0.08), transparent 22%), var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap { width: min(1160px, calc(100% - 24px)); margin: 0 auto; padding: 24px 0 56px; }
+    .hero, .question, .toolbar, .result { background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: 26px; backdrop-filter: blur(10px); }
+    .hero { padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden; }
+    .hero::after { content: ''; position: absolute; right: -60px; top: -60px; width: 180px; height: 180px; background: radial-gradient(circle, var(--primary-soft), transparent 68%); border-radius: 50%; }
+    .topline { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .badge { display: inline-flex; padding: 7px 12px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+    h1 { margin: 12px 0 8px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.02; letter-spacing: -.03em; max-width: 12ch; }
+    .lead { margin: 0; color: var(--muted); max-width: 70ch; }
+    .theme-toggle { width: 46px; height: 46px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+    .toolbar { position: sticky; top: 10px; z-index: 20; padding: 14px 16px; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+    .toolbar p { margin: 0; color: var(--muted); font-size: 14px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { border: 1px solid var(--border); border-radius: 999px; padding: 12px 18px; font-weight: 700; cursor: pointer; min-height: 46px; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: transparent; }
+    .btn-secondary { background: var(--surface); color: var(--text); }
+    .quiz { display: grid; gap: 14px; }
+    .question { padding: 22px; position: relative; overflow: hidden; }
+    .question::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--primary), transparent 85%); }
+    .qhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .lefthead { display: flex; gap: 12px; align-items: flex-start; }
+    .qnum { width: 40px; height: 40px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex: 0 0 auto; }
+    .topic { display: inline-flex; padding: 6px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
+    .qtitle { margin: 0; font-size: 1.15rem; line-height: 1.35; letter-spacing: -.02em; max-width: 50ch; }
+    .options { display: grid; gap: 10px; }
+    .option { position: relative; }
+    .option input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+    .option label { display: flex; gap: 12px; align-items: flex-start; padding: 15px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); cursor: pointer; }
+    .mark { width: 30px; height: 30px; border-radius: 999px; border: 1.5px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: var(--muted); flex: 0 0 auto; }
+    .option input:checked + label { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); background: linear-gradient(180deg, var(--primary-soft), transparent 70%), var(--surface); }
+    .option input:checked + label .mark { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: transparent; }
+    .feedback { display: none; margin-top: 12px; padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface-2); }
+    .feedback.show { display: block; }
+    .feedback.correct { background: linear-gradient(180deg, var(--success-soft), transparent 75%), var(--surface-2); border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
+    .feedback.wrong { background: linear-gradient(180deg, var(--error-soft), transparent 75%), var(--surface-2); border-color: color-mix(in srgb, var(--error) 35%, var(--border)); }
+    .feedback-title { font-weight: 800; margin-bottom: 6px; }
+    .feedback.correct .feedback-title { color: var(--success); }
+    .feedback.wrong .feedback-title { color: var(--error); }
+    .feedback p { margin: 0; color: var(--muted); }
+    .result { display: none; margin-top: 20px; padding: 22px; }
+    .result h2 { margin: 0 0 10px; font-size: 1.5rem; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-top: 14px; }
+    .card { padding: 14px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface-2); }
+    .card strong { display: block; font-size: 1.6rem; line-height: 1; margin-bottom: 4px; }
+    .muted { color: var(--muted); }
+    @media (max-width: 800px) { .cards { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+        <div style="width:58px; height:58px; border-radius:18px; background:linear-gradient(135deg, var(--primary), var(--accent)); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 28px rgba(31,111,235,0.28); flex:0 0 auto;">
+          <svg width="34" height="34" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <rect x="10" y="12" width="44" height="40" rx="10" fill="rgba(255,255,255,0.18)"/>
+            <path d="M20 24h24M20 32h18M20 40h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="45" cy="42" r="7" fill="#fff" opacity="0.9"/>
+            <path d="M42 42l2.2 2.2L48 39.8" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="badge">Quiz formativo ATS</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:6px; font-weight:600;">Intelligenza artificiale generativa · ATS Insubria</div>
+        </div>
+      </div>
+      <div class="topline">
+        <div>
+          <h1>Quiz AI ATS con correzione per singola domanda</h1>
+          <p class="lead">Le risposte corrette sono state redistribuite tra A, B, C e D, così il quiz non mantiene sempre la stessa posizione per l’alternativa giusta.</p>
+        </div>
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="Cambia tema">◐</button>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <p>Seleziona una risposta per ogni domanda. Il feedback appare immediatamente sotto il quesito.</p>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" id="submitBtn">Calcola punteggio</button>
+        <button class="btn btn-secondary" type="button" id="resetBtn">Azzera risposte</button>
+      </div>
+    </section>
+
+    <form id="quizForm" class="quiz"></form>
+    <section id="result" class="result" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const letters = ['A', 'B', 'C', 'D'];
+    const quizData = [{"topic": "Fondamenti AI", "q": "Nel contesto del corso, un task in AI è definito come:", "options": ["Un problema specifico da risolvere, come ad esempio riassumere un documento", "Il modello matematico utilizzato per il deep learning", "Il dataset usato per addestrare un modello", "La fase di validazione di un algoritmo"], "answer": 0, "explain": "Un task è il problema concreto che l’AI deve affrontare, ad esempio riassumere un testo o classificare dati."}, {"topic": "Fondamenti AI", "q": "Qual è il compito principale di un Large Language Model (LLM) come quelli descritti nel corso?", "options": ["Eseguire calcoli numerici ad alta precisione", "Archiviare in modo permanente i documenti caricati", "Prevedere il token successivo in una sequenza di testo", "Generare automaticamente nuove basi di dati strutturati"], "answer": 2, "explain": "I LLM funzionano prevedendo il token successivo in base al contesto precedente."}, {"topic": "GenAI", "q": "L’AI generativa, secondo il corso, si concentra principalmente su:", "options": ["Analizzare soltanto immagini mediche", "Sostituire completamente il giudizio clinico del medico", "Creare nuovi contenuti (testi, immagini, audio, video) a partire dai dati di addestramento", "Eseguire solo traduzioni automatiche tra lingue"], "answer": 2, "explain": "La GenAI genera nuovi contenuti e non si limita a recuperare informazioni già pronte."}, {"topic": "Fondamenti AI", "q": "Secondo il materiale del corso, un modello di AI può essere rappresentato come:", "options": ["Un insieme di pagine web indicizzate", "Un semplice archivio statico di testi", "Una funzione matematica che trasforma input in output sulla base di parametri appresi", "Un browser specializzato per la ricerca normativa"], "answer": 2, "explain": "Nel corso il modello è descritto come una funzione matematica con molti parametri appresi."}, {"topic": "Fondamenti AI", "q": "Quale affermazione riflette meglio il concetto di GIGO discusso nel corso?", "options": ["L’AI corregge automaticamente prompt ambigui", "Gli errori dipendono solo dall’algoritmo, non dall’input", "Modelli più grandi eliminano gli errori dei prompt", "Prompt vaghi producono output generici e poco utili"], "answer": 3, "explain": "Se il prompt è poco chiaro, anche l’output tende a essere poco preciso."}, {"topic": "GenAI", "q": "Nel corso si sottolinea che l’AI generativa:", "options": ["È un assistente che lavora sulla parola scritta, ma non prende decisioni al posto dell’utente", "Sostituisce le decisioni professionali dei dipendenti ATS", "Non può essere usata in ambito sanitario", "È sempre più affidabile di un esperto umano del dominio"], "answer": 0, "explain": "L’AI supporta, ma non sostituisce la responsabilità professionale."}, {"topic": "Fondamenti AI", "q": "Nel materiale è evidenziato che i modelli di GenAI:", "options": ["Operano secondo principi matematici e probabilistici, senza intenzione o comprensione umana", "Possiedono intenzioni proprie e comprensione del contesto come un umano", "Sono autorizzati a decidere in autonomia sulle gare d’appalto", "Non possono mai generare errori"], "answer": 0, "explain": "Il corso chiarisce che i modelli non hanno comprensione umana: lavorano in modo probabilistico."}, {"topic": "LLM", "q": "Nel corso si afferma che il task di base dei LLM è:", "options": ["Classificare le immagini in categorie", "Memorizzare tutte le conversazioni degli utenti nel tempo", "Predire il prossimo token, dato il contesto precedente", "Riconoscere volti biometrici in tempo reale"], "answer": 2, "explain": "La next token prediction è il meccanismo base dei modelli linguistici."}, {"topic": "GenAI", "q": "Secondo i take home messages, la GenAI è particolarmente potente per:", "options": ["Firmare digitalmente le delibere", "Validare decisioni cliniche complesse senza supervisione", "Leggere, riassumere e riscrivere testi", "Gestire direttamente i database amministrativi"], "answer": 2, "explain": "Il corso insiste sul fatto che la GenAI è molto forte nel lavoro sul testo."}, {"topic": "GenAI", "q": "Per il corso, l’output dell’AI deve essere considerato:", "options": ["Un verdetto definitivo e non modificabile", "Un sostituto del parere legale", "Un punto di partenza da verificare, non un oracolo infallibile", "Una fonte automatica di verità normativa"], "answer": 2, "explain": "L’output va sempre verificato con spirito critico e controllo umano."}, {"topic": "Prompt engineering", "q": "Quale dei seguenti NON è uno dei 4 blocchi fondamentali di un prompt efficace?", "options": ["Obiettivo", "Contesto", "Firma digitale", "Vincoli"], "answer": 2, "explain": "I quattro blocchi sono obiettivo, contesto, vincoli e formato."}, {"topic": "Prompt engineering", "q": "Qual è l’effetto di specificare chiaramente l’obiettivo nel prompt?", "options": ["Chiarisce cosa deve fare l’AI, rendendo l’output più mirato e riutilizzabile", "Riduce la necessità di specificare il contesto", "Impedisce all’AI di utilizzare il web", "Serve solo per la formattazione grafica"], "answer": 0, "explain": "Un obiettivo chiaro orienta il modello e migliora la qualità dell’output."}, {"topic": "Prompt engineering", "q": "Nel corso, il contesto di un prompt serve principalmente a:", "options": ["Far capire all’AI chi sei, dove lavori e per chi è destinato l’output", "Indicare il tempo massimo di risposta", "Disattivare la memoria del modello", "Definire la dimensione del file di output"], "answer": 0, "explain": "Il contesto spiega all’AI da quale prospettiva deve rispondere."}, {"topic": "Prompt engineering", "q": "I vincoli nel prompt, secondo le slide, servono soprattutto a:", "options": ["Aumentare la creatività dell’AI senza limiti", "Attivare automaticamente la ricerca web", "Ridurre lo spazio di risposta e abbassare il rischio di allucinazioni", "Cambiare il modello usato dal provider"], "answer": 2, "explain": "I vincoli delimitano la risposta e riducono il rischio di errori."}, {"topic": "Prompt engineering", "q": "Specificare il formato di output aiuta l’AI a:", "options": ["Ignorare i vincoli", "Cambiare automaticamente lingua", "Restituire un risultato più facilmente riutilizzabile nel contesto di lavoro", "Disattivare la formattazione"], "answer": 2, "explain": "Dire se vuoi tabella, elenco o testo strutturato aiuta a ottenere un output pronto all’uso."}, {"topic": "Prompt engineering", "q": "Quale esempio rappresenta meglio un prompt efficace per una campagna vaccinale?", "options": ["Scrivi un testo sulla vaccinazione.", "Dammi qualcosa sulla sanità.", "Scrivi un testo informativo per i cittadini, agendo come operatore ATS Lombardia, per promuovere la campagna antinfluenzale 2025, max 150 parole, tono rassicurante ma istituzionale, evitando gergo medico, con paragrafo introduttivo e 3 punti pratici numerati.", "Scrivi quello che vuoi sulla salute pubblica."], "answer": 2, "explain": "Il prompt corretto include ruolo, obiettivo, vincoli e formato."}, {"topic": "Prompt engineering", "q": "Quale errore di prompting viene esplicitamente sconsigliato nel corso?", "options": ["Suddividere un compito complesso in più prompt", "Richiedere una tabella come output", "Specificare lingua e tono desiderati", "Mescolare più obiettivi diversi nello stesso prompt"], "answer": 3, "explain": "Mescolare richieste diverse confonde il modello e peggiora il risultato."}, {"topic": "Prompt engineering", "q": "Il metodo iterativo di prompting suggerito nelle slide consiste in:", "options": ["Scrivere il primo prompt, valutare l’output, individuare cosa manca, aggiustare il prompt e ripetere finché soddisfatti", "Scrivere un solo prompt e accettare sempre la prima risposta", "Cambiare continuamente modello senza modificare il prompt", "Chiedere all’AI di generare da sola i prompt senza intervento umano"], "answer": 0, "explain": "Il prompting efficace è un processo di raffinamento progressivo."}, {"topic": "Prompt engineering", "q": "Nel corso viene suggerito di usare il pensiero passo-passo soprattutto per:", "options": ["Problemi matematici, logici o di programmazione complessi", "Brevi traduzioni tra lingue simili", "Scrivere email di cortesia", "Creare immagini artistiche"], "answer": 0, "explain": "Nei problemi complessi il ragionamento passo-passo aiuta a migliorare l’accuratezza."}, {"topic": "Prompt engineering", "q": "L’Answer Scaling descritto nella guida consiste nel:", "options": ["Ridurre sempre la lunghezza della risposta", "Cambiare automaticamente modello se la risposta non piace", "Assegnare un voto all’output e spiegare all’AI cosa migliorare per arrivare a un punteggio più alto", "Misurare la velocità di risposta del modello"], "answer": 2, "explain": "Si usa un voto per dire all’AI cosa va migliorato nella risposta."}, {"topic": "Strumenti", "q": "Microsoft Copilot, nel contesto del corso, è descritto come:", "options": ["Un motore di ricerca web indipendente", "Un gestionale ATS per turni del personale", "L’assistente AI integrato nell’ecosistema Microsoft", "Un software di firma digitale qualificata"], "answer": 2, "explain": "Copilot è integrato negli strumenti Microsoft più usati in ambito lavorativo."}, {"topic": "Strumenti", "q": "Perché usare Copilot in contesto lavorativo secondo gli appunti del corso?", "options": ["È l’unico strumento che legge PDF", "Perché sostituisce il gestionale contabile", "Per la sua integrazione nativa con Word, Excel, Outlook, Teams e le attività quotidiane di produttività", "Perché memorizza automaticamente tutti i dati sensibili"], "answer": 2, "explain": "La sua forza principale è l’integrazione nell’ecosistema Microsoft 365."}, {"topic": "Strumenti", "q": "Perplexity AI, come descritto nel corso, è principalmente:", "options": ["Un editor di immagini mediche", "Un sostituto di NotebookLM", "Un sistema di gestione dei turni", "Un motore di ricerca potenziato dall’AI che fornisce sintesi con fonti citate in tempo reale"], "answer": 3, "explain": "Perplexity è pensato per la ricerca informativa rapida con fonti citate."}, {"topic": "Strumenti", "q": "NotebookLM, secondo le slide del corso, è particolarmente adatto per:", "options": ["Analizzare documenti molto lunghi, audio e video, costruendo una base di conoscenza personale con citazioni precise", "Scrivere brevi SMS", "Controllare gli accessi al data center", "Automatizzare la firma dei verbali"], "answer": 0, "explain": "NotebookLM è utile per lavorare su grandi insiemi di fonti personali e documenti estesi."}, {"topic": "Strumenti", "q": "Qual è una differenza chiave tra Deep Research in Gemini e Deep Research in ChatGPT, secondo il corso?", "options": ["Gemini Deep Research mostra un piano di ricerca personalizzabile e molte fonti; ChatGPT Deep Research può limitare la ricerca a URL specifici", "Gemini non mostra mai le fonti, ChatGPT sì", "Solo Gemini può essere usato in ATS", "Solo ChatGPT può gestire documenti PDF"], "answer": 0, "explain": "Il corso evidenzia differenze operative tra i due strumenti nel modo di pianificare e delimitare la ricerca."}, {"topic": "Strumenti", "q": "Secondo il corso, Claude si distingue da ChatGPT soprattutto perché:", "options": ["Non può leggere file", "Non può essere utilizzato con dati sanitari", "È in grado di generare direttamente file HTML interattivi scaricabili", "Non supporta il linguaggio italiano"], "answer": 2, "explain": "Claude viene presentato come molto utile per output interattivi come file HTML e artefatti scaricabili."}, {"topic": "Strumenti", "q": "Nel workflow suggerito, Perplexity viene usato tipicamente per:", "options": ["Analisi di grandi dataset Excel", "Trascrivere audio di riunioni", "Ricerche rapide e mirate su normative o informazioni specifiche", "Generare dashboard HTML interattive"], "answer": 2, "explain": "Perplexity è usato come strumento di ricerca iniziale e aggiornamento informativo."}, {"topic": "Strumenti", "q": "NotebookLM viene indicato come soluzione ideale quando:", "options": ["La finestra di contesto di altri chatbot non è sufficiente per documenti molto lunghi", "È necessario inviare email PEC", "Si deve firmare digitalmente una delibera", "Si vuole solo tradurre una frase breve"], "answer": 0, "explain": "Per documenti molto lunghi o complessi, NotebookLM gestisce meglio la base documentale."}, {"topic": "Strumenti", "q": "Secondo il riepilogo operativo, per output interattivi come checklist e dashboard HTML è consigliato usare:", "options": ["Solo Copilot", "Perplexity", "NotebookLM", "Claude"], "answer": 3, "explain": "Claude è indicato per produrre output interattivi e riutilizzabili."}, {"topic": "Strumenti", "q": "Nel corso viene spiegato che Copilot ha una finestra di contesto limitata: cosa significa operativamente?", "options": ["Che dopo un certo numero di messaggi può dimenticare le istruzioni iniziali se la conversazione è troppo lunga", "Che Copilot non può mai usare internet", "Che non può leggere PDF superiori a 2 pagine", "Che non supporta le tabelle"], "answer": 0, "explain": "Conversazioni troppo lunghe possono far perdere parte del contesto iniziale."}, {"topic": "Workflow ATS", "q": "Nelle tre macro-categorie di attività supportate dall’AI, quale delle seguenti combina correttamente attività e strumenti consigliati?", "options": ["Analisi informazioni – Perplexity", "Ricerca informazioni – NotebookLM", "Elaborazione informazioni – ChatGPT, Copilot, Claude", "Ricerca informazioni – Excel"], "answer": 2, "explain": "Per l’elaborazione di output finali il corso suggerisce ChatGPT, Copilot e Claude."}, {"topic": "Workflow ATS", "q": "Nel workflow raccomandato per la risposta a una mail su una normativa, il formatore suggerisce di:", "options": ["Scrivere direttamente la risposta in ChatGPT senza fare ricerche", "Usare solo Google tradizionale", "Prima fare ricerca normativa con Perplexity o Deep Research, poi elaborare la risposta con le informazioni trovate", "Inviare la mail all’assistenza informatica"], "answer": 2, "explain": "Prima si recuperano le informazioni corrette, poi si produce il testo finale."}, {"topic": "Workflow ATS", "q": "Nel workflow completo per la preparazione di verbali, qual è la sequenza corretta degli strumenti?", "options": ["ChatGPT → NotebookLM → registrazione audio", "Registrazione audio → Excel → PowerPoint", "NotebookLM → Perplexity → Word", "Registrazione audio → NotebookLM per trascrizione → ChatGPT/Copilot per verbale formale"], "answer": 3, "explain": "La sequenza corretta parte dall’audio, passa dalla trascrizione e arriva alla formalizzazione del verbale."}, {"topic": "Workflow ATS", "q": "Per analizzare un dataset Excel di consumi farmaceutici e creare una dashboard filtrabile, il corso suggerisce di:", "options": ["Usare esclusivamente Perplexity", "Stampare i dati e analizzarli a mano", "Allegare il file a ChatGPT o Claude e, nel caso di Claude, generare una dashboard HTML interattiva", "Caricare il file solo su NotebookLM e non usare altri strumenti"], "answer": 2, "explain": "Per file Excel e dashboard interattive il corso propone ChatGPT o Claude, con Claude particolarmente adatto all’HTML."}, {"topic": "Workflow ATS", "q": "La regola pratica separa sempre la ricerca dall’elaborazione significa che:", "options": ["Non bisogna mai usare più di uno strumento AI", "L’elaborazione va sempre fatta prima della ricerca", "La ricerca va fatta solo su carta", "Prima si cercano le informazioni, poi si elabora l’output"], "answer": 3, "explain": "Separare ricerca e scrittura migliora precisione e affidabilità."}, {"topic": "Workflow ATS", "q": "Nel caso d’uso del verbale di sopralluogo su infrazione normativa, quale combinazione di strumenti viene indicata?", "options": ["NotebookLM con la normativa allegata come fonte, più AI per redigere il verbale formale usando solo quella normativa", "Perplexity per tutto", "Solo Excel", "ChatGPT con web attivo senza vincoli"], "answer": 0, "explain": "La base normativa va controllata e usata come fonte esplicita per la redazione."}, {"topic": "Workflow ATS", "q": "Nel corso viene ribadito che cosa rimane sempre umano, anche con la GenAI?", "options": ["Le decisioni finali, la definizione degli obiettivi e la responsabilità dei contenuti prodotti", "Solo il caricamento dei file", "La formattazione del testo", "L’invio di email automatiche"], "answer": 0, "explain": "Responsabilità, obiettivi e decisioni finali restano sempre in capo alla persona."}, {"topic": "Workflow ATS", "q": "Nel promptbook personale suggerito negli appunti, è raccomandato:", "options": ["Memorizzare solo prompt generici", "Salvare solo risposte, non i prompt", "Conservare prompt già contestualizzati per le attività ricorrenti, da riutilizzare e adattare", "Usare esclusivamente prompt in lingua inglese"], "answer": 2, "explain": "Il promptbook serve a riusare prompt efficaci già testati nel proprio contesto."}, {"topic": "Workflow ATS", "q": "Un esempio di attività di ricerca di informazioni mostrato nel corso è:", "options": ["Redigere manualmente una delibera", "Compilare a mano una checklist", "Cercare il Piano Socio Sanitario della Regione Piemonte 2025–2030 con Perplexity o Deep Research", "Pianificare i turni con Excel"], "answer": 2, "explain": "La ricerca di documenti ufficiali è un classico esempio di task informativo."}, {"topic": "Workflow ATS", "q": "Secondo il riepilogo operativo, il workflow completo consigliato è:", "options": ["Analisi documenti → Elaborazione output → Ricerca", "Solo ricerca su Google", "Ricerca → Analisi fonti → Elaborazione output → Verifica umana", "Solo utilizzo di Excel e Word"], "answer": 2, "explain": "Il flusso corretto parte dalla ricerca, passa dall’analisi e arriva alla produzione con verifica finale."}, {"topic": "Privacy & Norme", "q": "Nel corso, quali tre riferimenti normativi vengono indicati come contesto di sicurezza per l’uso dell’AI in sanità pubblica?", "options": ["GDPR, AI Act, Legge 132/2025", "Solo Legge 132/2025", "Solo AI Act", "Solo GDPR"], "answer": 0, "explain": "Questi tre riferimenti normativi costituiscono il quadro principale richiamato nel corso."}, {"topic": "Privacy & Norme", "q": "Secondo le raccomandazioni, nei prompt da usare in ATS non devono essere inseriti:", "options": ["Dati personali o sanitari identificabili, né decisioni di gara", "Riferimenti alla regione di appartenenza", "Indicazioni sul tono dell’output", "Vincoli sulla lunghezza del testo"], "answer": 0, "explain": "Nei prompt non vanno inseriti dati identificabili o contenuti particolarmente sensibili."}, {"topic": "Privacy & Norme", "q": "Una buona pratica per gestire le hallucinations normative dell’AI è:", "options": ["Verificare sempre su siti ufficiali prima di utilizzare riferimenti in atti ufficiali", "Copiare il testo generato senza controlli", "Affidarsi ai social network come fonte primaria", "Usare solo traduttori automatici"], "answer": 0, "explain": "Le norme e i riferimenti critici vanno sempre verificati su fonti istituzionali."}, {"topic": "Privacy & Norme", "q": "Il fenomeno di Shadow AI descritto nel corso indica:", "options": ["L’uso regolamentato di AI certificata", "L’uso di AI solo in ambito clinico", "L’uso non regolamentato e poco supervisionato di strumenti AI da parte dei dipendenti", "L’uso di AI senza connessione internet"], "answer": 2, "explain": "Shadow AI indica l’uso non governato di strumenti AI all’interno dell’organizzazione."}, {"topic": "Tecniche avanzate", "q": "Il role-based prompting, secondo le slide, consiste nel:", "options": ["Usare solo prompt brevi", "Disattivare la memoria dell’AI", "Assegnare un ruolo specifico all’AI per guidare tono e competenze simulate", "Chiedere sempre risposte anonime"], "answer": 2, "explain": "Assegnare un ruolo aiuta il modello a calibrare meglio tono e prospettiva."}, {"topic": "Tecniche avanzate", "q": "L’approccio socratico nel prompting viene usato per:", "options": ["Limitare il numero di domande possibili", "Bloccare la generazione di testo", "Far sì che l’AI ponga domande successive per chiarire l’obiettivo prima di produrre un report complesso", "Usare solo risposte a scelta multipla"], "answer": 2, "explain": "Le domande successive servono a chiarire meglio il bisogno prima di generare l’output."}, {"topic": "Tecniche avanzate", "q": "La combinazione di memoria, istruzioni personalizzate e addestramento del modello, descritta nel corso per ChatGPT, serve a:", "options": ["Rendere il modello più lento", "Eliminare la necessità di fact-checking", "Disattivare tutte le funzionalità avanzate", "Personalizzare le risposte sul profilo dell’utente mantenendo nel tempo preferenze e contesto"], "answer": 3, "explain": "La memoria e la personalizzazione aiutano a mantenere coerenza tra sessioni e richieste."}, {"topic": "Rischio & competenza", "q": "Il funnel di rischio per il prompter mostrato nel corso suggerisce che il rischio di errore diminuisce quando:", "options": ["Aumentano la conoscenza pregressa dell’utente, la consapevolezza e il dettaglio del prompting", "La conoscenza del soggetto è nulla e il prompting è generico", "Si usa sempre lo stesso prompt per tutto", "Si delega tutto all’AI senza controllo"], "answer": 0, "explain": "Più competenza e più chiarezza nel prompt riducono la probabilità di errore."}, {"topic": "RAG & memoria", "q": "La tecnica RAG citata nel corso ha lo scopo di:", "options": ["Combinare recupero di informazioni da fonti esterne verificate con la generazione, per risposte più precise e aggiornate", "Ridurre la dimensione dei file PDF", "Disattivare la ricerca web", "Aumentare il numero di allucinazioni"], "answer": 0, "explain": "RAG migliora l’accuratezza integrando fonti recuperate e generazione del testo."}, {"topic": "Etica & responsabilità", "q": "Secondo i messaggi finali del corso, l’uso efficace della GenAI in ATS richiede:", "options": ["Solo formazione tecnica sui modelli", "L’eliminazione di tutte le procedure interne", "Governance chiara, allineamento culturale, formazione mista e sperimentazione su casi d’uso concreti", "L’uso esclusivo di un unico modello AI per tutti i compiti"], "answer": 2, "explain": "Il corso insiste su governance, consapevolezza e casi d’uso concreti, non solo sulla tecnica."}];
+    const form = document.getElementById('quizForm');
+    const result = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+
+    function renderQuiz() {
+      form.innerHTML = quizData.map((item, i) => `
+        <article class="question" data-question="${i}">
+          <div class="qhead">
+            <div class="lefthead">
+              <span class="qnum">${i + 1}</span>
+              <div>
+                <span class="topic">${item.topic}</span>
+                <h2 class="qtitle">${item.q}</h2>
+              </div>
+            </div>
+          </div>
+          <div class="options">
+            ${item.options.map((opt, j) => `
+              <div class="option">
+                <input type="radio" id="q${i}_${j}" name="q${i}" value="${j}">
+                <label for="q${i}_${j}">
+                  <span class="mark">${letters[j]}</span>
+                  <span>${opt}</span>
+                </label>
+              </div>
+            `).join('')}
+          </div>
+          <div class="feedback" id="feedback-${i}"></div>
+        </article>
+      `).join('');
+
+      quizData.forEach((item, i) => {
+        const radios = form.querySelectorAll(`input[name="q${i}"]`);
+        radios.forEach(radio => {
+          radio.addEventListener('change', () => showImmediateFeedback(i, Number(radio.value)));
+        });
+      });
+    }
+
+    function showImmediateFeedback(index, selectedValue) {
+      const item = quizData[index];
+      const feedback = document.getElementById(`feedback-${index}`);
+      const correctLetter = letters[item.answer];
+      const correctText = item.options[item.answer];
+
+      if (selectedValue === item.answer) {
+        feedback.className = 'feedback correct show';
+        feedback.innerHTML = `<div class="feedback-title">Risposta corretta</div><p>${item.explain}</p>`;
+      } else {
+        feedback.className = 'feedback wrong show';
+        feedback.innerHTML = `<div class="feedback-title">Risposta sbagliata</div><p><strong>Risposta corretta:</strong> ${correctLetter}. ${correctText}</p><p style="margin-top:8px;">${item.explain}</p>`;
+      }
+    }
+
+    function calculateScore() {
+      let score = 0;
+      let answered = 0;
+      quizData.forEach((item, i) => {
+        const selected = form.querySelector(`input[name="q${i}"]:checked`);
+        if (selected) {
+          answered++;
+          if (Number(selected.value) === item.answer) score++;
+        }
+      });
+      const total = quizData.length;
+      const percent = ((score / total) * 100).toFixed(1);
+      const wrong = total - score;
+      const status = score >= 35 ? 'Esito molto buono' : score >= 28 ? 'Esito sufficiente' : 'Esito da rivedere';
+      result.style.display = 'block';
+      result.innerHTML = `
+        <h2>${status}</h2>
+        <p class="muted">Hai completato il questionario con feedback immediato per ogni domanda.</p>
+        <div class="cards">
+          <div class="card"><strong>${score}/${total}</strong><span class="muted">Risposte corrette</span></div>
+          <div class="card"><strong>${percent}%</strong><span class="muted">Percentuale finale</span></div>
+          <div class="card"><strong>${wrong}</strong><span class="muted">Risposte errate o mancanti</span></div>
+        </div>
+        <p class="muted" style="margin-top:14px;">Domande compilate: <strong>${answered}</strong>.</p>
+      `;
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetQuiz() {
+      form.reset();
+      document.querySelectorAll('.feedback').forEach(el => { el.className = 'feedback'; el.innerHTML = ''; });
+      result.style.display = 'none';
+      result.innerHTML = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleTheme() {
+      const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    submitBtn.addEventListener('click', calculateScore);
+    resetBtn.addEventListener('click', resetQuiz);
+    themeToggle.addEventListener('click', toggleTheme);
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
+    renderQuiz();
+  </script>
+</body>
+</html>
