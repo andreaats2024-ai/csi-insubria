@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Finale – Microsoft Tools | ATS Insubria</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f0f4f8;
+    --surface:   #ffffff;
+    --card:      #ffffff;
+    --border:    #d1e3f0;
+    --accent:    #0078d4;
+    --accent2:   #106ebe;
+    --gold:      #d97706;
+    --correct:   #16a34a;
+    --wrong:     #dc2626;
+    --text:      #1e293b;
+    --muted:     #64748b;
+    --radius:    14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,120,212,0.07) 0%, transparent 65%);
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    padding: 52px 24px 36px;
+    position: relative;
+  }
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,120,212,0.09);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 20px 6px 10px;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 22px;
+  }
+  .logo-badge svg { width: 20px; height: 20px; }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #0a2540 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: .95rem;
+    font-weight: 300;
+  }
+
+  /* ── Progress Bar ── */
+  .progress-wrap {
+    max-width: 760px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--surface);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+
+  /* ── Quiz Container ── */
+  #quiz-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── Section Divider ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 40px 0 24px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(0,120,212,.06);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .section-divider::before, .section-divider::after { display: none; }
+  .section-icon { font-size: 1rem; }
+
+  /* ── Question Card ── */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 20px;
+    transition: border-color .3s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .question-card.answered::before { opacity: 1; }
+  .question-card.answered { border-color: rgba(14,165,233,.35); }
+
+  .q-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: .1em;
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 18px;
+    color: #f1f5f9;
+  }
+
+  /* ── Options ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #f8fafc;
+    transition: background .2s, border-color .2s, transform .15s;
+    line-height: 1.45;
+    font-size: .93rem;
+  }
+  .option-label:hover {
+    background: rgba(0,120,212,.07);
+    border-color: rgba(0,120,212,.4);
+    transform: translateX(3px);
+  }
+  .option-label input[type="radio"] { display: none; }
+
+  .option-marker {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    transition: all .2s;
+    margin-top: 1px;
+  }
+
+  input[type="radio"]:checked + .option-marker {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Feedback states */
+  .option-label.correct-answer {
+    background: rgba(34,197,94,.1);
+    border-color: var(--correct);
+  }
+  .option-label.correct-answer .option-marker {
+    border-color: var(--correct);
+    background: var(--correct);
+    color: #fff;
+  }
+  .option-label.wrong-answer {
+    background: rgba(239,68,68,.08);
+    border-color: var(--wrong);
+  }
+  .option-label.wrong-answer .option-marker {
+    border-color: var(--wrong);
+    background: var(--wrong);
+    color: #fff;
+  }
+  .option-label.disabled { pointer-events: none; }
+
+  .feedback-msg {
+    margin-top: 12px;
+    font-size: .83rem;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: none;
+  }
+  .feedback-msg.show { display: block; }
+  .feedback-msg.ok  { background: rgba(34,197,94,.12); color: #4ade80; border-left: 3px solid var(--correct); }
+  .feedback-msg.ko  { background: rgba(239,68,68,.1); color: #f87171; border-left: 3px solid var(--wrong); }
+
+  /* ── Submit Button ── */
+  #submit-btn {
+    display: block;
+    width: 100%;
+    margin-top: 36px;
+    padding: 18px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), #005a9e);
+    color: #fff;
+    letter-spacing: .04em;
+    transition: opacity .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 16px rgba(0,120,212,.3);
+  }
+  #submit-btn:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,120,212,.35); }
+  #submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* ── Results Panel ── */
+  #results-panel {
+    display: none;
+    max-width: 760px;
+    margin: 0 auto 80px;
+    padding: 0 24px;
+  }
+  #results-panel.show { display: block; }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent2));
+  }
+  .result-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+  .result-score {
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .result-label { color: var(--muted); font-size: .95rem; margin-bottom: 20px; }
+  .result-grade {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: .9rem;
+    margin-bottom: 24px;
+  }
+  .grade-pass { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+  .grade-fail { background: rgba(239,68,68,.1); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+
+  #retry-btn {
+    padding: 13px 32px;
+    border: 1px solid var(--accent);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'Sora', sans-serif;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  #retry-btn:hover { background: var(--accent); color: #fff; }
+
+  .progress-track {
+    height: 6px;
+    background: #dce8f5;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  /* responsive */
+  @media (max-width: 520px) {
+    .question-card { padding: 20px 18px; }
+    h1 { font-size: 1.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+      <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+    </svg>
+    ATS Insubria — Formazione
+  </div>
+  <h1>Test Finale<br>Microsoft Tools</h1>
+  <p class="subtitle">25 domande · Seleziona la risposta corretta per ogni quesito</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="prog-text">0 / 25 risposte</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<div id="quiz-container"></div>
+<div id="results-panel">
+  <div class="result-card">
+    <div class="result-emoji" id="res-emoji">🎉</div>
+    <div class="result-score" id="res-score">0/25</div>
+    <div class="result-label">Risposte corrette</div>
+    <div class="result-grade" id="res-grade"></div>
+    <br>
+    <button id="retry-btn" onclick="initQuiz()">↺ Ricomincia il test</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // ── SEZIONE 1: SharePoint, OneDrive, MS Teams ──────────────────────────
+  {
+    section: "SharePoint · OneDrive · Microsoft Teams",
+    icon: "🗂️",
+    q: "Qual è la principale differenza tra SharePoint e OneDrive in Microsoft 365?",
+    options: [
+      "SharePoint è per la collaborazione di team e siti aziendali; OneDrive è per l'archiviazione personale",
+      "OneDrive sostituisce completamente SharePoint nelle organizzazioni moderne",
+      "SharePoint è accessibile solo da desktop, OneDrive solo da mobile",
+      "Non c'è differenza: sono due nomi per lo stesso servizio"
+    ],
+    correct: 0
+  },
+  {
+    section: null,
+    q: "In Microsoft Teams, cosa si intende con il termine 'Canale'?",
+    options: [
+      "Un videomessaggio registrato da inviare ai colleghi",
+      "Uno spazio dedicato all'interno di un Team per organizzare conversazioni per argomento",
+      "Una chiamata in conferenza pianificata",
+      "Un documento condiviso con permessi speciali"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Quale limite di archiviazione viene tipicamente assegnato a ogni utente su OneDrive for Business (piano Microsoft 365)?",
+    options: [
+      "5 GB",
+      "15 GB",
+      "1 TB",
+      "100 GB"
+    ],
+    correct: 2
+  },
+  {
+    section: null,
+    q: "In SharePoint Online, cosa sono le 'Raccolte documenti'?",
+    options: [
+      "Cartelle fisiche sui server on-premise",
+      "Contenitori per archiviare, organizzare e condividere file all'interno di un sito SharePoint",
+      "Backup automatici di OneDrive",
+      "Gruppi di utenti con permessi di lettura"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Come si avvia una riunione immediata (non pianificata) in Microsoft Teams?",
+    options: [
+      "Solo tramite Outlook, non è possibile da Teams",
+      "Cliccando su 'Pianifica riunione' nel calendario Teams e scegliendo 'Adesso'",
+      "Tramite il pulsante 'Riunione immediata' (o 'Riunisci ora') disponibile nelle chat o nei canali",
+      "Inviando un codice di accesso via SMS ai partecipanti"
+    ],
+    correct: 2
+  },
+  {
+    section: null,
+    q: "Qual è la funzione del 'Cestino' in SharePoint Online?",
+    options: [
+      "Elimina definitivamente i file senza possibilità di recupero",
+      "Archivia i file più vecchi di 6 mesi in modo automatico",
+      "Conserva i file eliminati per 93 giorni, permettendone il ripristino",
+      "Sincronizza i file eliminati con OneDrive"
+    ],
+    correct: 2
+  },
+  {
+    section: null,
+    q: "In Microsoft Teams, quale ruolo può aggiungere o rimuovere membri da un team?",
+    options: [
+      "Qualsiasi membro del team",
+      "Solo l'amministratore IT globale dell'organizzazione",
+      "Il Proprietario del team",
+      "Solo il creatore originale del team"
+    ],
+    correct: 2
+  },
+  {
+    section: null,
+    q: "Cosa succede ai file di OneDrive quando si attiva la funzione 'File su richiesta'?",
+    options: [
+      "I file vengono eliminati dal cloud e mantenuti solo in locale",
+      "I file appaiono come segnaposto sul PC senza occupare spazio; vengono scaricati solo quando aperti",
+      "I file vengono crittografati e richiedono una password per essere aperti",
+      "I file diventano di sola lettura"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "In SharePoint, cosa si intende per 'Colonne di metadati'?",
+    options: [
+      "Connettori a database SQL esterni",
+      "Campi personalizzati che aggiungono informazioni descrittive ai documenti di una raccolta",
+      "Righe di codice HTML visibili nella pagina del sito",
+      "Permessi a livello di singola colonna applicati agli utenti"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "In Microsoft Teams, cos'è una 'App a schede' (Tab)?",
+    options: [
+      "Una notifica sonora quando si riceve un messaggio",
+      "Un'applicazione o risorsa web aggiunta direttamente in un canale o chat per accesso rapido",
+      "Un formato di messaggio che supporta testo formattato",
+      "Un tipo di riunione solo audio"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Qual è il modo corretto per condividere un file da OneDrive con un utente esterno all'organizzazione (se consentito dall'amministratore)?",
+    options: [
+      "Allegare il file a un'email tradizionale è l'unico metodo supportato",
+      "Generare un link di condivisione con le opportune impostazioni di accesso",
+      "Copiare il file in una cartella pubblica di FTP aziendale",
+      "Convertire il file in PDF prima di condividerlo"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Quale funzionalità di Microsoft Teams permette di lavorare insieme su un documento Office in tempo reale?",
+    options: [
+      "La co-creazione (co-authoring) integrata direttamente nelle schede dei canali",
+      "Occorre scaricare il file, modificarlo e ricaricarlo manualmente",
+      "La funzione è disponibile solo per gli abbonati Teams Premium",
+      "Solo Outlook supporta la co-creazione nei team"
+    ],
+    correct: 0
+  },
+  {
+    section: null,
+    q: "In SharePoint Online, quale livello di autorizzazione consente di leggere i contenuti ma non di modificarli?",
+    options: [
+      "Collaboratore",
+      "Proprietario",
+      "Lettura",
+      "Progettazione"
+    ],
+    correct: 2
+  },
+  {
+    section: null,
+    q: "Cosa consente la funzionalità 'Cronologia versioni' in SharePoint e OneDrive?",
+    options: [
+      "Visualizzare chi ha effettuato l'accesso al portale negli ultimi 30 giorni",
+      "Ripristinare versioni precedenti di un documento salvate automaticamente nel tempo",
+      "Pianificare la pubblicazione automatica di nuove versioni di un documento",
+      "Convertire automaticamente i file in formato PDF a ogni salvataggio"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "In Microsoft Teams, qual è la differenza tra un 'Canale standard' e un 'Canale privato'?",
+    options: [
+      "Il canale privato è visibile solo agli utenti Premium, il canale standard a tutti",
+      "Non esiste differenza funzionale, solo grafica",
+      "Il canale standard è accessibile a tutti i membri del team; il canale privato è visibile solo agli utenti invitati specificamente",
+      "Il canale standard supporta le riunioni, il canale privato solo la chat testuale"
+    ],
+    correct: 2
+  },
+
+  // ── SEZIONE 2: Copilot, Power Automate, Power Apps, Planner, To Do, Forms, Lists, OneNote, Engage, Viva ──
+  {
+    section: "Copilot · Power Automate · Power Apps · Planner · To Do · Forms · Lists · OneNote · Engage · Viva",
+    icon: "🤖",
+    q: "Cosa fa Microsoft Copilot integrato in Microsoft 365?",
+    options: [
+      "Sostituisce l'amministratore IT nella gestione degli account utente",
+      "Utilizza l'intelligenza artificiale generativa per assistere nelle attività di lavoro quotidiane come scrittura, analisi e riepilogo",
+      "Fornisce solo suggerimenti grammaticali nei documenti Word",
+      "È uno strumento di monitoraggio delle prestazioni dei dipendenti"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Power Automate consente di:",
+    options: [
+      "Progettare presentazioni PowerPoint con animazioni avanzate",
+      "Creare flussi di lavoro automatizzati tra app e servizi per eliminare attività ripetitive",
+      "Gestire le riunioni di Teams in modo autonomo",
+      "Modificare i permessi di SharePoint in blocco"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Power Apps è uno strumento che permette di:",
+    options: [
+      "Creare applicazioni personalizzate con poca o nessuna esperienza di programmazione (low-code/no-code)",
+      "Sviluppare solo giochi aziendali in realtà aumentata",
+      "Gestire licenze Microsoft 365 degli utenti",
+      "Configurare firewall aziendali tramite interfaccia grafica"
+    ],
+    correct: 0
+  },
+  {
+    section: null,
+    q: "In Microsoft Planner, cosa rappresenta un 'Piano'?",
+    options: [
+      "Un documento di testo per annotare idee di progetto",
+      "Un gruppo di attività organizzate per gestire il lavoro di un team",
+      "Una riunione ricorrente su Teams",
+      "Un report automatico sulle ore lavorate"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Qual è la differenza principale tra Microsoft To Do e Microsoft Planner?",
+    options: [
+      "To Do è per la gestione delle attività personali; Planner è orientato alla collaborazione di team su progetti",
+      "Planner è disponibile solo su mobile, To Do solo su desktop",
+      "To Do supporta attività con scadenze, Planner no",
+      "Non c'è differenza: sono strumenti identici"
+    ],
+    correct: 0
+  },
+  {
+    section: null,
+    q: "Microsoft Forms viene utilizzato principalmente per:",
+    options: [
+      "Creare moduli finanziari per la contabilità aziendale",
+      "Creare sondaggi, quiz e moduli di raccolta dati con analisi dei risultati in tempo reale",
+      "Firmare digitalmente contratti e accordi",
+      "Generare report di Power BI"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Microsoft Lists è uno strumento che serve a:",
+    options: [
+      "Gestire le liste della spesa personale",
+      "Tracciare informazioni, gestire dati strutturati e automatizzare flussi di lavoro attraverso elenchi personalizzabili",
+      "Creare playlist multimediali aziendali",
+      "Sostituire le email con messaggi strutturati"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Qual è la caratteristica distintiva di OneNote rispetto a Word?",
+    options: [
+      "OneNote supporta solo testo senza formattazione",
+      "OneNote è un blocco note digitale a struttura libera (sezioni e pagine), ideale per appunti e schizzi; Word è un elaboratore di testi strutturato per documenti formali",
+      "Word è gratuito, OneNote richiede abbonamento separato",
+      "OneNote è accessibile solo offline"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Microsoft Viva è descritto come:",
+    options: [
+      "Un antivirus integrato in Microsoft 365",
+      "Una piattaforma per l'employee experience che include engagement, apprendimento, insights e connessioni",
+      "Un sistema di videoconferenza alternativo a Teams",
+      "Un modulo di firma elettronica per i documenti HR"
+    ],
+    correct: 1
+  },
+  {
+    section: null,
+    q: "Microsoft Engage (ex Yammer) viene utilizzato principalmente per:",
+    options: [
+      "Monitorare le attività di navigazione web dei dipendenti",
+      "Creare un social network aziendale che favorisce le comunicazioni interne a livello di tutta l'organizzazione",
+      "Gestire l'accesso VPN aziendale",
+      "Pianificare turni di lavoro del personale"
+    ],
+    correct: 1
+  }
+];
+
+let answered = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initQuiz() {
+  answered = 0;
+  updateProgress();
+  const container = document.getElementById('quiz-container');
+  const results   = document.getElementById('results-panel');
+  results.classList.remove('show');
+  container.innerHTML = '';
+
+  let lastSection = null;
+  let sectionCounter = 0;
+
+  QUESTIONS.forEach((q, qi) => {
+    // Section divider
+    if (q.section && q.section !== lastSection) {
+      lastSection = q.section;
+      sectionCounter++;
+      const div = document.createElement('div');
+      div.className = 'section-divider';
+      div.innerHTML = `<span class="section-icon">${q.icon}</span> Sezione ${sectionCounter} — ${q.section}`;
+      container.appendChild(div);
+    }
+
+    // Shuffle options, remember correct answer text
+    const correctText = q.options[q.correct];
+    const shuffled = shuffle(q.options);
+    const newCorrect = shuffled.indexOf(correctText);
+
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${qi}`;
+
+    const letters = ['A','B','C','D'];
+    let optHtml = '';
+    shuffled.forEach((opt, oi) => {
+      optHtml += `
+        <label class="option-label" id="opt-${qi}-${oi}" onclick="selectOption(${qi}, ${oi}, ${newCorrect})">
+          <input type="radio" name="q${qi}" value="${oi}">
+          <span class="option-marker">${letters[oi]}</span>
+          <span>${opt}</span>
+        </label>`;
+    });
+
+    card.innerHTML = `
+      <div class="q-number">DOMANDA ${String(qi+1).padStart(2,'0')} / 25</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="options-${qi}">${optHtml}</div>
+      <div class="feedback-msg" id="fb-${qi}"></div>`;
+
+    container.appendChild(card);
+  });
+
+  // Submit button
+  const btn = document.createElement('button');
+  btn.id = 'submit-btn';
+  btn.textContent = '📋 Invia il test e visualizza il risultato';
+  btn.disabled = true;
+  btn.addEventListener('click', showResults);
+  container.appendChild(btn);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(qi, chosen, correct) {
+  const card = document.getElementById(`card-${qi}`);
+  if (card.classList.contains('answered')) return;
+  card.classList.add('answered');
+
+  // Disable all options
+  const labels = document.querySelectorAll(`[id^="opt-${qi}-"]`);
+  labels.forEach(l => l.classList.add('disabled'));
+
+  // Mark correct / wrong
+  labels[correct].classList.add('correct-answer');
+  if (chosen !== correct) {
+    labels[chosen].classList.add('wrong-answer');
+  }
+
+  // Feedback
+  const fb = document.getElementById(`fb-${qi}`);
+  fb.classList.add('show');
+  if (chosen === correct) {
+    fb.classList.add('ok');
+    fb.textContent = '✓ Risposta corretta!';
+  } else {
+    fb.classList.add('ko');
+    const letter = ['A','B','C','D'][correct];
+    fb.textContent = `✗ Risposta errata. La risposta corretta era: ${letter}`;
+  }
+
+  answered++;
+  updateProgress();
+
+  const submitBtn = document.getElementById('submit-btn');
+  if (answered === QUESTIONS.length) submitBtn.disabled = false;
+}
+
+function updateProgress() {
+  const pct = Math.round((answered / QUESTIONS.length) * 100);
+  document.getElementById('prog-text').textContent = `${answered} / ${QUESTIONS.length} risposte`;
+  document.getElementById('prog-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+}
+
+function showResults() {
+  let score = 0;
+  document.querySelectorAll('.question-card').forEach((card, qi) => {
+    if (card.querySelector('.correct-answer')) {
+      const chosen = card.querySelector('.correct-answer');
+      const wrong  = card.querySelector('.wrong-answer');
+      if (!wrong) score++;
+    }
+  });
+
+  const total = QUESTIONS.length;
+  const pct   = Math.round((score / total) * 100);
+  const pass  = score >= 18; // 72%
+
+  document.getElementById('res-score').textContent = `${score}/${total}`;
+  document.getElementById('res-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : '📚';
+
+  const gradeEl = document.getElementById('res-grade');
+  if (pass) {
+    gradeEl.textContent = `✓ SUPERATO — ${pct}%`;
+    gradeEl.className = 'result-grade grade-pass';
+  } else {
+    gradeEl.textContent = `✗ NON SUPERATO — ${pct}%`;
+    gradeEl.className = 'result-grade grade-fail';
+  }
+
+  document.getElementById('results-panel').classList.add('show');
+  document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Boot
+initQuiz();
+</script>
+</body>
+</html>
